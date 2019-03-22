@@ -2,21 +2,19 @@
 
 ## Authors
 
-Group CXX
+Group A45
 
 ### Lead developer 
 
-... ... ...
+Lívio Costa 86461 LivioCosta
 
-_preencher com nome, número e GitHub ID de membro do grupo que liderou esta parte e depois apagar esta linha_
 
 ### Contributors
 
-... ... ...
+Gabriel Costa Figueira 86426 GabrielCFigueira
 
-... ... ...
+Rafael Pestana de Andrade 86503 RafaelPAndrade
 
-_preencher com nome, número e GitHub ID dos membro do grupo que contribuiram com código para esta parte e depois apagar esta linha_
 
 ## About
 
