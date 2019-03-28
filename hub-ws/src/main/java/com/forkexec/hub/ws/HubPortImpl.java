@@ -10,7 +10,7 @@ import com.forkexec.hub.domain.Hub;
  * This class implements the Web Service port type (interface). The annotations
  * below "map" the Java class to the WSDL definitions.
  */
-@WebService(endpointInterface = "com.forkexec.pts.ws.HubPortType",
+@WebService(endpointInterface = "com.forkexec.hub.ws.HubPortType",
             wsdlLocation = "HubService.wsdl",
             name ="HubWebService",
             portName = "HubPort",
