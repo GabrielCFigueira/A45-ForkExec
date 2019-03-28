@@ -21,9 +21,9 @@
 
         <!-- these default values can be overridden by a profile defined 
             in ${user.home}/.m2/settings.xml -->
-        <uddi.url>http://localhost:9090</uddi.url>
-        <uddi.user>username</uddi.user>
-        <uddi.pass>password</uddi.pass>
+        <uddi.url>http://uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
+        <uddi.user>a45</uddi.user>
+        <uddi.pass>!UG1osky</uddi.pass>
     </properties>
 
     <dependencies>
