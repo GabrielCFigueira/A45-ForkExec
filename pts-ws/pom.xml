@@ -12,7 +12,7 @@
 
     <artifactId>pts-ws</artifactId>
     <packaging>jar</packaging>
-	
+
 	<name>${project.artifactId}</name>
 
 	<properties>
@@ -21,7 +21,7 @@
 		<mainclass>com.forkexec.pts.ws.PointsApp</mainclass>
 
 		<wsdl.dir>${basedir}/../pts-contract/</wsdl.dir>
-		
+
 		<!-- instance number -->
 		<ws.i>1</ws.i>
 
@@ -114,7 +114,7 @@
 					<killAfter>-1</killAfter>
 					<mainClass>${mainclass}</mainClass>
 					<arguments>
-						<argument>${uddi.url}</argument>
+						<argument>${uddi.url_with_pass}</argument>
 						<argument>${ws.name}</argument>
 						<argument>${ws.url}</argument>
 					</arguments>

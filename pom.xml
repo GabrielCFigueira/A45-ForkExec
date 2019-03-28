@@ -41,7 +41,10 @@
         <maven.compiler.source>${version.java}</maven.compiler.source>
         <maven.compiler.target>${version.java}</maven.compiler.target>
 
-		<uddi.url>http://uddi.sd.rnl.tecnico.ulisboa.pt:9090</uddi.url>
+        <uddi.user>a45</uddi.user>
+        <uddi.pass>!UG1osky</uddi.pass>
+        <uddi.url>http://uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
+        <uddi.url_with_pass>http://${uddi.user}:${uddi.pass}@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url_with_pass>
 
 		<group.id>A45</group.id>
 		
