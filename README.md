@@ -19,6 +19,15 @@ For each module, the README file must identify the lead developer and the contri
 The leads should be evenly divided among the group members.
 
 
+## Distribuition
+
+| Name    | Server | Client (tests)  |
+|:-------:|:------:|:---------------:|
+| Lívio   | rst    | pts             |
+| Gabriel | hub    | rst             |
+| Rafael  | pts    | hub             |
+
+
 ### Code identification
 
 In all the source files (including POMs), please replace __CXX__ with your Campus: A (Alameda) or T (Tagus); and your group number with two digits.
