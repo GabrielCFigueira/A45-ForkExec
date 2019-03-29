@@ -47,7 +47,7 @@
 		</dependency>
 		<!-- rst client -->
 		<dependency>
-			<groupId>com.hub.A45</groupId>
+			<groupId>com.forkexec.A45</groupId>
 			<artifactId>rst-ws-cli</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
