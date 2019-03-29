@@ -1,10 +1,13 @@
 package com.forkexec.hub.ws;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.jws.WebService;
 
 import com.forkexec.hub.domain.Hub;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -102,6 +105,7 @@ public class HubPortImpl implements HubPortType {
 	/** Diagnostic operation to check if service is running. */
 	@Override
 	public String ctrlPing(String inputMessage) {
+		try {
 		// If no input is received, return a default name.
 		if (inputMessage == null || inputMessage.trim().length() == 0)
 			inputMessage = "friend";
@@ -115,7 +119,18 @@ public class HubPortImpl implements HubPortType {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append(wsName);
-		return builder.toString();
+		
+		Collection<String> uddi = endpointManager.getUddiNaming().list("%rst%");
+		
+		System.out.println(uddi);
+		for(String e: uddi) {
+			System.out.println(e);
+		}
+		
+		return builder.toString();}
+		catch(UDDINamingException e) {
+			return "";
+		}
 	}
 
 	/** Return all variables to default values. */
