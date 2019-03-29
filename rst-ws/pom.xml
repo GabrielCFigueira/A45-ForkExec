@@ -28,8 +28,6 @@
 		<ws.host>localhost</ws.host>
 		<ws.port>808${ws.i}</ws.port>
 		<ws.url>http://${ws.host}:${ws.port}/rst-ws/endpoint</ws.url>
-		
-		<rst.ws.name>C45_Restaurant</rst.ws.name>
 
 		<ws.name>${rst.ws.name}${ws.i}</ws.name>
 	</properties>
