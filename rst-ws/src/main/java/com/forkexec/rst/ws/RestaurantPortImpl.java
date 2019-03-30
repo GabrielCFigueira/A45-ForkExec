@@ -66,11 +66,9 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	}
 
 	@Override
-	public MenuOrder orderMenu(MenuId arg0, int arg1)
-			throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+	public MenuOrder orderMenu(MenuId arg0, int arg1) throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
 		RestaurantMenuOrder menu =  Restaurant.getInstance().orderMenu(arg0.getId(), arg1);
 		return newMenuOrder(menu);
-		//return Restaurant.getInstance().orderMenu(arg0, arg1);
 	}
 	
 	// Control operations ----------------------------------------------------
@@ -149,18 +147,6 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		
 		return newMenu;
 	}
-
-	// /** Helper to convert a domain object to a view. */
-	// private ParkInfo buildParkInfo(Park park) {
-		// ParkInfo info = new ParkInfo();
-		// info.setId(park.getId());
-		// info.setCoords(buildCoordinatesView(park.getCoordinates()));
-		// info.setCapacity(park.getMaxCapacity());
-		// info.setFreeSpaces(park.getFreeDocks());
-		// info.setAvailableCars(park.getAvailableCars());
-		// return info;
-	// }
-
 	
 	// Exception helpers -----------------------------------------------------
 
@@ -170,7 +156,25 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		faultInfo.message = message;
 		throw new BadInitFault_Exception(message, faultInfo);
 	}
-
-
-
+	
+	/** Helper to throw a new BadMenuId exception. */
+	private void throwBadMenuId(final String message) throws BadMenuIdFault_Exception {
+		BadMenuIdFault faultInfo = new BadMenuIdFault();
+		faultInfo.message = message;
+		throw new BadMenuIdFault_Exception(message, faultInfo);
+	}
+	
+	/** Helper to throw a new BadText exception. */
+	private void throwBadText(final String message) throws BadTextFault_Exception {
+		BadTextFault faultInfo = new BadTextFault();
+		faultInfo.message = message;
+		throw new BadTextFault_Exception(message, faultInfo);
+	}
+	
+	/** Helper to throw a new InsufficientQuantity exception. */
+	private void throwInsufficientQuantity(final String message) throws InsufficientQuantityFault_Exception {
+		InsufficientQuantityFault faultInfo = new InsufficientQuantityFault();
+		faultInfo.message = message;
+		throw new InsufficientQuantityFault_Exception(message, faultInfo);
+	}
 }
