@@ -24,6 +24,10 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 )
 public class HubPortImpl implements HubPortType {
 
+
+	private Hub hub = Hub.getInstance();
+
+
 	/**
 	 * The Endpoint manager controls the Web Service instance during its whole
 	 * lifecycle.
@@ -127,11 +131,11 @@ public class HubPortImpl implements HubPortType {
 			for(UDDIRecord e: uddi) {
 				
 				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+				hub.addRestaurant(restaurant);
 				
 				builder.append("\n").append(restaurant.ctrlPing("restaurant client"));
 				
 			}
-			
 			return builder.toString();
 		
 		}catch(UDDINamingException | RestaurantClientException e) {
