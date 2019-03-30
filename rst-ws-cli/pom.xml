@@ -127,7 +127,6 @@
 					<arguments>
 						<argument>${uddi.url_with_pass}</argument>
 						<argument>${ws.name}</argument>
-						<argument>${ws.url}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
