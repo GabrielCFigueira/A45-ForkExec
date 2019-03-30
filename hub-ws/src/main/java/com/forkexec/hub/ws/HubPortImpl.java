@@ -6,6 +6,8 @@ import java.util.List;
 import javax.jws.WebService;
 
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.rst.ws.cli.RestaurantClient;
+import com.forkexec.rst.ws.cli.RestaurantClientException;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 
@@ -106,29 +108,33 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public String ctrlPing(String inputMessage) {
 		try {
-		// If no input is received, return a default name.
-		if (inputMessage == null || inputMessage.trim().length() == 0)
-			inputMessage = "friend";
-
-		// If the service does not have a name, return a default.
-		String wsName = endpointManager.getWsName();
-		if (wsName == null || wsName.trim().length() == 0)
-			wsName = "Hub";
-
-		// Build a string with a message to return.
-		StringBuilder builder = new StringBuilder();
-		builder.append("Hello ").append(inputMessage);
-		builder.append(" from ").append(wsName);
+			// If no input is received, return a default name.
+			if (inputMessage == null || inputMessage.trim().length() == 0)
+				inputMessage = "friend";
+	
+			// If the service does not have a name, return a default.
+			String wsName = endpointManager.getWsName();
+			if (wsName == null || wsName.trim().length() == 0)
+				wsName = "Hub";
+	
+			// Build a string with a message to return.
+			StringBuilder builder = new StringBuilder();
+			builder.append("Hello ").append(inputMessage);
+			builder.append(" from ").append(wsName);
+			
+			Collection<UDDIRecord> uddi = endpointManager.getUddiNaming().listRecords("A45_Restaurant%");
+			
+			for(UDDIRecord e: uddi) {
+				
+				RestaurantClient rests = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+				
+				builder.append("\n").append(rests.ctrlPing("restaurant client"));
+				
+			}
+			
+			return builder.toString();
 		
-		Collection<String> uddi = endpointManager.getUddiNaming().list("%rst%");
-		
-		System.out.println(uddi);
-		for(String e: uddi) {
-			System.out.println(e);
-		}
-		
-		return builder.toString();}
-		catch(UDDINamingException e) {
+		}catch(UDDINamingException | RestaurantClientException e) {
 			return "";
 		}
 	}
