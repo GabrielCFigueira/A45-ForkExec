@@ -8,6 +8,8 @@ import javax.jws.WebService;
 import com.forkexec.hub.domain.Hub;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
+import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.cli.PointsClientException;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 
@@ -115,30 +117,30 @@ public class HubPortImpl implements HubPortType {
 			// If no input is received, return a default name.
 			if (inputMessage == null || inputMessage.trim().length() == 0)
 				inputMessage = "friend";
-	
+
 			// If the service does not have a name, return a default.
 			String wsName = endpointManager.getWsName();
 			if (wsName == null || wsName.trim().length() == 0)
 				wsName = "Hub";
-	
+
 			// Build a string with a message to return.
 			StringBuilder builder = new StringBuilder();
 			builder.append("Hello ").append(inputMessage);
 			builder.append(" from ").append(wsName);
-			
-			Collection<UDDIRecord> uddi = endpointManager.getUddiNaming().listRecords("A45_Restaurant%");
-			
-			for(UDDIRecord e: uddi) {
-				
+
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
 				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
-				hub.addRestaurant(restaurant);
-				
 				builder.append("\n").append(restaurant.ctrlPing("restaurant client"));
-				
 			}
+
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) {
+				PointsClient points = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+				builder.append("\n").append(points.ctrlPing("points client"));
+			}
+
 			return builder.toString();
 		
-		}catch(UDDINamingException | RestaurantClientException e) {
+		} catch(UDDINamingException | RestaurantClientException | PointsClientException e) {
 			return e.getMessage().toString();
 		}
 	}
