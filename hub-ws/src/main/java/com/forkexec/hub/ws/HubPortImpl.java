@@ -126,16 +126,16 @@ public class HubPortImpl implements HubPortType {
 			
 			for(UDDIRecord e: uddi) {
 				
-				RestaurantClient rests = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				
-				builder.append("\n").append(rests.ctrlPing("restaurant client"));
+				builder.append("\n").append(restaurant.ctrlPing("restaurant client"));
 				
 			}
 			
 			return builder.toString();
 		
 		}catch(UDDINamingException | RestaurantClientException e) {
-			return "";
+			return e.getMessage().toString();
 		}
 	}
 
