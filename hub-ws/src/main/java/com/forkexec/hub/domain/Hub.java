@@ -3,6 +3,7 @@ package com.forkexec.hub.domain;
 
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
+import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodId;
@@ -48,7 +49,7 @@ public class Hub {
 		_restaurants.add(restaurant);
 	}
 
-	public Map<FoodId, Food> getFoods(String description) {
+	public Map<FoodId, Food> getFoods(String description) throws BadTextFault_Exception {
 		if (_foods == null) {
 			_foods = new TreeMap<FoodId, Food>();
 			List<Menu> menus;
