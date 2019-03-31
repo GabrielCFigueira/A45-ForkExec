@@ -45,11 +45,12 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
 		Restaurant rest = Restaurant.getInstance();
-		Set<String> list = rest.getMenusIDs();
 		
 		if(rest.availableString(descriptionText)) {
 			return null;
 		}else {
+			
+			Set<String> list = rest.getMenusIDs();
 			List<Menu> newMenuList = new ArrayList<>();
 			
 			for(String id: list) {
@@ -133,7 +134,6 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	private MenuOrder newMenuOrder(RestaurantMenuOrder menu) {
 		MenuOrder newMenu = new MenuOrder();
-		
 
 		MenuOrderId newMenuOrderId = new MenuOrderId();
 		newMenuOrderId.setId(menu.getId());
