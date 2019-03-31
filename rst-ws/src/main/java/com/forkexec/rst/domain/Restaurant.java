@@ -62,7 +62,7 @@ public class Restaurant {
 		return _menus.get(menuId);
 	}
 	
-	public void setMenu(RestaurantMenu menu) {
+	public synchronized void setMenu(RestaurantMenu menu) {
 		_menus.put(menu.getId(),menu);
 	}
 	
@@ -70,7 +70,7 @@ public class Restaurant {
 		return availableString(menuId) && availableString(entree) && availableString(plate) && availableString(dessert) && (price > 0) && (preparationTime > 0);
 	}
 	
-	public void newMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime) {
+	public synchronized void newMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime) {
 		if(acceptMenu(menuId, entree, plate, dessert, price, preparationTime))
 			_menus.put(menuId, new RestaurantMenu(menuId, entree, plate, dessert, price, preparationTime));
 	}
@@ -85,7 +85,7 @@ public class Restaurant {
 		return _orders.get(menuId);
 	}
 	
-	public void setMenuOrder(RestaurantMenuOrder menu) {
+	public synchronized void setMenuOrder(RestaurantMenuOrder menu) {
 		_orders.put(menu.getId(),menu);
 	}
 	
@@ -93,12 +93,12 @@ public class Restaurant {
 		return availableString(orderId) && availableString(menuId) && (menuQuantity > 0);
 	}
 	
-	public void newMenuOrder(String orderId, String menuId, int menuQuantity) {
+	public synchronized void newMenuOrder(String orderId, String menuId, int menuQuantity) {
 		if(acceptMenuOrder(orderId, menuId, menuQuantity))
 			_orders.put(orderId, new RestaurantMenuOrder(orderId, menuId, menuQuantity));
 	}
 	
-	public RestaurantMenuOrder orderMenu(String menuId, int qty) {
+	public synchronized RestaurantMenuOrder orderMenu(String menuId, int qty) {
 		Integer orderIdCounter = _orderIdCounter.incrementAndGet();
 		if(acceptMenuOrder(orderIdCounter.toString(), menuId, qty))
 			return new RestaurantMenuOrder(orderIdCounter.toString(), menuId, qty);
