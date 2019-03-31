@@ -74,15 +74,6 @@ public class Restaurant {
 			_menus.put(menuId, new RestaurantMenu(menuId, entree, plate, dessert, price, preparationTime));
 	}
 	
-	public List<RestaurantMenu> listMenus(){
-		List<RestaurantMenu> menuList = new ArrayList<>();
-		
-		for(RestaurantMenu menu: _menus.values())
-			menuList.add(menu);
-		
-		return menuList;
-	}
-	
 	/* --------------- MENU ORDER --------------- */
 	
 	public Set<String> getMenuOrdersIDs() {
@@ -106,18 +97,11 @@ public class Restaurant {
 			_orders.put(orderId, new RestaurantMenuOrder(orderId, menuId, menuQuantity));
 	}
 	
-	public List<RestaurantMenuOrder> listMenuOrders(){
-		List<RestaurantMenuOrder> menuList = new ArrayList<>();
-		
-		for(RestaurantMenuOrder menu: _orders.values())
-			menuList.add(menu);
-		
-		return menuList;
-	}
-	
 	public RestaurantMenuOrder orderMenu(String menuId, int qty) {
 		_orderIdCounter += 1;
-		return new RestaurantMenuOrder(_orderIdCounter.toString(), menuId, qty);
+		if(acceptMenuOrder(_orderIdCounter.toString(), menuId, qty))
+			return new RestaurantMenuOrder(_orderIdCounter.toString(), menuId, qty);
+		return null;
 	}
 	
 }
