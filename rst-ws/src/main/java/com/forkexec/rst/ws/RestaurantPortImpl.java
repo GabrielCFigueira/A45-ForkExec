@@ -38,7 +38,13 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
-		RestaurantMenu menu = Restaurant.getInstance().getMenu(menuId.getId());
+		Restaurant rest = Restaurant.getInstance();
+		RestaurantMenu menu = rest.getMenu(menuId.getId());
+		
+		if(rest.getMenu(menuId.getId()) == null) {
+			throwBadMenuId("Invalid MenuId: " + menuId.getId());
+			return null;
+		}
 		return newMenu(menu);
 	}
 	
@@ -59,6 +65,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			
 		}else if(rest.availableString(descriptionText)) {
 			throwBadText("Invalid description: " + descriptionText);
+			return null;
 		}else {
 			
 			for(String id: list) {
@@ -76,8 +83,17 @@ public class RestaurantPortImpl implements RestaurantPortType {
 
 	@Override
 	public MenuOrder orderMenu(MenuId arg0, int arg1) throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
-		RestaurantMenuOrder menu =  Restaurant.getInstance().orderMenu(arg0.getId(), arg1);
-		return newMenuOrder(menu);
+		Restaurant rest = Restaurant.getInstance();
+		if(rest.getMenu(arg0.getId()) == null) {
+			throwBadMenuId("Invalid MenuId: " + arg0.getId());
+			return null;
+		}else if(arg1 < 0) {
+			throwBadQuantity("Invalid quantity: " + arg1);
+			return null;
+		}else {
+			RestaurantMenuOrder menu =  rest.orderMenu(arg0.getId(), arg1);
+			return newMenuOrder(menu);
+		}
 	}
 	
 	// Control operations ----------------------------------------------------
@@ -117,8 +133,28 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			Menu restMenu = menu.getMenu();
 			
 			rest.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime());
+			
 			rest.orderMenu(menu.getMenu().getId().getId(), menu.getQuantity());
 			
+			Boolean notOrder = true;
+			for(String mo: rest.getMenuOrdersIDs()) {
+				if(rest.getMenuOrder(mo).getMenuId().equals(menu.getMenu().getId().getId())) {
+					notOrder = false;
+					break;
+				}
+			}
+			
+			if(rest.getMenu(menu.getMenu().getId().getId()) == null || notOrder) {
+				String error = "Invalid initialMenu:\n";
+				error += "\tMenuId: " + menu.getMenu().getId().getId();
+				error += "\tEntree: " + menu.getMenu().getEntree();
+				error += "\tPlate: " + menu.getMenu().getPlate();
+				error += "\tDessert: " + menu.getMenu().getDessert();
+				error += "\tPrice: " + menu.getMenu().getPrice();
+				error += "\tPreparationTime: " + menu.getMenu().getPreparationTime();
+				error += "\tQuantity: " + menu.getQuantity();
+				throwBadInit(error);
+			}
 		}
 	}
 
@@ -177,6 +213,13 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		BadTextFault faultInfo = new BadTextFault();
 		faultInfo.message = message;
 		throw new BadTextFault_Exception(message, faultInfo);
+	}
+	
+	/** Helper to throw a new InsufficientQuantity exception. */
+	private void throwBadQuantity(final String message) throws BadQuantityFault_Exception {
+		BadQuantityFault faultInfo = new BadQuantityFault();
+		faultInfo.message = message;
+		throw new BadQuantityFault_Exception(message, faultInfo);
 	}
 	
 	/** Helper to throw a new InsufficientQuantity exception. */
