@@ -45,13 +45,21 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
 		Restaurant rest = Restaurant.getInstance();
+		Set<String> list = rest.getMenusIDs();
+		List<Menu> newMenuList = new ArrayList<>();
 		
-		if(rest.availableString(descriptionText)) {
+		if(descriptionText.equals("%")) {
+			
+			for(String id: list) {
+				RestaurantMenu menu = rest.getMenu(id);
+				newMenuList.add(newMenu(menu));
+			}
+			
+			return newMenuList;
+			
+		}else if(rest.availableString(descriptionText)) {
 			return null;
 		}else {
-			
-			Set<String> list = rest.getMenusIDs();
-			List<Menu> newMenuList = new ArrayList<>();
 			
 			for(String id: list) {
 				RestaurantMenu menu = rest.getMenu(id);
