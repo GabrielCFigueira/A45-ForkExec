@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Restaurant
@@ -17,7 +18,7 @@ public class Restaurant {
 	private Map<String, RestaurantMenu> _menus = new ConcurrentHashMap<>();
 	private Map<String, RestaurantMenuOrder> _orders = new ConcurrentHashMap<>();
 	
-	private Integer _orderIdCounter = 0;
+	private AtomicInteger _orderIdCounter = new AtomicInteger(0);
 	
 	// Singleton -------------------------------------------------------------
 
@@ -41,7 +42,7 @@ public class Restaurant {
 	public void reset(){
 		_menus.clear();
 		_orders.clear();
-		_orderIdCounter = 0;
+		_orderIdCounter.set(0);
 	}
 	
 	public Boolean availableString(String text) {
@@ -98,9 +99,9 @@ public class Restaurant {
 	}
 	
 	public RestaurantMenuOrder orderMenu(String menuId, int qty) {
-		_orderIdCounter += 1;
-		if(acceptMenuOrder(_orderIdCounter.toString(), menuId, qty))
-			return new RestaurantMenuOrder(_orderIdCounter.toString(), menuId, qty);
+		Integer orderIdCounter = _orderIdCounter.incrementAndGet();
+		if(acceptMenuOrder(orderIdCounter.toString(), menuId, qty))
+			return new RestaurantMenuOrder(orderIdCounter.toString(), menuId, qty);
 		return null;
 	}
 	
