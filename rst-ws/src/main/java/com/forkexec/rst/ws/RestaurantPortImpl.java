@@ -9,6 +9,7 @@ import javax.jws.WebService;
 import com.forkexec.rst.domain.Restaurant;
 import com.forkexec.rst.domain.RestaurantMenu;
 import com.forkexec.rst.domain.RestaurantMenuOrder;
+import com.forkexec.rst.domain.exception.InsufficientQuantityException;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -70,7 +71,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			
 			for(String id: list) {
 				RestaurantMenu menu = rest.getMenu(id);
-				if(descriptionText.equals(menu.getEntree()) || descriptionText.equals(menu.getPlate()) || descriptionText.equals(menu.getDessert()))
+				if(descriptionText.contains(menu.getEntree()) || descriptionText.contains(menu.getPlate()) || descriptionText.contains(menu.getDessert()))
 					newMenuList.add(newMenu(menu));
 			}
 			
@@ -91,8 +92,13 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			throwBadQuantity("Invalid quantity: " + arg1);
 			return null;
 		}else {
-			RestaurantMenuOrder menu =  rest.orderMenu(arg0.getId(), arg1);
-			return newMenuOrder(menu);
+			try {
+				RestaurantMenuOrder menu =  rest.orderMenu(arg0.getId(), arg1);
+				return newMenuOrder(menu);
+			}catch(InsufficientQuantityException e) {
+				throwInsufficientQuantity("Invalid quantity: " + arg1);
+				return null;
+			}
 		}
 	}
 	
@@ -132,19 +138,9 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		for(MenuInit menu: initialMenus) {
 			Menu restMenu = menu.getMenu();
 			
-			rest.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime());
+			rest.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
 			
-			rest.orderMenu(menu.getMenu().getId().getId(), menu.getQuantity());
-			
-			Boolean notOrder = true;
-			for(String mo: rest.getMenuOrdersIDs()) {
-				if(rest.getMenuOrder(mo).getMenuId().equals(menu.getMenu().getId().getId())) {
-					notOrder = false;
-					break;
-				}
-			}
-			
-			if(rest.getMenu(menu.getMenu().getId().getId()) == null || notOrder) {
+			if(rest.getMenu(menu.getMenu().getId().getId()) == null) {
 				String error = "Invalid initialMenu:\n";
 				error += "\tMenuId: " + menu.getMenu().getId().getId();
 				error += "\tEntree: " + menu.getMenu().getEntree();
