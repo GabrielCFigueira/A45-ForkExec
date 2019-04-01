@@ -64,7 +64,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			
 			return newMenuList;
 			
-		}else if(rest.availableString(descriptionText)) {
+		}else if(rest.availableString(descriptionText, false)) {
 			throwBadText("Invalid description: " + descriptionText);
 			return null;
 		}else {
@@ -136,7 +136,6 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		rest.reset();
 		
 		for(MenuInit menu: initialMenus) {
-			Menu restMenu = menu.getMenu();
 			
 			rest.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
 			
