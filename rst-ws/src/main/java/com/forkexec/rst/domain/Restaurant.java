@@ -45,9 +45,12 @@ public class Restaurant {
 		_orderIdCounter.set(0);
 	}
 	
-	public Boolean availableString(String text) {
-		if("".equals(text) || text.contains(" "))
+	public Boolean availableString(String text, Boolean emptyFlag) {
+		if(text.isEmpty() && emptyFlag) {
 			return false;
+		}else if("".equals(text) || text.contains(" ")) {
+			return false;
+		}
 		
 		return true;
 	}
@@ -62,12 +65,12 @@ public class Restaurant {
 		return _menus.get(menuId);
 	}
 	
-	public synchronized void setMenu(RestaurantMenu menu) {
+	public void setMenu(RestaurantMenu menu) {
 		_menus.put(menu.getId(),menu);
 	}
 	
 	public Boolean acceptMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime, int quantity) {
-		return availableString(menuId) && availableString(entree) && availableString(plate) && availableString(dessert) && (price > 0) && (preparationTime > 0) && (quantity > 0);
+		return availableString(menuId, true) && availableString(entree, true) && availableString(plate, true) && availableString(dessert, true) && (price > 0) && (preparationTime > 0) && (quantity > 0);
 	}
 	
 	public void newMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime, int quantity) {
@@ -85,12 +88,12 @@ public class Restaurant {
 		return _orders.get(menuId);
 	}
 	
-	public synchronized void setMenuOrder(RestaurantMenuOrder menu) {
+	public void setMenuOrder(RestaurantMenuOrder menu) {
 		_orders.put(menu.getId(),menu);
 	}
 	
 	public Boolean acceptMenuOrder(String orderId, String menuId, int menuQuantity) {
-		return availableString(orderId) && availableString(menuId) && (menuQuantity > 0);
+		return availableString(orderId, true) && availableString(menuId, true) && (menuQuantity > 0);
 	}
 	
 	public RestaurantMenuOrder orderMenu(String menuId, int qty) throws InsufficientQuantityException {
