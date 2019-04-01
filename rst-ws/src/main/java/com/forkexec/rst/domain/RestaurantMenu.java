@@ -8,14 +8,16 @@ public class RestaurantMenu{
 	private String dessert;
 	private int price;
 	private int preparationTime;
+	private int quantity;
 	
-	public RestaurantMenu(String id, String entree, String plate, String dessert, int price, int preparationTime) {
+	public RestaurantMenu(String id, String entree, String plate, String dessert, int price, int preparationTime, int quantity) {
 		this.menuId=id;
 		this.entree=entree;
 		this.plate=plate;
 		this.dessert=dessert;
 		this.price=price;
 		this.preparationTime=preparationTime;
+		this.quantity=quantity;
 	}
 	
 	public String getId() {
@@ -40,5 +42,13 @@ public class RestaurantMenu{
 	
 	public int getPreparationTime() {
 		return this.preparationTime;
+	}
+	
+	public int getQuantity() {
+		return this.quantity;
+	}
+	
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 }
