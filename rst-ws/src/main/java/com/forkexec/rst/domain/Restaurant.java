@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.forkexec.rst.domain.exception.InsufficientQuantityException;
+
 /**
  * Restaurant
  *
@@ -60,17 +62,17 @@ public class Restaurant {
 		return _menus.get(menuId);
 	}
 	
-	public synchronized void setMenu(RestaurantMenu menu) {
+	public void setMenu(RestaurantMenu menu) {
 		_menus.put(menu.getId(),menu);
 	}
 	
-	public Boolean acceptMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime) {
-		return availableString(menuId) && availableString(entree) && availableString(plate) && availableString(dessert) && (price > 0) && (preparationTime > 0);
+	public Boolean acceptMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime, int quantity) {
+		return availableString(menuId) && availableString(entree) && availableString(plate) && availableString(dessert) && (price > 0) && (preparationTime > 0) && (quantity > 0);
 	}
 	
-	public synchronized void newMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime) {
-		if(acceptMenu(menuId, entree, plate, dessert, price, preparationTime))
-			_menus.put(menuId, new RestaurantMenu(menuId, entree, plate, dessert, price, preparationTime));
+	public void newMenu(String menuId, String entree, String plate, String dessert, int price, int preparationTime, int quantity) {
+		if(acceptMenu(menuId, entree, plate, dessert, price, preparationTime, quantity))
+			_menus.put(menuId, new RestaurantMenu(menuId, entree, plate, dessert, price, preparationTime, quantity));
 	}
 	
 	/* --------------- MENU ORDER --------------- */
@@ -83,7 +85,7 @@ public class Restaurant {
 		return _orders.get(menuId);
 	}
 	
-	public synchronized void setMenuOrder(RestaurantMenuOrder menu) {
+	public void setMenuOrder(RestaurantMenuOrder menu) {
 		_orders.put(menu.getId(),menu);
 	}
 	
@@ -91,15 +93,26 @@ public class Restaurant {
 		return availableString(orderId) && availableString(menuId) && (menuQuantity > 0);
 	}
 	
-	public synchronized void newMenuOrder(String orderId, String menuId, int menuQuantity) {
-		if(acceptMenuOrder(orderId, menuId, menuQuantity))
-			_orders.put(orderId, new RestaurantMenuOrder(orderId, menuId, menuQuantity));
-	}
-	
-	public synchronized RestaurantMenuOrder orderMenu(String menuId, int qty) {
+	public RestaurantMenuOrder orderMenu(String menuId, int qty) throws InsufficientQuantityException {
 		Integer orderIdCounter = _orderIdCounter.incrementAndGet();
-		if(acceptMenuOrder(orderIdCounter.toString(), menuId, qty))
-			return new RestaurantMenuOrder(orderIdCounter.toString(), menuId, qty);
+		
+		if(acceptMenuOrder(orderIdCounter.toString(), menuId, qty)) {
+			RestaurantMenu menu = getMenu(menuId);
+			int diff = menu.getQuantity()-qty;
+			
+			if(menu.getId().equals(menuId) && diff >= 0) {
+				menu.setQuantity(diff);
+				RestaurantMenuOrder newMenuOrder = new RestaurantMenuOrder(orderIdCounter.toString(), menuId, qty);
+				
+				_orders.put(orderIdCounter.toString(), newMenuOrder);
+				return newMenuOrder;
+				
+			}else {
+				_orderIdCounter.decrementAndGet();
+				throw new InsufficientQuantityException("InsufficientQuantityException");
+			}
+		
+		}
 		return null;
 	}
 	
