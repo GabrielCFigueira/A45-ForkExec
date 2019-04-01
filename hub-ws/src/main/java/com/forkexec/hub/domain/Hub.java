@@ -1,17 +1,11 @@
 package com.forkexec.hub.domain;
 
 
-import com.forkexec.rst.ws.cli.RestaurantClient;
-import com.forkexec.rst.ws.cli.RestaurantClientException;
-import com.forkexec.rst.ws.BadTextFault_Exception;
-import com.forkexec.rst.ws.Menu;
-import com.forkexec.hub.ws.Food;
-import com.forkexec.hub.ws.FoodId;
-
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.List;
+import java.util.ArrayList;
+
 
 /**
  * Hub
@@ -41,43 +35,29 @@ public class Hub {
 		return SingletonHolder.INSTANCE;
 	}
 
+	private Map<String, User> _users = new TreeMap<String, User>();
 
-	private List<RestaurantClient> _restaurants = new ArrayList<RestaurantClient>();
-	private Map<FoodId, Food> _foods = null;
-
-	public void addRestaurant(RestaurantClient restaurant) {
-		_restaurants.add(restaurant);
+	public void reset() {
+		_users = new TreeMap<String, User>();
 	}
 
-	public Map<FoodId, Food> getFoods(String description) throws BadTextFault_Exception {
-		if (_foods == null) {
-			_foods = new TreeMap<FoodId, Food>();
-			List<Menu> menus;
-			Food food;
-			FoodId foodId;
-			for (RestaurantClient rst : _restaurants) {
-				menus = rst.searchMenus(description);
-				for (Menu menu : menus) {
-					food = new Food();
-					foodId = new FoodId();
-
-					foodId.setRestaurantId(menu.toString());
-					foodId.setMenuId(menu.getId().getId());
-
-					food.setId(foodId);
-					food.setEntree(menu.getEntree());
-					food.setPlate(menu.getPlate());
-					food.setDessert(menu.getDessert());
-					food.setPrice(menu.getPrice());
-					food.setPreparationTime(menu.getPreparationTime());
-
-					_foods.put(foodId, food);
-				}
-			}
-		}
-
-	return _foods;
+	public void addUser(String userId) {
+		_users.put(userId, new User(userId));
 	}
 
-	
+	public void clearCart(String userId) {
+		_users.get(userId).clearCart();
+	}
+
+	public boolean hasUser(String userId) {
+		return _users.get(userId) == null;
+	}
+
+	public void addFood(String userId, FoodId foodId, int quantity) {
+		_users.get(userId).addFood(foodId, quantity);
+	}
+
+	public User getUser(String userId) {
+		return _users.get(userId);
+	}
 }

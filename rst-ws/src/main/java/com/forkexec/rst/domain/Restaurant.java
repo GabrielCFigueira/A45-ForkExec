@@ -62,7 +62,7 @@ public class Restaurant {
 		return _menus.get(menuId);
 	}
 	
-	public void setMenu(RestaurantMenu menu) {
+	public synchronized void setMenu(RestaurantMenu menu) {
 		_menus.put(menu.getId(),menu);
 	}
 	
@@ -85,7 +85,7 @@ public class Restaurant {
 		return _orders.get(menuId);
 	}
 	
-	public void setMenuOrder(RestaurantMenuOrder menu) {
+	public synchronized void setMenuOrder(RestaurantMenuOrder menu) {
 		_orders.put(menu.getId(),menu);
 	}
 	

@@ -40,6 +40,8 @@ public class HubClientApp {
 
 		System.out.println("Invoke ping()...");
 		String result = client.ctrlPing("client");
+
+		client.ctrlPing("test");
 		System.out.print("Result: ");
 		System.out.println(result);
 	}
