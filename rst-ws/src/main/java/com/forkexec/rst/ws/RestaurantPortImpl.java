@@ -157,6 +157,11 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		
 		for(MenuInit menu: initialMenus) {
 			
+			if(rest.getMenu(menu.getMenu().getId().getId()) != null) {
+				throwBadInit("Duplicate MenuId '" + menu.getMenu().getId().getId() + "'");
+				return;
+			}
+			
 			rest.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
 			
 			if(rest.getMenu(menu.getMenu().getId().getId()) == null) {
