@@ -24,7 +24,7 @@ public class Points {
 	/**
 	 * Global map that holds the association between users and points
 	 */
-	private final ConcurrentHashMap<String, Integer> user_points = new ConcurrentHashMap<>();
+	private final Map<String, Integer> user_points = new ConcurrentHashMap<>();
 
 	// Singleton -------------------------------------------------------------
 
@@ -113,6 +113,8 @@ public class Points {
 	// Verifiers ------------------------------------------------------------
 
 	public static boolean isValidEmailAddress(String email) {
+		if(email == null)
+			return false;
 		return Pattern.matches("[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.][a-zA-Z0-9]+)*", email);
 	}
 
