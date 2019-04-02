@@ -48,7 +48,7 @@ public class Restaurant {
 	public Boolean availableString(String text, Boolean emptyFlag) {
 		if(text.isEmpty() && emptyFlag) {
 			return false;
-		}else if(text.isEmpty() || text.contains(" ")) {
+		}else if((text.isEmpty() || text.contains(" ")) && !emptyFlag) {
 			return false;
 		}
 		
