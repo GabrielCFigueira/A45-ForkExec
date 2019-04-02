@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Class that tests Users operation
+ * Class that tests Actions operation
  */
 public class ActionsIT extends BaseIT {
 	
