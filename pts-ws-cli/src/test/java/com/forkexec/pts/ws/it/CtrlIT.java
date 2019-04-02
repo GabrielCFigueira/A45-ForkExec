@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Class that tests Users operation
+ * Class that tests Control operation
  */
 public class CtrlIT extends BaseIT {
 	
