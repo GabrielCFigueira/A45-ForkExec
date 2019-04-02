@@ -39,6 +39,11 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
+		if(menuId == null) {
+			throwBadMenuId("MenuId is null!");
+			return null;
+		}
+		
 		Restaurant rest = Restaurant.getInstance();
 		RestaurantMenu menu = rest.getMenu(menuId.getId());
 		
@@ -51,6 +56,11 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
+		if(descriptionText == null) {
+			throwBadText("Description text is null!");
+			return null;
+		}
+		
 		Restaurant rest = Restaurant.getInstance();
 		Set<String> list = rest.getMenusIDs();
 		List<Menu> newMenuList = new ArrayList<>();
@@ -84,6 +94,11 @@ public class RestaurantPortImpl implements RestaurantPortType {
 
 	@Override
 	public MenuOrder orderMenu(MenuId arg0, int arg1) throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+		if(arg0 == null) {
+			throwBadMenuId("MenuId is null!");
+			return null;
+		}
+		
 		Restaurant rest = Restaurant.getInstance();
 		if(rest.getMenu(arg0.getId()) == null) {
 			throwBadMenuId("Invalid MenuId: " + arg0.getId());
@@ -132,6 +147,11 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
+		if(initialMenus == null) {
+			throwBadInit("Initial menus are null!");
+			return;
+		}
+		
 		Restaurant rest = Restaurant.getInstance();
 		rest.reset();
 		
@@ -149,6 +169,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 				error += "\tPreparationTime: " + menu.getMenu().getPreparationTime();
 				error += "\tQuantity: " + menu.getQuantity();
 				throwBadInit(error);
+				return;
 			}
 		}
 	}
