@@ -88,7 +88,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		if(rest.getMenu(arg0.getId()) == null) {
 			throwBadMenuId("Invalid MenuId: " + arg0.getId());
 			return null;
-		}else if(arg1 < 0) {
+		}else if(arg1 <= 0) {
 			throwBadQuantity("Invalid quantity: " + arg1);
 			return null;
 		}else {
