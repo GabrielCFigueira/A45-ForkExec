@@ -100,9 +100,8 @@ public class HubPortImpl implements HubPortType {
 				pointsClient.addPoints(userId, 5500);
 			else
 				throwInvalidMoneyFault("Invalid money quantity: " + moneyToAdd);
-		} catch (InvalidEmailFault_Exception e) {
-			throwInvalidUserIdFault(e.getMessage());
-		} catch (NoSuchUserException e) {
+
+		} catch (InvalidEmailFault_Exception | NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		} catch (CreditCardClientException | InvalidPointsFault_Exception e) {
 			throwInvalidMoneyFault(e.getMessage());
@@ -155,7 +154,7 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
-		getFood(foodId);
+		getFood(foodId); //testing if the food exists; will throw an exception if not
 		
 		if (foodQuantity < 1 || foodQuantity > 100) //what is the reasonable maximum number?
 			throwInvalidFoodQuantityFault(foodQuantity);
@@ -178,7 +177,7 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public FoodOrder orderCart(String userId)
-			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {  //TODO NotEnoughPointsFault_Exception
+			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
 		
 		try {
 			if (hub.getUser(userId).getCart().isEmpty())
@@ -205,7 +204,7 @@ public class HubPortImpl implements HubPortType {
 		} catch (InvalidPointsFault_Exception e) {
 			//TODO
 		} catch (InvalidEmailFault_Exception e) {
-			//TODO
+			throwInvalidUserIdFault(e.getMessage());
 		}
 		
 		foodOrder.setFoodOrderId(new FoodOrderId());  //foodOrderId? TODO
@@ -282,7 +281,7 @@ public class HubPortImpl implements HubPortType {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Point%")) { //this should run only once
 				PointsClient points = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(points.ctrlPing("points client"));
-				pointsClient = points; //temporary: there is only one point server
+				pointsClient = points; //temporary: there is only one point server for now
 			}
 
 			return builder.toString();
@@ -346,20 +345,6 @@ public class HubPortImpl implements HubPortType {
 				res.add(menuIntoFood(menu));
 		return res;
 	}
-
-
-	// View helpers ----------------------------------------------------------
-
-	// /** Helper to convert a domain object to a view. */
-	// private ParkInfo buildParkInfo(Park park) {
-		// ParkInfo info = new ParkInfo();
-		// info.setId(park.getId());
-		// info.setCoords(buildCoordinatesView(park.getCoordinates()));
-		// info.setCapacity(park.getMaxCapacity());
-		// info.setFreeSpaces(park.getFreeDocks());
-		// info.setAvailableCars(park.getAvailableCars());
-		// return info;
-	// }
 
 	private Food menuIntoFood(Menu menu) {
 		Food food = new Food();
@@ -428,7 +413,7 @@ public class HubPortImpl implements HubPortType {
 
 
 
-	/** Helpers to throw a new BadInit exception. */
+	/** Helpers to throw exceptions. */
 
 
 	private void throwInvalidUserIdFault(final String message) throws InvalidUserIdFault_Exception {
