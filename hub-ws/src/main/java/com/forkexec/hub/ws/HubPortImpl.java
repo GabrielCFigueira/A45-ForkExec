@@ -11,14 +11,18 @@ import java.util.TreeMap;
 import javax.jws.WebService;
 
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.hub.domain.exceptions.NoSuchUserException;
 
 
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
+import com.forkexec.rst.ws.MenuInit;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 import com.forkexec.rst.ws.BadTextFault_Exception;
+import com.forkexec.rst.ws.BadInitFault;
+import com.forkexec.rst.ws.BadInitFault_Exception;
 
 
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
@@ -47,7 +51,7 @@ public class HubPortImpl implements HubPortType {
 
 
 	private Hub hub = Hub.getInstance();
-	private Map<String, RestaurantClient> _restaurants = new TreeMap<String, RestaurantClient>();
+	private Map<String, RestaurantClient> restaurants = new TreeMap<String, RestaurantClient>();
 	private PointsClient pointsClient = null;
 
 
@@ -82,11 +86,10 @@ public class HubPortImpl implements HubPortType {
 		//CreditCardClient creditCard = new CreditCardClient();
 
 		try {
-			if(!hub.hasUser(userId))
-				throwInvalidUserIdFault("No User with such Id: " + userId);
+			hub.getUser(userId);
 			/*else if (!creditCard.getCreditCardImplPort().validateNumber(creditCardNumber)) 
 				throwInvalidCreditCardFault(creditCardNumber);*/
-			else if (moneyToAdd == 10)
+			if (moneyToAdd == 10)
 				pointsClient.addPoints(userId, 1000);
 			else if (moneyToAdd == 20)
 				pointsClient.addPoints(userId, 2100);
@@ -98,6 +101,8 @@ public class HubPortImpl implements HubPortType {
 				throwInvalidMoneyFault(moneyToAdd);
 		} catch (InvalidPointsFault_Exception | InvalidEmailFault_Exception e) {
 			throwInvalidUserIdFault(e.getMessage());  //TODO change InvalidPoints to throw invalidMoney
+		} catch (NoSuchUserException e) {
+			throwInvalidUserIdFault(e.getMessage());
 		}
 	}
 	
@@ -148,32 +153,36 @@ public class HubPortImpl implements HubPortType {
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
 		getFood(foodId);
-		if(!hub.hasUser(userId))
-			throwInvalidUserIdFault("No User with such Id: " + userId);
-		else if (foodQuantity < 1 || foodQuantity > 100) //what is the reasonable maximum number?
+		
+		if (foodQuantity < 1 || foodQuantity > 100) //what is the reasonable maximum number?
 			throwInvalidFoodQuantityFault(foodQuantity);
 
-		hub.addFood(userId, foodIdIntoDomain(foodId), foodQuantity);
-
-		
+		try {
+			hub.addFood(userId, foodIdIntoDomain(foodId), foodQuantity);
+		} catch (NoSuchUserException e) {
+			throwInvalidUserIdFault(e.getMessage());
+		}
 	}
 
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
-		if (hub.hasUser(userId))
-			hub.clearCart(userId);
-		else
-			throwInvalidUserIdFault("No User with such Id: " + userId);
+		try {
+			hub.getUser(userId).clearCart();
+		} catch (NoSuchUserException e) {
+			throwInvalidUserIdFault(e.getMessage());
+		}
 	}
 
 	@Override
 	public FoodOrder orderCart(String userId)
 			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {  //TODO NotEnoughPointsFault_Exception
 		
-		if (!hub.hasUser(userId))
-			throwInvalidUserIdFault("No User with such Id: " + userId);
-		if (hub.getUser(userId).getCart().isEmpty())
-			throwEmptyCartFault(userId);
+		try {
+			if (hub.getUser(userId).getCart().isEmpty())
+				throwEmptyCartFault(userId);
+		} catch (NoSuchUserException e) {
+			throwInvalidUserIdFault(e.getMessage());
+		}
 
 		FoodOrder foodOrder = new FoodOrder();
 		foodOrder.items = cartContents(userId);
@@ -217,7 +226,7 @@ public class HubPortImpl implements HubPortType {
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
 		Food food = null;
 		try {
-			food = menuIntoFood(_restaurants.get(foodId.getRestaurantId()).getMenu(foodIdIntoMenuId(foodId)));
+			food = menuIntoFood(restaurants.get(foodId.getRestaurantId()).getMenu(foodIdIntoMenuId(foodId)));
 		} catch (BadMenuIdFault_Exception e) {
 			throwInvalidFoodIdFault(e.getMessage());
 		}
@@ -228,13 +237,15 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
 
-		if(!hub.hasUser(userId))
-			throwInvalidUserIdFault("No User with such Id: " + userId);
-
 		List<FoodOrderItem> res = new ArrayList<FoodOrderItem>();
 
-		for(com.forkexec.hub.domain.FoodOrderItem food : hub.getUser(userId).getCart().getFood())
-			res.add(foodOrderItemIntoWs(food));
+		try {
+			for(com.forkexec.hub.domain.FoodOrderItem food : hub.getUser(userId).getCart().getFood())
+				res.add(foodOrderItemIntoWs(food));
+		} catch (NoSuchUserException e) {
+			throwInvalidUserIdFault(e.getMessage());
+		}
+
 		return res;
 
 	}
@@ -262,10 +273,10 @@ public class HubPortImpl implements HubPortType {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
 				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(restaurant.ctrlPing("restaurant client"));
-				_restaurants.put(e.getOrgName(), restaurant);
+				restaurants.put(e.getOrgName(), restaurant);
 			}
 
-			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45pointsClients%")) { //this should run only once
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Point%")) { //this should run only once
 				PointsClient points = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(points.ctrlPing("points client"));
 				pointsClient = points; //TODO several point servers?
@@ -282,15 +293,31 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlClear() {
 		hub.reset();
-		_restaurants = new TreeMap<String, RestaurantClient>();
+		restaurants = new TreeMap<String, RestaurantClient>();
 		pointsClient.ctrlClear();  //TODO sera suposto?
-		pointsClient = null;
 	}
 
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInitFood(List<FoodInit> initialFoods) throws InvalidInitFault_Exception {
-		// TODO Auto-generated method stub
+		Map<String, List<MenuInit>> menuList = new TreeMap<String, List<MenuInit>>();
+
+		for (FoodInit foodInit : initialFoods) {
+			Food food = foodInit.getFood();
+			String restaurantId = food.getId().getRestaurantId();
+			if(!menuList.containsKey(restaurantId))
+				menuList.put(restaurantId, new ArrayList<MenuInit>());
+			menuList.get(restaurantId).add(createMenuInit(createMenu(createMenuId(food.getId().getMenuId()), 
+						food.getEntree(), food.getPlate(), food.getDessert(), food.getPrice(), 
+						food.getPreparationTime()), foodInit.getQuantity()));
+		}
+
+		try {
+		for (String id : menuList.keySet())
+			restaurants.get(id).ctrlInit(menuList.get(id));
+		} catch (BadInitFault_Exception e) {
+			throwInvalidInitFault(e.getMessage());
+		}
 	}
 	
 	@Override
@@ -306,7 +333,7 @@ public class HubPortImpl implements HubPortType {
 
 	private List<Food> getAllFood(String description) throws BadTextFault_Exception {
 		List<Food> res = new ArrayList<Food>();
-		for(RestaurantClient rst : _restaurants.values()) 
+		for(RestaurantClient rst : restaurants.values()) 
 			for (Menu menu : rst.searchMenus(description))
 				res.add(menuIntoFood(menu));
 		return res;
@@ -364,6 +391,33 @@ public class HubPortImpl implements HubPortType {
 		return new com.forkexec.hub.domain.FoodId(foodId.getRestaurantId(), foodId.getMenuId());
 	}
 
+	private Menu createMenu(MenuId menuId, String entree, String plate, 
+                        String dessert, int price, int preparationTime) {
+        Menu menu = new Menu();
+        menu.setId(menuId);
+        menu.setEntree(entree);
+        menu.setPlate(plate);
+        menu.setDessert(dessert);
+        menu.setPrice(price);
+        menu.setPreparationTime(preparationTime);
+
+        return menu;
+    }
+
+    private MenuInit createMenuInit(Menu menu, int quantity) {
+        MenuInit menuInit = new MenuInit();
+        menuInit.setMenu(menu);
+        menuInit.setQuantity(quantity);
+        return menuInit;
+    }
+
+    private MenuId createMenuId(String id) {
+        MenuId menuId = new MenuId();
+        menuId.setId(id);
+        return menuId;
+    }
+
+
 
 
 	/** Helpers to throw a new BadInit exception. */
@@ -409,5 +463,11 @@ public class HubPortImpl implements HubPortType {
 		InvalidMoneyFault invalidMoneyFault = new InvalidMoneyFault();
 		invalidMoneyFault.message = "Invalid money quantity: " + moneyToAdd;
 		throw new InvalidMoneyFault_Exception("Invalid money quantity: " + moneyToAdd, invalidMoneyFault);
+	}
+
+	private void throwInvalidInitFault(final String message) throws InvalidInitFault_Exception {
+		InvalidInitFault badInitFault = new InvalidInitFault();
+		badInitFault.message = message;
+		throw new InvalidInitFault_Exception(message, badInitFault);
 	}
 }

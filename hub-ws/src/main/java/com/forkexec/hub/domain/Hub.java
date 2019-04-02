@@ -3,8 +3,8 @@ package com.forkexec.hub.domain;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.List;
-import java.util.ArrayList;
+
+import com.forkexec.hub.domain.exceptions.NoSuchUserException;
 
 
 /**
@@ -45,19 +45,19 @@ public class Hub {
 		_users.put(userId, new User(userId));
 	}
 
-	public void clearCart(String userId) {
-		_users.get(userId).clearCart();
+	public void clearCart(String userId) throws NoSuchUserException {
+		getUser(userId).clearCart();
 	}
 
-	public boolean hasUser(String userId) {
-		return _users.get(userId) == null;
+	public void addFood(String userId, FoodId foodId, int quantity) throws NoSuchUserException {
+		getUser(userId).addFood(foodId, quantity);
 	}
 
-	public void addFood(String userId, FoodId foodId, int quantity) {
-		_users.get(userId).addFood(foodId, quantity);
-	}
-
-	public User getUser(String userId) {
-		return _users.get(userId);
+	public User getUser(String userId) throws NoSuchUserException {
+		User user = _users.get(userId);
+		if(user == null)
+			throw new NoSuchUserException("User with Id: " + userId + " does not exist");
+		else
+			return user;
 	}
 }
