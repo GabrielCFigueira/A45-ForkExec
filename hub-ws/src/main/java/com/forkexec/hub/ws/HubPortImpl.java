@@ -30,7 +30,7 @@ import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.*;
-import pt.ulisboa.tecnico.sdis.ws.*;
+import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClient;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -79,13 +79,13 @@ public class HubPortImpl implements HubPortType {
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 
-		CreditCardImplService creditCard = new CreditCardImplService();
+		//CreditCardClient creditCard = new CreditCardClient();
 
 		try {
 			if(!hub.hasUser(userId))
 				throwInvalidUserIdFault("No User with such Id: " + userId);
-			else if (!creditCard.getCreditCardImplPort().validateNumber(creditCardNumber)) 
-				throwInvalidCreditCardFault(creditCardNumber);
+			/*else if (!creditCard.getCreditCardImplPort().validateNumber(creditCardNumber)) 
+				throwInvalidCreditCardFault(creditCardNumber);*/
 			else if (moneyToAdd == 10)
 				pointsClient.addPoints(userId, 1000);
 			else if (moneyToAdd == 20)
@@ -265,10 +265,10 @@ public class HubPortImpl implements HubPortType {
 				_restaurants.put(e.getOrgName(), restaurant);
 			}
 
-			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45pointsClients%")) { //this should run only 1 time
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45pointsClients%")) { //this should run only once
 				PointsClient points = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(points.ctrlPing("points client"));
-				pointsClient = points; //TODO several point severs?
+				pointsClient = points; //TODO several point servers?
 			}
 
 			return builder.toString();

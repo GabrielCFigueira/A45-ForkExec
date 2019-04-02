@@ -32,41 +32,67 @@ public class GetMenuTestIT extends BaseIT {
         initialMenus.add(createMenuInit(createMenu(createMenuId("8"), "milho", "frango assado", "sumo de laranja", 80, 2), 3));
         initialMenus.add(createMenuInit(createMenu(createMenuId("9"), "pizza", "peru estufado", "vinho", 120, 3), 1));
         initialMenus.add(createMenuInit(createMenu(createMenuId("10"), "cerveja", "picanha", "mousse", 250, 3), 2));
-        System.err.println(initialMenus.size());
         client.ctrlInit(initialMenus);
     }
 
 
     @Test
-    public void success() throws BadMenuIdFault_Exception {
+    public void success1() throws BadMenuIdFault_Exception {
         Menu menu = client.getMenu(createMenuId("1"));
         assertEquals(menu.getEntree(), "pão");
+    }
 
-        menu = client.getMenu(createMenuId("2"));
+    @Test
+    public void success2() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("2"));
         assertEquals(menu.getDessert(), "fruta");
+    }
 
-        menu = client.getMenu(createMenuId("3"));
+    @Test
+    public void success3() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("3"));
         assertEquals(menu.getPlate(), "feijoada");
+    }
 
-        menu = client.getMenu(createMenuId("4"));
+    @Test
+    public void success4() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("4"));
         assertEquals(menu.getPrice(), 105);
+    }
 
-        menu = client.getMenu(createMenuId("5"));
+    @Test
+    public void success5() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("5"));
         assertEquals(menu.getPreparationTime(), 2);
+    }
 
-        menu = client.getMenu(createMenuId("6"));
+    @Test
+    public void success6() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("6"));
         assertEquals(menu.getDessert(), "gelado de chocolate");
+    }
 
-        menu = client.getMenu(createMenuId("7"));
+    @Test
+    public void success7() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("7"));
         assertEquals(menu.getEntree(), "azeitonas");
+    }
 
-        menu = client.getMenu(createMenuId("8"));
+    @Test
+    public void success8() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("8"));
         assertEquals(menu.getPrice(), 80);
+    }
 
-        menu = client.getMenu(createMenuId("9"));
+    @Test
+    public void success9() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("9"));
         assertEquals(menu.getPlate(), "peru estufado");
+    }
 
-        menu = client.getMenu(createMenuId("10"));
+    @Test
+    public void success10() throws BadMenuIdFault_Exception {
+        Menu menu = client.getMenu(createMenuId("10"));
         assertEquals(menu.getPreparationTime(), 3);
     }
 
