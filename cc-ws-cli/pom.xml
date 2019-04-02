@@ -20,7 +20,7 @@
 		
 		<ws.host>localhost</ws.host>
 		<ws.port>8090</ws.port>
-		<ws.url>http://${ws.host}:${ws.port}/cc-ws/endpoint</ws.url>
+		<ws.url>http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc</ws.url>
 
 		<ws.name>${cc.ws.name}</ws.name>
 	</properties>
