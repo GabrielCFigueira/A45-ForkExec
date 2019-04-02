@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Class that tests Users operation
+ * Class that tests ActivateUser operation
  */
 public class ActivateUserIT extends BaseIT {
 	
