@@ -35,6 +35,7 @@ import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClient;
+import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClientException;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -83,13 +84,13 @@ public class HubPortImpl implements HubPortType {
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 
-		//CreditCardClient creditCard = new CreditCardClient();
-
 		try {
+			CreditCardClient creditCard = new CreditCardClient("http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc");
+
 			hub.getUser(userId);
-			/*else if (!creditCard.getCreditCardImplPort().validateNumber(creditCardNumber)) 
-				throwInvalidCreditCardFault(creditCardNumber);*/
-			if (moneyToAdd == 10)
+			if (!creditCard.validateNumber(creditCardNumber)) 
+				throwInvalidCreditCardFault(creditCardNumber);
+			else if (moneyToAdd == 10)
 				pointsClient.addPoints(userId, 1000);
 			else if (moneyToAdd == 20)
 				pointsClient.addPoints(userId, 2100);
@@ -98,11 +99,13 @@ public class HubPortImpl implements HubPortType {
 			else if (moneyToAdd == 50)
 				pointsClient.addPoints(userId, 5500);
 			else
-				throwInvalidMoneyFault(moneyToAdd);
-		} catch (InvalidPointsFault_Exception | InvalidEmailFault_Exception e) {
-			throwInvalidUserIdFault(e.getMessage());  //TODO change InvalidPoints to throw invalidMoney
+				throwInvalidMoneyFault("Invalid money quantity: " + moneyToAdd);
+		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserIdFault(e.getMessage());
 		} catch (NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
+		} catch (CreditCardClientException | InvalidPointsFault_Exception e) {
+			throwInvalidMoneyFault(e.getMessage());
 		}
 	}
 	
@@ -279,7 +282,7 @@ public class HubPortImpl implements HubPortType {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Point%")) { //this should run only once
 				PointsClient points = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(points.ctrlPing("points client"));
-				pointsClient = points; //TODO several point servers?
+				pointsClient = points; //temporary: there is only one point server
 			}
 
 			return builder.toString();
@@ -293,7 +296,8 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlClear() {
 		hub.reset();
-		restaurants = new TreeMap<String, RestaurantClient>();
+		for(RestaurantClient rst : restaurants.values())
+			rst.ctrlClear();
 		pointsClient.ctrlClear();  //TODO sera suposto?
 	}
 
@@ -313,8 +317,8 @@ public class HubPortImpl implements HubPortType {
 		}
 
 		try {
-		for (String id : menuList.keySet())
-			restaurants.get(id).ctrlInit(menuList.get(id));
+			for (String id : menuList.keySet())
+				restaurants.get(id).ctrlInit(menuList.get(id));
 		} catch (BadInitFault_Exception e) {
 			throwInvalidInitFault(e.getMessage());
 		}
@@ -322,8 +326,12 @@ public class HubPortImpl implements HubPortType {
 	
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
-		// TODO Auto-generated method stub
 		
+		try {
+			pointsClient.ctrlInit(startPoints);
+		} catch (com.forkexec.pts.ws.BadInitFault_Exception e) {
+			throwInvalidInitFault(e.getMessage());
+		}
 	}
 
 
@@ -459,10 +467,10 @@ public class HubPortImpl implements HubPortType {
 		throw new InvalidCreditCardFault_Exception("Invalid credit card number: " + creditCardNumber, invalidCreditCardFault);
 	}
 
-	private void throwInvalidMoneyFault(final int moneyToAdd) throws InvalidMoneyFault_Exception {
+	private void throwInvalidMoneyFault(final String message) throws InvalidMoneyFault_Exception {
 		InvalidMoneyFault invalidMoneyFault = new InvalidMoneyFault();
-		invalidMoneyFault.message = "Invalid money quantity: " + moneyToAdd;
-		throw new InvalidMoneyFault_Exception("Invalid money quantity: " + moneyToAdd, invalidMoneyFault);
+		invalidMoneyFault.message = message;
+		throw new InvalidMoneyFault_Exception(message, invalidMoneyFault);
 	}
 
 	private void throwInvalidInitFault(final String message) throws InvalidInitFault_Exception {
