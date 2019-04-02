@@ -116,6 +116,11 @@ public class ActivateUserIT extends BaseIT {
 		client.activateUser("user@");
 	}
 	
+	@Test (expected = InvalidEmailFault_Exception.class)
+	public void invalidEmailTest21() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser(null);
+	}
+	
 	@Test
 	public void validEmailTest1() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		client.activateUser("user3.tecn1co@ulisboa.com");
