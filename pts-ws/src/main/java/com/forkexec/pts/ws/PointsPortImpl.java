@@ -46,6 +46,8 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
 		int res = -1;
+		if(userEmail == null)
+			throwInvalidEmailFault(userEmail);
 		try {
 			res = Points.getInstance().getPoints(userEmail);
 		} catch (EmailIsNotRegisteredException e) {
