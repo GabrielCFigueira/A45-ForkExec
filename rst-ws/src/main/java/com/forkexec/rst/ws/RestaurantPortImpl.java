@@ -84,9 +84,6 @@ public class RestaurantPortImpl implements RestaurantPortType {
 				if(descriptionText.contains(menu.getEntree()) || descriptionText.contains(menu.getPlate()) || descriptionText.contains(menu.getDessert()))
 					newMenuList.add(newMenu(menu));
 			}
-			
-			if(newMenuList.size()==0)
-				return null;
 				
 			return newMenuList;
 		}
