@@ -81,7 +81,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			
 			for(String id: list) {
 				RestaurantMenu menu = rest.getMenu(id);
-				if(descriptionText.contains(menu.getEntree()) || descriptionText.contains(menu.getPlate()) || descriptionText.contains(menu.getDessert()))
+				if(menu.getEntree().contains(descriptionText) || menu.getPlate().contains(descriptionText) || menu.getDessert().contains(descriptionText))
 					newMenuList.add(newMenu(menu));
 			}
 				
