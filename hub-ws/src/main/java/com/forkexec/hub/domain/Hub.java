@@ -6,6 +6,7 @@ import java.util.TreeMap;
 
 import com.forkexec.hub.domain.exceptions.NoSuchUserException;
 import com.forkexec.hub.domain.exceptions.DuplicateUserException;
+import com.forkexec.hub.domain.exceptions.MaximumCartQuantityException;
 
 
 /**
@@ -53,7 +54,7 @@ public class Hub {
 		getUser(userId).clearCart();
 	}
 
-	public void addFood(String userId, FoodId foodId, int quantity) throws NoSuchUserException {
+	public void addFood(String userId, FoodId foodId, int quantity) throws NoSuchUserException, MaximumCartQuantityException {
 		getUser(userId).addFood(foodId, quantity);
 	}
 
