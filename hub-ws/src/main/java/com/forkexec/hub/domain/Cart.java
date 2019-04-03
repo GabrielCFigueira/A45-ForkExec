@@ -1,17 +1,32 @@
 package com.forkexec.hub.domain;
 
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.forkexec.hub.domain.exceptions.MaximumCartQuantityException;
 
 public class Cart {
-    private List<FoodOrderItem> _food = new ArrayList<FoodOrderItem>();
+    private Map<FoodId, FoodOrderItem> _food = new TreeMap<FoodId, FoodOrderItem>();
+    
+    public final static int maximumQuantity = 100;
 
-    public void addFood(FoodId foodId, int quantity) {
-        _food.add(new FoodOrderItem(foodId, quantity));
+    public void addFood(FoodId foodId, int quantity) throws MaximumCartQuantityException {
+        if (getQuantity() + quantity > maximumQuantity)
+            throw new MaximumCartQuantityException("The new order exceeds the allowed cart capacity: " + maximumQuantity);
+        if (_food.containsKey(foodId))
+            _food.get(foodId).setFoodQuantity(_food.get(foodId).getFoodQuantity() + quantity);
+        _food.put(foodId, new FoodOrderItem(foodId, quantity));
     }
 
-    public List<FoodOrderItem> getFood() {return _food;}
+    public int getQuantity() {
+        int res = 0;
+        for (FoodOrderItem foodOrderItem : _food.values())
+            res += foodOrderItem.getFoodQuantity();
+        return res;
+    }
+
+    public Map<FoodId, FoodOrderItem> getFood() {return _food;}
 
     public boolean isEmpty() {return _food.isEmpty();}
 }

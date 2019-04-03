@@ -12,4 +12,6 @@ public class FoodOrderItem {
 
     public FoodId getFoodId() {return _foodId;}
     public int getFoodQuantity() {return _foodQuantity;}
+
+    public void setFoodQuantity(int foodQuantity) {_foodQuantity = foodQuantity;}
 }

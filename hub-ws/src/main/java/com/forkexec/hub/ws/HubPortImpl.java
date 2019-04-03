@@ -16,6 +16,8 @@ import java.util.TreeMap;
 import com.forkexec.hub.domain.Hub;
 import com.forkexec.hub.domain.exceptions.NoSuchUserException;
 import com.forkexec.hub.domain.exceptions.DuplicateUserException;
+import com.forkexec.hub.domain.exceptions.MaximumCartQuantityException;
+
 
 
 import com.forkexec.rst.ws.Menu;
@@ -161,13 +163,15 @@ public class HubPortImpl implements HubPortType {
 
 		getFood(foodId); //testing if the food exists; will throw an exception if not
 		
-		if (foodQuantity < 1 || foodQuantity > 100) //what is the reasonable maximum number?
-			throwInvalidFoodQuantityFault(foodQuantity);
+		if (foodQuantity < 1)
+			throwInvalidFoodQuantityFault("FoodQuantity " + foodQuantity + " is invalid");
 
 		try {
 			hub.addFood(userId, foodIdIntoDomain(foodId), foodQuantity);
 		} catch (NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
+		} catch (MaximumCartQuantityException e) {
+			throwInvalidFoodQuantityFault(e.getMessage());
 		}
 	}
 
@@ -231,13 +235,16 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
-		Food food = null;
 
-		if(foodId == null || foodId.getRestaurantId() == null)
+		Food food = null;
+		String restaurantId = foodId.getRestaurantId();
+		
+		if(foodId == null || restaurantId == null)
 			throwInvalidFoodIdFault("Invalid foodId");
+		else if (restaurants.get(restaurantId) == null)
+			throwInvalidFoodIdFault("FoodId does not belong to any known Restaurant");
 
 		try {
-			String restaurantId = foodId.getRestaurantId();
 			food = menuIntoFood(restaurants.get(restaurantId).getMenu(foodIdIntoMenuId(foodId)), restaurantId);
 		} catch (BadMenuIdFault_Exception e) {
 			throwInvalidFoodIdFault(e.getMessage());
@@ -252,7 +259,7 @@ public class HubPortImpl implements HubPortType {
 		List<FoodOrderItem> res = new ArrayList<FoodOrderItem>();
 
 		try {
-			for(com.forkexec.hub.domain.FoodOrderItem food : hub.getUser(userId).getCart().getFood())
+			for(com.forkexec.hub.domain.FoodOrderItem food : hub.getUser(userId).getCart().getFood().values())
 				res.add(foodOrderItemIntoWs(food));
 		} catch (NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
@@ -323,6 +330,10 @@ public class HubPortImpl implements HubPortType {
 		for (FoodInit foodInit : initialFoods) {
 			Food food = foodInit.getFood();
 			String restaurantId = food.getId().getRestaurantId();
+
+			if (restaurants.containsKey(restaurantId))
+				throwInvalidInitFault("Unknown Restaurant " + restaurantId);
+
 			if(!menuList.containsKey(restaurantId))
 				menuList.put(restaurantId, new ArrayList<MenuInit>());
 			menuList.get(restaurantId).add(createMenuInit(createMenu(createMenuId(food.getId().getMenuId()), 
@@ -352,7 +363,7 @@ public class HubPortImpl implements HubPortType {
 
 	//-------------------------------------------------------------------------
 
-
+	//TODO searchMenus can return null
 	private List<Food> getAllFood(String description) throws BadTextFault_Exception {
 		List<Food> res = new ArrayList<Food>();
 		for(String key : restaurants.keySet()) 
@@ -449,10 +460,10 @@ public class HubPortImpl implements HubPortType {
 		throw new EmptyCartFault_Exception("The Cart for user " + userId + " is empty", emptyCartFault);
 	}
 
-	private void throwInvalidFoodQuantityFault(final int foodQuantity) throws InvalidFoodQuantityFault_Exception {
+	private void throwInvalidFoodQuantityFault(final String message) throws InvalidFoodQuantityFault_Exception {
 		InvalidFoodQuantityFault invalidFoodQuantityFault = new InvalidFoodQuantityFault();
-		invalidFoodQuantityFault.message = "FoodQuantity " + foodQuantity + " is invalid";
-		throw new InvalidFoodQuantityFault_Exception("FoodQuantity " + foodQuantity + " is invalid", invalidFoodQuantityFault);
+		invalidFoodQuantityFault.message = message;
+		throw new InvalidFoodQuantityFault_Exception(message, invalidFoodQuantityFault);
 	}
 
 	private void throwInvalidTextFault(final String message) throws InvalidTextFault_Exception {
