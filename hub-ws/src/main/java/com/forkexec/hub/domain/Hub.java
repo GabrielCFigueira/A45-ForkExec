@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.forkexec.hub.domain.exceptions.NoSuchUserException;
+import com.forkexec.hub.domain.exceptions.DuplicateUserException;
 
 
 /**
@@ -41,8 +42,11 @@ public class Hub {
 		_users = new TreeMap<String, User>();
 	}
 
-	public void addUser(String userId) {
-		_users.put(userId, new User(userId));
+	public void addUser(String userId) throws DuplicateUserException {
+		if (_users.containsKey(userId))
+			throw new DuplicateUserException("User with Id: " + userId + " already exists");
+		else
+			_users.put(userId, new User(userId));
 	}
 
 	public void clearCart(String userId) throws NoSuchUserException {
