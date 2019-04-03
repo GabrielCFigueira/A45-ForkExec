@@ -74,7 +74,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			
 			return newMenuList;
 			
-		}else if(rest.availableString(descriptionText, false)) {
+		}else if(!rest.availableString(descriptionText, false)) {
 			throwBadText("Invalid description: " + descriptionText);
 			return null;
 		}else {
