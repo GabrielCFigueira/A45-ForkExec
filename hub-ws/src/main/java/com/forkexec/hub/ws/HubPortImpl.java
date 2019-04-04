@@ -107,8 +107,10 @@ public class HubPortImpl implements HubPortType {
 				hub.loadAccount(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), userId, moneyToAdd, creditCardNumber);
 		} catch (InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
-		} catch (InvalidCreditCardException | InvalidMoneyException e) {
+		} catch (InvalidMoneyException e) {
 			throwInvalidMoneyFault(e.getMessage());
+		} catch (InvalidCreditCardException e) {
+			throwInvalidCreditCardFault(e.getMessage());
 		} catch(UDDINamingException e) {
 			throw new RuntimeException(e.getMessage());
 		}

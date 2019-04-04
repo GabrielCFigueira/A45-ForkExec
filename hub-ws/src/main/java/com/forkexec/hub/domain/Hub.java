@@ -112,7 +112,9 @@ public class Hub {
 
 	public void addUser(String UDDIUrl, String orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
 		PointsClient pointsClient = getPointsClient(UDDIUrl, orgName);
-		if (_users.containsKey(userId))
+		if(userId == null)
+			throw new InvalidUserIdException("UserId set to null");
+		else if (_users.containsKey(userId))
 			throw new DuplicateUserException("User with Id: " + userId + " already exists");
 		try {
 			pointsClient.activateUser(userId);
