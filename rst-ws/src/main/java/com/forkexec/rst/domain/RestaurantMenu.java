@@ -48,7 +48,7 @@ public class RestaurantMenu{
 		return this.quantity;
 	}
 	
-	public void setQuantity(int quantity) {
+	public synchronized void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 }
