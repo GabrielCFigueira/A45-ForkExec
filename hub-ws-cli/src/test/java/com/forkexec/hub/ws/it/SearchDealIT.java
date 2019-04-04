@@ -54,7 +54,7 @@ public class SearchDealIT extends BaseIT {
 		List<Food> res = client.searchDeal("Bitoque");
 		assertEquals(2, res.size());
 		assertEqualFood(FOOD2, res.get(0));
-		assertEqualFood(FOOD1, res.get(0));
+		assertEqualFood(FOOD1, res.get(1));
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class SearchDealIT extends BaseIT {
 		List<Food> res = client.searchDeal("B");
 		assertEquals(2, res.size());
 		assertEqualFood(FOOD2, res.get(0));
-		assertEqualFood(FOOD1, res.get(0));
+		assertEqualFood(FOOD1, res.get(1));
 	}
 
 	@Test(expected = InvalidTextFault_Exception.class)
