@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.lang.RuntimeException;
 
 
 
@@ -58,8 +59,6 @@ public class HubPortImpl implements HubPortType {
 
 
 	private Hub hub = Hub.getInstance();
-	private Map<String, RestaurantClient> restaurants = new TreeMap<String, RestaurantClient>();
-	private PointsClient pointsClient = null;
 
 	int foodOrderId = 0;
 
@@ -81,7 +80,7 @@ public class HubPortImpl implements HubPortType {
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
 
 		try {
-			pointsClient.activateUser(userId);
+			getPointsClient().activateUser(userId);
 			hub.addUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception | InvalidEmailFault_Exception | DuplicateUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
@@ -93,18 +92,18 @@ public class HubPortImpl implements HubPortType {
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 
 		try {
-			CreditCardClient creditCard = new CreditCardClient("http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc");
+			CreditCardClient creditCard = new CreditCardClient();
 
 			if (!creditCard.validateNumber(creditCardNumber)) 
 				throwInvalidCreditCardFault(creditCardNumber);
 			else if (moneyToAdd == 10)
-				pointsClient.addPoints(userId, 1000);
+				getPointsClient().addPoints(userId, 1000);
 			else if (moneyToAdd == 20)
-				pointsClient.addPoints(userId, 2100);
+				getPointsClient().addPoints(userId, 2100);
 			else if (moneyToAdd == 30)
-				pointsClient.addPoints(userId, 3300);
+				getPointsClient().addPoints(userId, 3300);
 			else if (moneyToAdd == 50)
-				pointsClient.addPoints(userId, 5500);
+				getPointsClient().addPoints(userId, 5500);
 			else
 				throwInvalidMoneyFault("Invalid money quantity: " + moneyToAdd);
 
@@ -203,11 +202,11 @@ public class HubPortImpl implements HubPortType {
 			try {
 				pointsToSpend += getFood(foodOrderItem.getFoodId()).getPrice();
 			} catch (InvalidFoodIdFault_Exception e) {
-				//TODO
+				//TODO this should never happen
 			}
 
 		try {
-			pointsClient.spendPoints(userId, pointsToSpend);
+			getPointsClient().spendPoints(userId, pointsToSpend);
 		} catch (NotEnoughBalanceFault_Exception | InvalidPointsFault_Exception e){
 			throwNotEnoughPointsFault(e.getMessage());
 		} catch (InvalidEmailFault_Exception e) {
@@ -226,7 +225,7 @@ public class HubPortImpl implements HubPortType {
 
 		int balance = -1;
 		try {
-			balance = pointsClient.pointsBalance(userId);
+			balance = getPointsClient().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserIdFault(e.getMessage());
 		}
@@ -237,15 +236,20 @@ public class HubPortImpl implements HubPortType {
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
 
 		Food food = null;
-		String restaurantId = foodId.getRestaurantId();
 		
-		if(foodId == null || restaurantId == null)
+		if(foodId == null)
 			throwInvalidFoodIdFault("Invalid foodId");
-		else if (restaurants.get(restaurantId) == null)
+
+		String restaurantId = foodId.getRestaurantId();
+		if(restaurantId == null)
+			throwInvalidFoodIdFault("Invalid foodId");
+
+		RestaurantClient restaurant = getRestaurants().get(restaurantId);
+		if (restaurant == null)
 			throwInvalidFoodIdFault("FoodId does not belong to any known Restaurant");
 
 		try {
-			food = menuIntoFood(restaurants.get(restaurantId).getMenu(foodIdIntoMenuId(foodId)), restaurantId);
+			food = menuIntoFood(restaurant.getMenu(foodIdIntoMenuId(foodId)), restaurantId);
 		} catch (BadMenuIdFault_Exception e) {
 			throwInvalidFoodIdFault(e.getMessage());
 		}
@@ -292,13 +296,11 @@ public class HubPortImpl implements HubPortType {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
 				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(restaurant.ctrlPing("restaurant client"));
-				restaurants.put(e.getOrgName(), restaurant);
 			}
 
-			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) { //this should run only once
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) {
 				PointsClient points = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 				builder.append("\n").append(points.ctrlPing("points client"));
-				pointsClient = points; //temporary: there is only one point server for now
 			}
 
 			return builder.toString();
@@ -312,10 +314,9 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlClear() {
 		hub.reset();
-		for(RestaurantClient rst : restaurants.values())
+		for(RestaurantClient rst : getRestaurants().values())
 			rst.ctrlClear();
-		if(pointsClient != null) 
-			pointsClient.ctrlClear();
+		getPointsClient().ctrlClear();
 	}
 
 	/** Set variables with specific values. */
@@ -326,12 +327,13 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidInitFault("List of FoodInit is set to null");
 
 		Map<String, List<MenuInit>> menuList = new TreeMap<String, List<MenuInit>>();
+		Map<String, RestaurantClient> restaurants = getRestaurants();
 
 		for (FoodInit foodInit : initialFoods) {
 			Food food = foodInit.getFood();
 			String restaurantId = food.getId().getRestaurantId();
 
-			if (restaurants.containsKey(restaurantId))
+			if (!restaurants.containsKey(restaurantId))
 				throwInvalidInitFault("Unknown Restaurant " + restaurantId);
 
 			if(!menuList.containsKey(restaurantId))
@@ -353,7 +355,7 @@ public class HubPortImpl implements HubPortType {
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		
 		try {
-			pointsClient.ctrlInit(startPoints);
+			getPointsClient().ctrlInit(startPoints);
 		} catch (com.forkexec.pts.ws.BadInitFault_Exception e) {
 			throwInvalidInitFault(e.getMessage());
 		}
@@ -363,9 +365,39 @@ public class HubPortImpl implements HubPortType {
 
 	//-------------------------------------------------------------------------
 
+
+	private Map<String, RestaurantClient> getRestaurants() {
+		Map<String, RestaurantClient> restaurants = new TreeMap<String, RestaurantClient>();
+		try {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
+				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+				restaurants.put(e.getOrgName(), restaurant);
+			}
+		} catch(UDDINamingException | RestaurantClientException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		return restaurants;
+	}
+
+	private PointsClient getPointsClient() {
+		PointsClient pointsClient = null;
+		try {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) { //this should run only once
+				pointsClient = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+			}
+		} catch(UDDINamingException | PointsClientException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		if(pointsClient == null)
+			throw new RuntimeException("No point server was found");
+		return pointsClient;
+	}
+
 	//TODO searchMenus can return null
 	private List<Food> getAllFood(String description) throws BadTextFault_Exception {
 		List<Food> res = new ArrayList<Food>();
+		Map<String, RestaurantClient> restaurants = getRestaurants();
+
 		for(String key : restaurants.keySet()) 
 			for (Menu menu : restaurants.get(key).searchMenus(description))
 				res.add(menuIntoFood(menu, key));
