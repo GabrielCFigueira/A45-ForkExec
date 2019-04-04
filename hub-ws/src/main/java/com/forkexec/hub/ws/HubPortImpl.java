@@ -227,6 +227,7 @@ public class HubPortImpl implements HubPortType {
 		}
 
 		Map<String, RestaurantClient> restaurants = getRestaurants();
+		List<FoodOrderItem> invalidOrders = new ArrayList<FoodOrderItem>();
 
 		for (FoodOrderItem foodOrderItem : foodOrder.items) {
 			FoodId foodId = foodOrderItem.getFoodId();
@@ -241,12 +242,15 @@ public class HubPortImpl implements HubPortType {
 		 	} catch(InsufficientQuantityFault_Exception e) {
 				try {
 				 	getPointsClient().addPoints(userId, getFood(foodOrderItem.getFoodId()).getPrice() * foodOrderItem.getFoodQuantity());
-					foodOrder.items.remove(foodOrderItem);
+					invalidOrders.add(foodOrderItem);
 				} catch (InvalidEmailFault_Exception | InvalidPointsFault_Exception | InvalidFoodIdFault_Exception exception) {
 					throw new RuntimeException(exception.getMessage());
 				}
 			}
 		}
+
+		for(FoodOrderItem foodOrderItem : invalidOrders)
+			foodOrder.items.remove(foodOrderItem);
 		
 		FoodOrderId id = new FoodOrderId();
 		id.setId(Integer.toString(foodOrderId++));
