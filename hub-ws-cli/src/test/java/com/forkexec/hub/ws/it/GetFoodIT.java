@@ -20,7 +20,7 @@ import com.forkexec.hub.ws.InvalidInitFault_Exception;
 public class GetFoodIT extends BaseIT {
 	private static final int QNTY = 5;
 	private static FoodId FOODID;
-	private static final Food FOOD = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20, FOODID);
+	private static final Food FOOD = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20);
 	// tests
 	// assertEquals(expected, actual);
 
@@ -30,6 +30,7 @@ public class GetFoodIT extends BaseIT {
 	public void setup() throws InvalidInitFault_Exception {
 		client.ctrlClear();
 		FOODID = createFoodId("A45_Restaurant1", "Menu1");
+		FOOD.setId(FOODID);
 		client.ctrlInitFood(createFoodInitList(FOOD, QNTY));
 	}
 
