@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.ConcurrentHashMap;
 import java.lang.RuntimeException;
 
 
@@ -271,7 +271,7 @@ public class HubPortImpl implements HubPortType {
 
 		Food food = null;
 		
-		if(foodId == null || foodId.getRestaurantId() == null)
+		if(foodId == null || foodId.getRestaurantId() == null || foodId.getMenuId() == null)
 			throwInvalidFoodIdFault("Invalid foodId");
 
 		String restaurantId = foodId.getRestaurantId();
@@ -399,7 +399,7 @@ public class HubPortImpl implements HubPortType {
 
 
 	private Map<String, RestaurantClient> getRestaurants() {
-		Map<String, RestaurantClient> restaurants = new TreeMap<String, RestaurantClient>();
+		Map<String, RestaurantClient> restaurants = new ConcurrentHashMap<String, RestaurantClient>();
 		try {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
 				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
