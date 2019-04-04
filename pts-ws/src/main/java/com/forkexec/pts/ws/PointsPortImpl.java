@@ -1,7 +1,5 @@
 package com.forkexec.pts.ws;
 
-import static com.forkexec.pts.domain.Points.resetInstance;
-
 import javax.jws.WebService;
 
 import com.forkexec.pts.domain.Points;
@@ -37,21 +35,19 @@ public class PointsPortImpl implements PointsPortType {
 		try {
 			Points.getInstance().addUser(userEmail);
 		} catch (EmailAlreadyRegisteredException e) {
-			throwEmailAlreadyExists(userEmail);
+			throwEmailAlreadyExists(e.getMessage());
 		} catch (InvalidEmailAddressException e) {
-			throwInvalidEmailFault(userEmail);
+			throwInvalidEmailFault(e.getMessage());
 		}
 	}
 
 	@Override
 	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
 		int res = -1;
-		if(userEmail == null)
-			throwInvalidEmailFault(userEmail);
 		try {
 			res = Points.getInstance().getPoints(userEmail);
-		} catch (EmailIsNotRegisteredException e) {
-			throwInvalidEmailFault(userEmail);
+		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+			throwInvalidEmailFault(e.getMessage());
 		}
 		return res;
 	}
@@ -65,11 +61,10 @@ public class PointsPortImpl implements PointsPortType {
 		}
 		try {
 			res = Points.getInstance().changePoints(userEmail, pointsToAdd);
-		} catch (EmailIsNotRegisteredException e) {
-			throwInvalidEmailFault(userEmail);
+		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+			throwInvalidEmailFault(e.getMessage());
 		} catch (NotEnoughPoints e) {
-			// Should not happen
-			throwInvalidPointsFault(String.format("Cannot add '%d' points (would have negative points)", pointsToAdd));
+			throwInvalidPointsFault(e.getMessage());
 		}
 
 		return res;
@@ -86,10 +81,10 @@ public class PointsPortImpl implements PointsPortType {
 
 		try {
 			res = Points.getInstance().changePoints(userEmail, -pointsToSpend);
-		} catch (EmailIsNotRegisteredException e) {
-			throwInvalidEmailFault(userEmail);
+		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+			throwInvalidEmailFault(e.getMessage());
 		} catch (NotEnoughPoints e) {
-			throwNotEnoughBalanceFault(String.format("Cannot spend '%d' points (would have negative points)", pointsToSpend));
+			throwNotEnoughBalanceFault(e.getMessage());
 		}
 
 		return res;
@@ -125,33 +120,33 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
 		try {
-			Points.resetInstance(startPoints);
+			Points.changeStartPoints(startPoints);
 		} catch(InvalidNumberOfPointsException e) {
-			throwBadInit(startPoints);
+			throwBadInit(e.getMessage());
 		}
 	}
 
 	// Exception helpers -----------------------------------------------------
 
 	/** Helper to throw a new BadInit exception. */
-	private void throwBadInit(final int startPoints) throws BadInitFault_Exception {
+	private void throwBadInit(final String message) throws BadInitFault_Exception {
 		final BadInitFault faultInfo = new BadInitFault();
-		faultInfo.message = "Invalid points: '" + startPoints + "' (cannot be negative)";
-		throw new BadInitFault_Exception(faultInfo.message, faultInfo);
+		faultInfo.message = message;
+		throw new BadInitFault_Exception(message, faultInfo);
 	}
 
 	/** Helper to throw a new InvalidEmailFault exception. */
-	private void throwInvalidEmailFault(final String userEmail) throws InvalidEmailFault_Exception {
+	private void throwInvalidEmailFault(final String message) throws InvalidEmailFault_Exception {
 		final InvalidEmailFault faultInfo = new InvalidEmailFault();
-		faultInfo.message = "'" + userEmail + "' is an invalid email address";
-		throw new InvalidEmailFault_Exception(userEmail, faultInfo);
+		faultInfo.message = message;
+		throw new InvalidEmailFault_Exception(message, faultInfo);
 	}
 
 	/** Helper to throw a new EmailAlreadyExistsFault exception. */
-	private void throwEmailAlreadyExists(final String userEmail) throws EmailAlreadyExistsFault_Exception {
+	private void throwEmailAlreadyExists(final String message) throws EmailAlreadyExistsFault_Exception {
 		final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
-		faultInfo.message = "'" + userEmail + "' was already registered";
-		throw new EmailAlreadyExistsFault_Exception(userEmail, faultInfo);
+		faultInfo.message = message;
+		throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
 	}
 
 	/** Helper to throw a new InvalidPointsFault exception. */
@@ -161,7 +156,7 @@ public class PointsPortImpl implements PointsPortType {
 		throw new InvalidPointsFault_Exception(message, faultInfo);
 	}
 
-	/** Helper to throw a new InvalidPointsFault exception. */
+	/** Helper to throw a new NotEnoughBalanceFault exception. */
 	private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
 		final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
 		faultInfo.message = message;
