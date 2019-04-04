@@ -10,6 +10,7 @@ import com.forkexec.rst.domain.Restaurant;
 import com.forkexec.rst.domain.RestaurantMenu;
 import com.forkexec.rst.domain.RestaurantMenuOrder;
 import com.forkexec.rst.domain.exception.InsufficientQuantityException;
+import com.forkexec.rst.domain.exception.BadQuantityException;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -44,74 +45,59 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			return null;
 		}
 		
-		Restaurant rest = Restaurant.getInstance();
-		RestaurantMenu menu = rest.getMenu(menuId.getId());
+		Restaurant restaurantInstance = Restaurant.getInstance();
+		RestaurantMenu menu = restaurantInstance.getMenu(menuId.getId());
 		
-		if(rest.getMenu(menuId.getId()) == null) {
+		if(restaurantInstance.getMenu(menuId.getId()) == null) {
 			throwBadMenuId("Invalid MenuId: " + menuId.getId());
 			return null;
 		}
-		return newMenu(menu);
+		return createMenu(menu);
 	}
 	
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
-		if(descriptionText == null) {
+		if(descriptionText == null)
 			throwBadText("Description text is null!");
-			return null;
-		}
 		
-		Restaurant rest = Restaurant.getInstance();
-		Set<String> list = rest.getMenusIDs();
-		List<Menu> newMenuList = new ArrayList<>();
+		Restaurant restaurantInstance = Restaurant.getInstance();
 		
-		if(descriptionText.equals("%")) {
-			
-			for(String id: list) {
-				RestaurantMenu menu = rest.getMenu(id);
-				newMenuList.add(newMenu(menu));
-			}
-			
-			return newMenuList;
-			
-		}else if(!rest.availableString(descriptionText, false)) {
+		if(!restaurantInstance.availableString(descriptionText, false)) {
 			throwBadText("Invalid description: " + descriptionText);
-			return null;
 		}else {
 			
-			for(String id: list) {
-				RestaurantMenu menu = rest.getMenu(id);
-				if(menu.getEntree().contains(descriptionText) || menu.getPlate().contains(descriptionText) || menu.getDessert().contains(descriptionText))
-					newMenuList.add(newMenu(menu));
-			}
+			List<Menu> newMenuList = new ArrayList<>();
+			List<RestaurantMenu> menusList = restaurantInstance.getMenusByDescription(descriptionText);
+			
+			for(RestaurantMenu menu: menusList)
+				newMenuList.add(createMenu(menu));
 				
 			return newMenuList;
 		}
+		
+		return null;
 	}
 
 	@Override
 	public MenuOrder orderMenu(MenuId arg0, int arg1) throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
-		if(arg0 == null) {
+		if(arg0 == null)
 			throwBadMenuId("MenuId is null!");
-			return null;
-		}
 		
-		Restaurant rest = Restaurant.getInstance();
-		if(rest.getMenu(arg0.getId()) == null) {
+		Restaurant restaurantInstance = Restaurant.getInstance();
+		if(restaurantInstance.getMenu(arg0.getId()) == null) {
 			throwBadMenuId("Invalid MenuId: " + arg0.getId());
-			return null;
-		}else if(arg1 <= 0) {
-			throwBadQuantity("Invalid quantity: " + arg1);
-			return null;
 		}else {
 			try {
-				RestaurantMenuOrder menu =  rest.orderMenu(arg0.getId(), arg1);
-				return newMenuOrder(menu);
+				RestaurantMenuOrder menu =  restaurantInstance.orderMenu(arg0.getId(), arg1);
+				return createMenuOrder(menu);
 			}catch(InsufficientQuantityException e) {
-				throwInsufficientQuantity("Invalid quantity: " + arg1);
-				return null;
+				throwInsufficientQuantity("Cannot create an order because quantity menu is insufficient. Input: " + arg1);
+			}catch(BadQuantityException e) {
+				throwBadQuantity("Quantity cannot be negative. Input: " + arg1);
 			}
 		}
+		
+		return null;
 	}
 	
 	// Control operations ----------------------------------------------------
@@ -146,39 +132,41 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
 		if(initialMenus == null) {
 			throwBadInit("Initial menus are null!");
-			return;
+		}else {
+		
+			Restaurant restaurantInstance = Restaurant.getInstance();
+			restaurantInstance.reset();
+			
+			for(MenuInit menu: initialMenus) {
+				
+				if(restaurantInstance.getMenu(menu.getMenu().getId().getId()) != null) {
+					throwBadInit("Duplicate MenuId '" + menu.getMenu().getId().getId() + "'");
+					break;
+				}
+				
+				restaurantInstance.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
+				
+				if(restaurantInstance.getMenu(menu.getMenu().getId().getId()) == null) {
+					String error = "Invalid initialMenu:\n";
+					error += "\tMenuId: " + menu.getMenu().getId().getId();
+					error += "\tEntree: " + menu.getMenu().getEntree();
+					error += "\tPlate: " + menu.getMenu().getPlate();
+					error += "\tDessert: " + menu.getMenu().getDessert();
+					error += "\tPrice: " + menu.getMenu().getPrice();
+					error += "\tPreparationTime: " + menu.getMenu().getPreparationTime();
+					error += "\tQuantity: " + menu.getQuantity();
+					throwBadInit(error);
+					break;
+				}
+			}
 		}
 		
-		Restaurant rest = Restaurant.getInstance();
-		rest.reset();
-		
-		for(MenuInit menu: initialMenus) {
-			
-			if(rest.getMenu(menu.getMenu().getId().getId()) != null) {
-				throwBadInit("Duplicate MenuId '" + menu.getMenu().getId().getId() + "'");
-				return;
-			}
-			
-			rest.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
-			
-			if(rest.getMenu(menu.getMenu().getId().getId()) == null) {
-				String error = "Invalid initialMenu:\n";
-				error += "\tMenuId: " + menu.getMenu().getId().getId();
-				error += "\tEntree: " + menu.getMenu().getEntree();
-				error += "\tPlate: " + menu.getMenu().getPlate();
-				error += "\tDessert: " + menu.getMenu().getDessert();
-				error += "\tPrice: " + menu.getMenu().getPrice();
-				error += "\tPreparationTime: " + menu.getMenu().getPreparationTime();
-				error += "\tQuantity: " + menu.getQuantity();
-				throwBadInit(error);
-				return;
-			}
-		}
+		return;
 	}
 
 	// View helpers ----------------------------------------------------------
 	
-	private Menu newMenu(RestaurantMenu menu) {
+	private Menu createMenu(RestaurantMenu menu) {
 		Menu newMenu = new Menu();
 		MenuId newMenuId = new MenuId();
 		
@@ -194,7 +182,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		return newMenu;
 	}
 	
-	private MenuOrder newMenuOrder(RestaurantMenuOrder menu) {
+	private MenuOrder createMenuOrder(RestaurantMenuOrder menu) {
 		MenuOrder newMenu = new MenuOrder();
 
 		MenuOrderId newMenuOrderId = new MenuOrderId();

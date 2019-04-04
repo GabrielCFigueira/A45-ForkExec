@@ -1,11 +1,14 @@
 package com.forkexec.rst.domain;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.forkexec.rst.domain.exception.InsufficientQuantityException;
+import com.forkexec.rst.domain.exception.BadQuantityException;
 
 /**
  * Restaurant
@@ -65,6 +68,17 @@ public class Restaurant {
 		return _menus.get(menuId);
 	}
 	
+	public List<RestaurantMenu> getMenusByDescription(String descriptionText){
+		List<RestaurantMenu> menusList = new ArrayList<RestaurantMenu>();
+		for(String id: getMenusIDs()) {
+			RestaurantMenu menu = getMenu(id);
+			if(menu.getEntree().contains(descriptionText) || menu.getPlate().contains(descriptionText) || menu.getDessert().contains(descriptionText)) {
+				menusList.add(menu);
+			}
+		}
+		return menusList;
+	}
+	
 	public void setMenu(RestaurantMenu menu) {
 		_menus.put(menu.getId(),menu);
 	}
@@ -96,7 +110,11 @@ public class Restaurant {
 		return availableString(orderId, true) && availableString(menuId, true) && (menuQuantity > 0);
 	}
 	
-	public RestaurantMenuOrder orderMenu(String menuId, int qty) throws InsufficientQuantityException {
+	public RestaurantMenuOrder orderMenu(String menuId, int qty) throws InsufficientQuantityException, BadQuantityException {
+		if(qty <= 0) {
+			throw new BadQuantityException("BadQuantityException");
+		}
+		
 		Integer orderIdCounter = _orderIdCounter.incrementAndGet();
 		
 		if(acceptMenuOrder(orderIdCounter.toString(), menuId, qty)) {
