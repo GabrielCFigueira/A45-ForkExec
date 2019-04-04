@@ -14,26 +14,10 @@ public class CreditCardClientApp {
 			System.err.println("Usage: java " + CreditCardClientApp.class.getName() + " wsURL OR uddiURL wsName");
 			return;
 		}
-		String uddiURL = null;
-		String wsName = null;
-		String wsURL = null;
-		if (args.length == 1) {
-			wsURL = args[0];
-		} else if (args.length >= 2) {
-			uddiURL = args[0];
-			wsName = args[1];
-		}
 
 		// Create client.
-		CreditCardClient client = null;
-
-		if (wsURL != null) {
-			System.out.printf("Creating client for server at %s%n", wsURL);
-			client = new CreditCardClient(wsURL);
-		} else if (uddiURL != null) {
-			System.out.printf("Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
-			client = new CreditCardClient(uddiURL, wsName);
-		}
+		CreditCardClient client = new CreditCardClient();
+		System.out.printf("Creating client for server at %s%n", client.getWsURL());	
 
 		// The following remote invocation is just a basic example.
 		// The actual tests are made using JUnit.
