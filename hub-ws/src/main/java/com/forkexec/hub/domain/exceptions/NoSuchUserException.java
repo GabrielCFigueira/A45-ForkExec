@@ -2,9 +2,10 @@ package com.forkexec.hub.domain.exceptions;
 
 
 public class NoSuchUserException extends Exception {
+	
+	private static final long serialVersionUID = 1L;
 
-
-    public NoSuchUserException(String message) {
+	public NoSuchUserException(String message) {
         super(message);
     }
 
