@@ -102,7 +102,7 @@ public class ActionsIT extends BaseIT {
 	}
 	
 	@Test
-	public void addAndSpendPointsErrorTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
+	public void addAndSpendPointsTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
 		String mail1 = "user1@tecnico.ulisboa.pt";
 		client.activateUser(mail1);
 		client.addPoints(mail1, 50);
@@ -125,7 +125,7 @@ public class ActionsIT extends BaseIT {
 	}
 	
 	@Test (expected = EmailAlreadyExistsFault_Exception.class)
-	public void addAndSpendPointsTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
+	public void addAndSpendPointsError1Test() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
 		String mail1 = "user1@tecnico.ulisboa.pt";
 		client.activateUser(mail1);
 		client.addPoints(mail1, 50);
@@ -144,6 +144,35 @@ public class ActionsIT extends BaseIT {
 		
 		assertEquals(10, client.pointsBalance(mail1));
 		assertEquals(10, client.pointsBalance(mail2));
+	}
+	
+	@Test (expected = NotEnoughBalanceFault_Exception.class)
+	public void addAndSpendPointsError2Test() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
+		String mail1 = "user1@tecnico.ulisboa.pt";
+		client.activateUser(mail1);
+		assertEquals(100, client.pointsBalance(mail1));
+		
+		client.ctrlInit(10);
+		String mail2 = "user2@tecnico.ulisboa.pt";
+		client.activateUser(mail2);
+		client.spendPoints(mail2, 50);
+	}
+	
+	@Test
+	public void newUserWithInitTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
+		String mail1 = "user1@tecnico.ulisboa.pt";
+		client.activateUser(mail1);
+		
+		client.ctrlInit(25);
+		
+		String mail2 = "user2@tecnico.ulisboa.pt";
+		client.activateUser(mail2);
+		
+		client.spendPoints(mail1, 20);
+		client.spendPoints(mail2, 20);
+		
+		assertEquals(80, client.pointsBalance(mail1));
+		assertEquals(5, client.pointsBalance(mail2));
 	}
 	
 }
