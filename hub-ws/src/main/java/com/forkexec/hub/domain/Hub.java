@@ -16,12 +16,16 @@ import com.forkexec.hub.domain.exceptions.InvalidFoodIdException;
 import com.forkexec.hub.domain.exceptions.InvalidTextException;
 import com.forkexec.hub.domain.exceptions.InvalidUserIdException;
 import com.forkexec.hub.domain.exceptions.InvalidMoneyException;
+import com.forkexec.hub.domain.exceptions.EmptyCartException;
+import com.forkexec.hub.domain.exceptions.NotEnoughPointsException;
 
 
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.InsufficientQuantityFault_Exception;
+import com.forkexec.rst.ws.BadQuantityFault_Exception;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
@@ -30,6 +34,7 @@ import com.forkexec.rst.ws.cli.RestaurantClientException;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
+import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 
@@ -159,6 +164,49 @@ public class Hub {
 
 	public void clearCart(String userId) throws NoSuchUserException {
 		getUser(userId).clearCart();
+	}
+
+	public List<FoodOrderItem> orderCart(String UDDIUrl, String pointOrgName, String userId) 
+			throws EmptyCartException, NoSuchUserException, NotEnoughPointsException, InvalidUserIdException, InvalidFoodQuantityException {
+
+		if (getUser(userId).getCart().isEmpty())
+			throw new EmptyCartException("Cart for user " + userId + " is empty");
+		
+		int pointsToSpend = 0;
+		List<FoodOrderItem> order = cartContents(userId);
+		for(FoodOrderItem foodOrderItem : order) {
+			try {
+				pointsToSpend += getFood(UDDIUrl, foodOrderItem.getFoodId().getRestaurantId(), foodOrderItem.getFoodId()).getPrice() * foodOrderItem.getFoodQuantity();
+			} catch (InvalidFoodIdException e) {
+				throw new RuntimeException(e.getMessage());
+			}
+		}
+
+		try {
+			getPointsClient(UDDIUrl, pointOrgName).spendPoints(userId, pointsToSpend);
+		} catch (NotEnoughBalanceFault_Exception | InvalidPointsFault_Exception e){
+			throw new NotEnoughPointsException(e.getMessage());
+		} catch (InvalidEmailFault_Exception e) {
+			throw new InvalidUserIdException(e.getMessage());
+		}
+
+		for(FoodOrderItem foodOrderItem : order)
+			orderMenu(UDDIUrl, foodOrderItem.getFoodId().getRestaurantId(), userId, foodOrderItem.getFoodId(), foodOrderItem.getFoodQuantity());
+
+		return order;
+	}
+
+	private void orderMenu(String UDDIUrl, String orgName, String userId, FoodId foodId, int quantity) 
+			throws InvalidFoodQuantityException {
+		RestaurantClient restaurantClient = getRestaurantClient(UDDIUrl, orgName);
+
+		try {
+			restaurantClient.orderMenu(foodIdIntoMenuId(foodId), quantity);
+		} catch (BadMenuIdFault_Exception e) {
+			throw new RuntimeException(e.getMessage());
+		} catch(InsufficientQuantityFault_Exception | BadQuantityFault_Exception e) {
+			throw new InvalidFoodQuantityException(e.getMessage());
+		}
 	}
 
 	public int accountBalance(String UDDIUrl, String orgName, String userId) throws InvalidUserIdException {

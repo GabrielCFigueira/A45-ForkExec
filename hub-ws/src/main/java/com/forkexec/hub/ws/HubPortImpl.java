@@ -25,6 +25,8 @@ import com.forkexec.hub.domain.exceptions.InvalidFoodIdException;
 import com.forkexec.hub.domain.exceptions.InvalidTextException;
 import com.forkexec.hub.domain.exceptions.InvalidUserIdException;
 import com.forkexec.hub.domain.exceptions.InvalidMoneyException;
+import com.forkexec.hub.domain.exceptions.EmptyCartException;
+import com.forkexec.hub.domain.exceptions.NotEnoughPointsException;
 
 
 import com.forkexec.rst.ws.Menu;
@@ -111,7 +113,7 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidMoneyFault(e.getMessage());
 		} catch (InvalidCreditCardException e) {
 			throwInvalidCreditCardFault(e.getMessage());
-		} catch(UDDINamingException e) {
+		} catch (UDDINamingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
@@ -201,49 +203,34 @@ public class HubPortImpl implements HubPortType {
 	public FoodOrder orderCart(String userId)
 			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
 		
+		List<String> restaurantInfo = new ArrayList<String>();
+		String UDDIUrl = endpointManager.getUddiNaming().getUDDIUrl();
+
+		List<com.forkexec.hub.domain.FoodOrderItem> order = null;
 		try {
-			if (hub.getUser(userId).getCart().isEmpty())
-				throwEmptyCartFault(userId);
-		} catch (NoSuchUserException e) {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) {
+				order = hub.orderCart(UDDIUrl, e.getOrgName(), userId);
+				break;
+			}
+		} catch (EmptyCartException e) {
+			throwEmptyCartFault(e.getMessage());
+		} catch (NoSuchUserException | InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
+		} catch (NotEnoughPointsException e) {
+			throwNotEnoughPointsFault(e.getMessage());
+		} catch (InvalidFoodQuantityException e) {
+			throwInvalidFoodQuantityFault(e.getMessage());
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
+
+		List<FoodOrderItem> foodItems = new ArrayList<FoodOrderItem>();
+		for (com.forkexec.hub.domain.FoodOrderItem food : order)
+			foodItems.add(foodOrderItemIntoWs(food));
 
 		FoodOrder foodOrder = new FoodOrder();
-		foodOrder.items = cartContents(userId);
+		foodOrder.items = foodItems;
 
-		int pointsToSpend = 0;
-		for(FoodOrderItem foodOrderItem : foodOrder.items) {
-			try {
-				pointsToSpend += getFood(foodOrderItem.getFoodId()).getPrice() * foodOrderItem.getFoodQuantity();
-			} catch (InvalidFoodIdFault_Exception e) {
-				throw new RuntimeException(e.getMessage());
-			}
-		}
-
-		try {
-			getPointsClient().spendPoints(userId, pointsToSpend);
-		} catch (NotEnoughBalanceFault_Exception | InvalidPointsFault_Exception e){
-			throwNotEnoughPointsFault(e.getMessage());
-		} catch (InvalidEmailFault_Exception e) {
-			throwInvalidUserIdFault(e.getMessage());
-		}
-
-		Map<String, RestaurantClient> restaurants = getRestaurants();
-
-		for (FoodOrderItem foodOrderItem : foodOrder.items) {
-			FoodId foodId = foodOrderItem.getFoodId();
-			RestaurantClient restaurant = restaurants.get(foodId.getRestaurantId());
-			if(restaurant == null)
-				throw new RuntimeException("Restaurant " + foodId.getRestaurantId() + " was not found");
-			
-			try {
-				restaurant.orderMenu(foodIdIntoMenuId(foodId), foodOrderItem.getFoodQuantity());
-			} catch (BadMenuIdFault_Exception e) {
-				throw new RuntimeException(e.getMessage());
-		 	} catch(InsufficientQuantityFault_Exception | BadQuantityFault_Exception e) {
-				throwInvalidFoodQuantityFault(e.getMessage());
-			}
-		}
 
 		FoodOrderId id = new FoodOrderId();
 		id.setId(Integer.toString(foodOrderId++));
@@ -251,6 +238,8 @@ public class HubPortImpl implements HubPortType {
 
 		return foodOrder;
 	}
+
+	//TODO synchronized
 
 	@Override
 	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
