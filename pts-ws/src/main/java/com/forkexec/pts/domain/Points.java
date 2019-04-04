@@ -102,7 +102,7 @@ public class Points {
 
 	public synchronized int changePoints(String userId, int delta) throws NotEnoughPoints, EmailIsNotRegisteredException {
 		if(user_points.containsKey(userId) == false) {
-			throw new EmailIsNotRegisteredException;
+			throw new EmailIsNotRegisteredException(userId);
 		}
 		if(user_points.get(userId) + delta < 0) {
 			throw new NotEnoughPoints(-delta, user_points.get(userId));
