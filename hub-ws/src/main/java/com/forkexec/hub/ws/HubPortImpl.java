@@ -89,9 +89,13 @@ public class HubPortImpl implements HubPortType {
 
 		try {
 			getPointsClient().activateUser(userId);
-			hub.addUser(userId);
-		} catch (EmailAlreadyExistsFault_Exception | InvalidEmailFault_Exception | DuplicateUserException e) {
+		} catch (EmailAlreadyExistsFault_Exception | InvalidEmailFault_Exception e) {
 			throwInvalidUserIdFault(e.getMessage());
+		}
+		try {
+			hub.addUser(userId);
+		} catch(DuplicateUserException e){
+			throw new RuntimeException("Inconsistent state between hub and point server");
 		}
 	}
 
@@ -122,7 +126,7 @@ public class HubPortImpl implements HubPortType {
 		}
 	}
 	
-	
+	//TODO searchDeal e searchHungry no Hub?
 	@Override
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception  {
 
@@ -173,8 +177,8 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
-		getFood(foodId); //testing if the food exists; will throw an exception if not
-		
+		getFood(foodId); //testing if the food exists; will throw InvalidFoodIdFaultException if not
+
 		try {
 			hub.addFood(userId, foodIdIntoDomain(foodId), foodQuantity);
 		} catch (NoSuchUserException e) {
