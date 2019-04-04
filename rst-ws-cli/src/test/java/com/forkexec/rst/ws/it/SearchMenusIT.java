@@ -12,7 +12,6 @@ import com.forkexec.rst.ws.BadTextFault_Exception;
 import java.util.List;
 import java.util.ArrayList;
 
-import static com.forkexec.rst.ws.it.ViewUtils.*;
 import static org.junit.Assert.assertEquals;
 
 

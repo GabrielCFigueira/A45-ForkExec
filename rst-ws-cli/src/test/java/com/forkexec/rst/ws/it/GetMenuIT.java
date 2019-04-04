@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 
 import static org.junit.Assert.assertEquals;
-import static com.forkexec.rst.ws.it.ViewUtils.*;
 
 public class GetMenuIT extends BaseIT {
 
