@@ -2,15 +2,12 @@ package pt.ulisboa.tecnico.sdis.ws.cc;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
 import pt.ulisboa.tecnico.sdis.ws.CreditCard;
 import pt.ulisboa.tecnico.sdis.ws.CreditCardImplService;
-
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
 /**
  * Client port wrapper.

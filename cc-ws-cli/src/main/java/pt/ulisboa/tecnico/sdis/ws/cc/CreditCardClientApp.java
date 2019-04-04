@@ -8,13 +8,6 @@ package pt.ulisboa.tecnico.sdis.ws.cc;
 public class CreditCardClientApp {
 
 	public static void main(String[] args) throws Exception {
-		// Check arguments.
-		if (args.length == 0) {
-			System.err.println("Argument(s) missing!");
-			System.err.println("Usage: java " + CreditCardClientApp.class.getName() + " wsURL OR uddiURL wsName");
-			return;
-		}
-
 		// Create client.
 		CreditCardClient client = new CreditCardClient();
 		System.out.printf("Creating client for server at %s%n", client.getWsURL());	
