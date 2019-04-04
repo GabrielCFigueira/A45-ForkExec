@@ -20,7 +20,11 @@ import com.forkexec.hub.domain.exceptions.NoSuchUserException;
 import com.forkexec.hub.domain.exceptions.DuplicateUserException;
 import com.forkexec.hub.domain.exceptions.MaximumCartQuantityException;
 import com.forkexec.hub.domain.exceptions.InvalidFoodQuantityException;
-
+import com.forkexec.hub.domain.exceptions.InvalidCreditCardException;
+import com.forkexec.hub.domain.exceptions.InvalidFoodIdException;
+import com.forkexec.hub.domain.exceptions.InvalidTextException;
+import com.forkexec.hub.domain.exceptions.InvalidUserIdException;
+import com.forkexec.hub.domain.exceptions.InvalidMoneyException;
 
 
 import com.forkexec.rst.ws.Menu;
@@ -30,7 +34,6 @@ import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.BadInitFault;
 import com.forkexec.rst.ws.BadInitFault_Exception;
-import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.InsufficientQuantityFault_Exception;
 import com.forkexec.rst.ws.BadQuantityFault_Exception;
 import com.forkexec.rst.ws.cli.RestaurantClient;
@@ -86,14 +89,12 @@ public class HubPortImpl implements HubPortType {
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
 
 		try {
-			getPointsClient().activateUser(userId);
-		} catch (EmailAlreadyExistsFault_Exception | InvalidEmailFault_Exception e) {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%"))
+				hub.addUser(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), userId);
+		} catch (InvalidUserIdException | DuplicateUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
-		}
-		try {
-			hub.addUser(userId);
-		} catch(DuplicateUserException e){
-			throw new RuntimeException("Inconsistent state between hub and point server");
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 
@@ -102,29 +103,17 @@ public class HubPortImpl implements HubPortType {
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 
 		try {
-			CreditCardClient creditCard = new CreditCardClient();
-
-			if (!creditCard.validateNumber(creditCardNumber)) 
-				throwInvalidCreditCardFault(creditCardNumber);
-			else if (moneyToAdd == 10)
-				getPointsClient().addPoints(userId, 1000);
-			else if (moneyToAdd == 20)
-				getPointsClient().addPoints(userId, 2100);
-			else if (moneyToAdd == 30)
-				getPointsClient().addPoints(userId, 3300);
-			else if (moneyToAdd == 50)
-				getPointsClient().addPoints(userId, 5500);
-			else
-				throwInvalidMoneyFault("Invalid money quantity: " + moneyToAdd);
-
-		} catch (InvalidEmailFault_Exception e) {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%"))
+				hub.loadAccount(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), userId, moneyToAdd, creditCardNumber);
+		} catch (InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
-		} catch (CreditCardClientException | InvalidPointsFault_Exception e) {
+		} catch (InvalidCreditCardException | InvalidMoneyException e) {
 			throwInvalidMoneyFault(e.getMessage());
+		} catch(UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 	
-	//TODO searchDeal e searchHungry no Hub?
 	@Override
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception  {
 
@@ -133,16 +122,22 @@ public class HubPortImpl implements HubPortType {
 
 		List<Food> res = new ArrayList<Food>();
 		try {
-			res = getAllFood(description);
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
+				List<com.forkexec.hub.domain.Food> domainFood = hub.getAllFood(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), description);
+				for(com.forkexec.hub.domain.Food food : domainFood)
+					res.add(foodIntoWs(food));
 			
+			}
 			Collections.sort(res, new Comparator<Food>() { 
 				@Override
 				public int compare(Food food1, Food food2) {
 					return food1.getPrice() - food2.getPrice();
 				}
 			});
-		} catch (BadTextFault_Exception e) {
+		} catch (InvalidTextException e) {
 			throwInvalidTextFault(e.getMessage());
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
 
 		return res;
@@ -153,19 +148,24 @@ public class HubPortImpl implements HubPortType {
 		
 		if (description == null)
 			throwInvalidTextFault("Given description is null");
-			
+
 		List<Food> res = new ArrayList<Food>();
 		try {
-			res = getAllFood(description);
-
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
+				List<com.forkexec.hub.domain.Food> domainFood = hub.getAllFood(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), description);
+				for(com.forkexec.hub.domain.Food food : domainFood)
+					res.add(foodIntoWs(food));
+			}					
 			Collections.sort(res, new Comparator<Food>() { 
 				@Override
 				public int compare(Food food1, Food food2) {
 					return food1.getPreparationTime() - food2.getPreparationTime();
 				}
 			});
-		} catch (BadTextFault_Exception e) {
+		} catch (InvalidTextException e) {
 			throwInvalidTextFault(e.getMessage());
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
 
 		return res;
@@ -175,7 +175,7 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
-		getFood(foodId); //testing if the food exists; will throw InvalidFoodIdFaultException if not
+		getFood(foodId); //testing if the food exists; will throw InvalidFoodIdFaultException if not TODO check this
 
 		try {
 			hub.addFood(userId, foodIdIntoDomain(foodId), foodQuantity);
@@ -189,7 +189,7 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
 		try {
-			hub.getUser(userId).clearCart();
+			hub.clearCart(userId);
 		} catch (NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		}
@@ -255,9 +255,12 @@ public class HubPortImpl implements HubPortType {
 
 		int balance = -1;
 		try {
-			balance = getPointsClient().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%"))
+				balance = hub.accountBalance(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), userId);
+		} catch (InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
 		return balance;
 	}
@@ -271,16 +274,18 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidFoodIdFault("Invalid foodId");
 
 		String restaurantId = foodId.getRestaurantId();
-		RestaurantClient restaurant = getRestaurants().get(restaurantId);
-		
-		if (restaurant == null)
-			throwInvalidFoodIdFault("FoodId does not belong to any known Restaurant");
-
 		try {
-			food = menuIntoFood(restaurant.getMenu(foodIdIntoMenuId(foodId)), restaurantId);
-		} catch (BadMenuIdFault_Exception e) {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%"))
+				if(e.getOrgName().equals(restaurantId))
+					food = foodIntoWs(hub.getFood(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), foodIdIntoDomain(foodId)));
+		} catch (InvalidFoodIdException e) {
 			throwInvalidFoodIdFault(e.getMessage());
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
+
+		if (food == null)
+			throwInvalidFoodIdFault("FoodId does not belong to any known Restaurant");
 
 		return food;
 	}
@@ -289,14 +294,12 @@ public class HubPortImpl implements HubPortType {
 	public List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
 
 		List<FoodOrderItem> res = new ArrayList<FoodOrderItem>();
-
 		try {
-			for(com.forkexec.hub.domain.FoodOrderItem food : hub.getUser(userId).getCart().getFood().values())
-				res.add(foodOrderItemIntoWs(food));
+			for(com.forkexec.hub.domain.FoodOrderItem foodOrderItem : hub.cartContents(userId))
+				res.add(foodOrderItemIntoWs(foodOrderItem));
 		} catch (NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		}
-
 		return res;
 
 	}
@@ -421,38 +424,30 @@ public class HubPortImpl implements HubPortType {
 		return pointsClient;
 	}
 
-	private List<Food> getAllFood(String description) throws BadTextFault_Exception {
-		List<Food> res = new ArrayList<Food>();
-		Map<String, RestaurantClient> restaurants = getRestaurants();
-
-		for(String key : restaurants.keySet()) 
-			for (Menu menu : restaurants.get(key).searchMenus(description))
-				res.add(menuIntoFood(menu, key));
-		return res;
-	}
-
-	private Food menuIntoFood(Menu menu, String restaurantId) {
-		Food food = new Food();
-		FoodId foodId = new FoodId();
-
-		foodId.setRestaurantId(restaurantId);
-		foodId.setMenuId(menu.getId().getId());
-
-		food.setId(foodId);
-		food.setEntree(menu.getEntree());
-		food.setPlate(menu.getPlate());
-		food.setDessert(menu.getDessert());
-		food.setPrice(menu.getPrice());
-		food.setPreparationTime(menu.getPreparationTime());
-
-		return food;
-	}
-
 	private MenuId foodIdIntoMenuId(FoodId foodId) {
 		MenuId menuId = new MenuId();
 		menuId.setId(foodId.getMenuId());
 
 		return menuId;
+	}
+
+	private Food foodIntoWs(com.forkexec.hub.domain.Food domainFood) {
+		Food food = new Food();
+        food.setId(foodIdIntoWs(domainFood.getId()));
+        food.setEntree(domainFood.getEntree());
+        food.setPlate(domainFood.getPlate());
+        food.setDessert(domainFood.getDessert());
+        food.setPrice(domainFood.getPrice());
+        food.setPreparationTime(domainFood.getPreparationTime());
+
+        return food;
+	}
+
+	private FoodId foodIdIntoWs(com.forkexec.hub.domain.FoodId domainFoodId) {
+		FoodId foodId = new FoodId();
+		foodId.setRestaurantId(domainFoodId.getRestaurantId());
+		foodId.setMenuId(domainFoodId.getMenuId());
+		return foodId;
 	}
 
 	private FoodOrderItem foodOrderItemIntoWs(com.forkexec.hub.domain.FoodOrderItem food) {
