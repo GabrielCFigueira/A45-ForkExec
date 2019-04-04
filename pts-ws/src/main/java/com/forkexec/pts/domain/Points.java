@@ -58,11 +58,10 @@ public class Points {
 		SingletonHolder.reset();
 	}
 
-	public static synchronized void resetInstance(int startPoints) throws InvalidNumberOfPointsException {
+	public static void resetInstance(int startPoints) throws InvalidNumberOfPointsException {
 		if(startPoints < 0) {
 			throw new InvalidNumberOfPointsException(startPoints);
 		}
-		SingletonHolder.reset();
 		SingletonHolder.INSTANCE.setInitialBalance(startPoints);
 	}
 
