@@ -18,11 +18,6 @@
 
 		<wsdl.dir>${basedir}/../cc-contract/</wsdl.dir>
 		
-		<ws.host>localhost</ws.host>
-		<ws.port>8090</ws.port>
-		<ws.url>http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc</ws.url>
-
-		<ws.name>${cc.ws.name}</ws.name>
 	</properties>
 	<dependencies>
 		<!-- JAX-WS -->
@@ -122,10 +117,6 @@
 
 					<killAfter>-1</killAfter>
 					<mainClass>${mainclass}</mainClass>
-					<arguments>
-						<argument>${uddi.url}</argument>
-						<argument>${ws.name}</argument>
-					</arguments>
 				</configuration>
 			</plugin>
 			<plugin>
