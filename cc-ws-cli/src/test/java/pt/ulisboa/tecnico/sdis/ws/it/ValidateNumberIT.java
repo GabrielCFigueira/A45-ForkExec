@@ -46,8 +46,18 @@ public class ValidateNumberIT extends BaseIT {
 	}
 	
 	@Test
+	public void validateNumber_Example_Error() {
+		assertFalse(client.validateNumber("4024007122923926"));
+	}
+	
+	@Test
 	public void validateNumber_Visa() {
 		assertTrue(client.validateNumber("4012888888881881"));
+	}
+	
+	@Test
+	public void validateNumber_VisaLong() {
+		assertFalse(client.validateNumber("4539425109372955004"));
 	}
 	
 	@Test
@@ -58,5 +68,55 @@ public class ValidateNumberIT extends BaseIT {
 	@Test
 	public void validateNumber_Discover() {
 		assertTrue(client.validateNumber("6011849224495626"));
+	}
+	
+	@Test
+	public void validateNumber_DiscoverLong() {
+		assertFalse(client.validateNumber("6011519892160773227"));
+	}
+	
+	@Test
+	public void validateNumber_DinersClub_Carte_Blanche() {
+		assertFalse(client.validateNumber("30365099888928"));
+	}
+	
+	@Test
+	public void validateNumber_DinersClub_International() {
+		assertFalse(client.validateNumber("36739336179727"));
+	}
+	
+	@Test
+	public void validateNumber_DinersClub_North_America() {
+		assertTrue(client.validateNumber("5449341035016019"));
+	}
+	
+	@Test
+	public void validateNumber_Visa_Electron() {
+		assertTrue(client.validateNumber("4917968197279393"));
+	}
+	
+	@Test
+	public void validateNumber_JCB() {
+		assertTrue(client.validateNumber("3528046019155142"));
+	}
+	
+	@Test
+	public void validateNumber_JCBLong() {
+		assertFalse(client.validateNumber("3534557107578355864"));
+	}
+	
+	@Test
+	public void validateNumber_InstaPayment() {
+		assertTrue(client.validateNumber("6371718415428965"));
+	}
+	
+	@Test
+	public void validateNumber_Maestro() {
+		assertTrue(client.validateNumber("6761997134354045"));
+	}
+	
+	@Test
+	public void validateNumber_AmericanExpression() {
+		assertFalse(client.validateNumber("373123899700065"));
 	}
 }
