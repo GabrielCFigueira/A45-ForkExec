@@ -11,7 +11,7 @@ import org.junit.Test;
 public class CtrlIT extends BaseIT {
 	
 	@Before
-	public void clear(){
+	public void setUp(){
 		client.ctrlClear();
 	}
 

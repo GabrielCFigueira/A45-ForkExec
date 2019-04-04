@@ -12,7 +12,7 @@ import org.junit.Test;
 public class ActivateUserIT extends BaseIT {
 	
 	@Before
-	public void clear(){
+	public void setUp(){
 		client.ctrlClear();
 	}
 

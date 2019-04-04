@@ -17,7 +17,7 @@ import org.junit.Test;
 public class ActionsIT extends BaseIT {
 	
 	@Before
-	public void clear(){
+	public void setUp(){
 		client.ctrlClear();
 	}
 	
