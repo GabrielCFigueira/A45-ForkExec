@@ -135,7 +135,6 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		}else {
 		
 			Restaurant restaurantInstance = Restaurant.getInstance();
-			restaurantInstance.reset();
 			
 			for(MenuInit menu: initialMenus) {
 				
