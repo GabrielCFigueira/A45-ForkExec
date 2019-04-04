@@ -92,7 +92,10 @@ public class Points {
 		user_points.put(userId, initialBalance.get());
 	}
 
-	public int getPoints(String userId) throws EmailIsNotRegisteredException {
+	public int getPoints(String userId) throws EmailIsNotRegisteredException, InvalidEmailAddressException {
+		if(userId == null || isValidEmailAddress(userId) == false) {
+			throw new InvalidEmailAddressException(userId);
+		}
 		Integer res = user_points.get(userId);
 		if(res == null) {
 			throw new EmailIsNotRegisteredException(userId);
@@ -100,9 +103,12 @@ public class Points {
 		return res;
 	}
 
-	public synchronized int changePoints(String userId, int delta) throws NotEnoughPoints, EmailIsNotRegisteredException {
+	public synchronized int changePoints(String userId, int delta) throws NotEnoughPoints, EmailIsNotRegisteredException, InvalidEmailAddressException {
+		if(userId == null || isValidEmailAddress(userId) == false) {
+			throw new InvalidEmailAddressException(userId);
+		}
 		if(user_points.containsKey(userId) == false) {
-			throw new EmailIsNotRegisteredException;
+			throw new EmailIsNotRegisteredException(userId);
 		}
 		if(user_points.get(userId) + delta < 0) {
 			throw new NotEnoughPoints(-delta, user_points.get(userId));
