@@ -19,8 +19,10 @@ import com.forkexec.hub.ws.InvalidInitFault_Exception;
  */
 public class GetFoodIT extends BaseIT {
 	private static final int QNTY = 5;
-	private static FoodId FOODID;
-	private static final Food FOOD = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20);
+	private static FoodId FOODID_R1;
+	private static FoodId FOODID_R2;
+	private static final Food FOOD_R1 = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20);
+	private static final Food FOOD_R2 = createFood("Pao de alho", "Hamburguer", "Mousse", 2, 20);
 	// tests
 	// assertEquals(expected, actual);
 
@@ -29,17 +31,22 @@ public class GetFoodIT extends BaseIT {
 	@Before
 	public void setup() throws InvalidInitFault_Exception {
 		client.ctrlClear();
-		FOODID = createFoodId("A45_Restaurant1", "Menu1");
-		FOOD.setId(FOODID);
-		client.ctrlInitFood(createFoodInitList(FOOD, QNTY));
+		FOODID_R1 = createFoodId("A45_Restaurant1", "Menu1");
+		FOODID_R2 = createFoodId("A45_Restaurant2", "Menu1");
+		FOOD_R1.setId(FOODID_R1);
+		FOOD_R2.setId(FOODID_R2);
+		client.ctrlInitFood(createFoodInitList(FOOD_R1, QNTY));
+		client.ctrlInitFood(createFoodInitList(FOOD_R2, QNTY));
 	}
 
 	@Test
 	public void success() throws InvalidFoodIdFault_Exception {
-		Food f = client.getFood(FOODID);
+		Food f1 = client.getFood(FOODID_R1);
+		Food f2 = client.getFood(FOODID_R2);
 
 		// the food and foodId is equal
-		assertEqualFood(FOOD, f);
+		assertEqualFood(FOOD_R1, f1);
+		assertEqualFood(FOOD_R2, f2);
 	}
 
 	@Test(expected = InvalidFoodIdFault_Exception.class)
@@ -54,25 +61,25 @@ public class GetFoodIT extends BaseIT {
 
 	@Test(expected = InvalidFoodIdFault_Exception.class)
 	public void nullRestaurant() throws InvalidFoodIdFault_Exception {
-		FOODID.setRestaurantId(null);
-		client.getFood(FOODID);
+		FOODID_R1.setRestaurantId(null);
+		client.getFood(FOODID_R1);
 	}
 
 	@Test(expected = InvalidFoodIdFault_Exception.class)
 	public void invalidRestaurant() throws InvalidFoodIdFault_Exception {
-		FOODID.setRestaurantId("!!INVALID!!");
-		client.getFood(FOODID);
+		FOODID_R1.setRestaurantId("!!INVALID!!");
+		client.getFood(FOODID_R1);
 	}
 
 	@Test(expected = InvalidFoodIdFault_Exception.class)
 	public void nullMenu() throws InvalidFoodIdFault_Exception {
-		FOODID.setMenuId(null);
-		client.getFood(FOODID);
+		FOODID_R1.setMenuId(null);
+		client.getFood(FOODID_R1);
 	}
 
 	@Test(expected = InvalidFoodIdFault_Exception.class)
 	public void invalidMenu() throws InvalidFoodIdFault_Exception {
-		FOODID.setMenuId("!!INVALID!!");
-		client.getFood(FOODID);
+		FOODID_R1.setMenuId("!!INVALID!!");
+		client.getFood(FOODID_R1);
 	}
 }

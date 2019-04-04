@@ -18,10 +18,15 @@ import com.forkexec.hub.ws.InvalidTextFault_Exception;
  */
 public class SearchHungryIT extends BaseIT {
 	private static final int QNTY = 1000;
-	private static final FoodId FOODID1 = createFoodId("A45_Restaurant1", "Menu1");
-	private static final FoodId FOODID2 = createFoodId("A45_Restaurant1", "Menu2");
-	private static final Food FOOD1 = createFood("Bitoque Soberbo", "Bitoque Bom", "Bitoque Fantástico", 20, 20, FOODID1);
-	private static final Food FOOD2 = createFood("Bitoque Horrível", "Bitoque Mau", "Bitoque Terrível", 15, 15, FOODID2);
+	private static final FoodId FOODID1_R1 = createFoodId("A45_Restaurant1", "Menu1");
+	private static final FoodId FOODID2_R1 = createFoodId("A45_Restaurant1", "Menu2");
+	private static final Food FOOD1_R1 = createFood("Bitoque Soberbo", "Bitoque Bom", "Bitoque Fantástico", 20, 20, FOODID1_R1);
+	private static final Food FOOD2_R1 = createFood("Bitoque Saboroso", "Bitoque Mau", "Bitoque Terrível", 15, 15, FOODID2_R1);
+	
+	private static final FoodId FOODID1_R2 = createFoodId("A45_Restaurant2", "Menu1");
+	private static final FoodId FOODID2_R2 = createFoodId("A45_Restaurant2", "Menu2");
+	private static final Food FOOD1_R2 = createFood("Pao de alho Soberbo", "Hamburguer Bom", "Mousse Fantástico", 10, 10, FOODID1_R2);
+	private static final Food FOOD2_R2 = createFood("Pao de alho Horrível", "Hamburguer Mau", "Mousse Terrível", 5, 5, FOODID2_R2);
 
 	// tests
 	// assertEquals(expected, actual);
@@ -30,8 +35,11 @@ public class SearchHungryIT extends BaseIT {
 	@Before
 	public void setup() throws InvalidInitFault_Exception {
 		client.ctrlClear();
-		List<FoodInit> a = createFoodInitList(FOOD1, QNTY);
-		a.add(createFoodInit(FOOD2, QNTY));
+		List<FoodInit> a = createFoodInitList(FOOD1_R1, QNTY);
+		a.add(createFoodInit(FOOD2_R1, QNTY));
+		client.ctrlInitFood(a);
+		a = createFoodInitList(FOOD1_R2, QNTY);
+		a.add(createFoodInit(FOOD2_R2, QNTY));
 		client.ctrlInitFood(a);
 	}
 
@@ -44,25 +52,52 @@ public class SearchHungryIT extends BaseIT {
 
 	@Test
 	public void searchWithOneResult() throws InvalidTextFault_Exception {
-		List<Food> res = client.searchDeal("Bom");
+		List<Food> res = client.searchDeal("Saboroso");
 		assertEquals(1, res.size());
-		assertEqualFood(FOOD1, res.get(0));
+		assertEqualFood(FOOD2_R1, res.get(0));
+	}
+	
+	@Test
+	public void searchWithTwoResults1() throws InvalidTextFault_Exception {
+		List<Food> res = client.searchDeal("Bom");
+		assertEquals(2, res.size());
+		assertEqualFood(FOOD1_R2, res.get(0));
+		assertEqualFood(FOOD1_R1, res.get(1));
 	}
 
 	@Test
-	public void searchWithTwoResults() throws InvalidTextFault_Exception {
+	public void searchWithTwoResults2() throws InvalidTextFault_Exception {
 		List<Food> res = client.searchDeal("Bitoque");
 		assertEquals(2, res.size());
-		assertEqualFood(FOOD2, res.get(0));
-		assertEqualFood(FOOD1, res.get(1));
+		assertEqualFood(FOOD2_R1, res.get(0));
+		assertEqualFood(FOOD1_R1, res.get(1));
+	}
+	
+	@Test
+	public void searchWithTwoResults3() throws InvalidTextFault_Exception {
+		List<Food> res = client.searchDeal("Pao");
+		assertEquals(2, res.size());
+		assertEqualFood(FOOD2_R2, res.get(0));
+		assertEqualFood(FOOD1_R2, res.get(1));
 	}
 
 	@Test
-	public void parcialSearchWithTwoResults() throws InvalidTextFault_Exception {
+	public void parcialSearchWithThreeResults() throws InvalidTextFault_Exception {
 		List<Food> res = client.searchDeal("B");
-		assertEquals(2, res.size());
-		assertEqualFood(FOOD2, res.get(0));
-		assertEqualFood(FOOD1, res.get(1));
+		assertEquals(3, res.size());
+		assertEqualFood(FOOD1_R2, res.get(0));
+		assertEqualFood(FOOD2_R1, res.get(1));
+		assertEqualFood(FOOD1_R1, res.get(2));
+	}
+	
+	@Test
+	public void parcialSearchWithFourResults() throws InvalidTextFault_Exception {
+		List<Food> res = client.searchDeal("o");
+		assertEquals(4, res.size());
+		assertEqualFood(FOOD2_R2, res.get(0));
+		assertEqualFood(FOOD1_R2, res.get(1));
+		assertEqualFood(FOOD2_R1, res.get(2));
+		assertEqualFood(FOOD1_R1, res.get(3));
 	}
 
 	@Test(expected = InvalidTextFault_Exception.class)
@@ -78,5 +113,10 @@ public class SearchHungryIT extends BaseIT {
 	@Test(expected = InvalidTextFault_Exception.class)
 	public void emptyText() throws InvalidTextFault_Exception {
 		client.searchDeal("");
+	}
+	
+	@Test(expected = InvalidTextFault_Exception.class)
+	public void searchWithTextWithSpaces() throws InvalidTextFault_Exception {
+		client.searchDeal("Bitoque Bom");
 	}
 }

@@ -24,8 +24,10 @@ public class CartContentsIT extends BaseIT {
 	private static final int QNTY = 5;
 	private static final int ASKED_QNTY = 1;
 	private static final String USER = "user@email";
-	private static final FoodId FOODID = createFoodId("A45_Restaurant1", "Menu1");
-	private static final Food FOOD = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20, FOODID);
+	private static final FoodId FOODID_R1 = createFoodId("A45_Restaurant1", "Menu1");
+	private static final FoodId FOODID_R2 = createFoodId("A45_Restaurant2", "Menu1");
+	private static final Food FOOD_R1 = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20, FOODID_R1);
+	private static final Food FOOD_R2 = createFood("Pao de alho", "Hamburguer", "Mousse", 2, 20, FOODID_R2);
 
 	// tests
 	// assertEquals(expected, actual);
@@ -35,9 +37,11 @@ public class CartContentsIT extends BaseIT {
 	@Before
 	public void setup() throws InvalidInitFault_Exception, InvalidUserIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception {
 		client.ctrlClear();
-		client.ctrlInitFood(createFoodInitList(FOOD, QNTY));
+		client.ctrlInitFood(createFoodInitList(FOOD_R1, QNTY));
+		client.ctrlInitFood(createFoodInitList(FOOD_R2, QNTY));
 		client.activateAccount(USER);
-		client.addFoodToCart(USER, FOODID, ASKED_QNTY);
+		client.addFoodToCart(USER, FOODID_R1, ASKED_QNTY);
+		client.addFoodToCart(USER, FOODID_R2, ASKED_QNTY);
 	}
 
 	@Test
@@ -45,7 +49,12 @@ public class CartContentsIT extends BaseIT {
 		FoodOrderItem res = client.cartContents(USER).get(0);
 
 		// food id and quantity is the same
-		assertEqualFoodId(FOODID, res.getFoodId());
+		assertEqualFoodId(FOODID_R1, res.getFoodId());
+		assertEquals(ASKED_QNTY, res.getFoodQuantity());
+		
+		res = client.cartContents(USER).get(1);
+		// food id and quantity is the same
+		assertEqualFoodId(FOODID_R2, res.getFoodId());
 		assertEquals(ASKED_QNTY, res.getFoodQuantity());
 	}
 
@@ -66,20 +75,20 @@ public class CartContentsIT extends BaseIT {
 	}
 
 	@Test // TODO: será que devia agregar
-	public void successTwiceTheSameFood() throws InvalidUserIdFault_Exception, InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception {
-		client.addFoodToCart(USER, FOODID, 1);
+	public void successTwiceTheSameFood_Restaurant1() throws InvalidUserIdFault_Exception, InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception {
+		client.addFoodToCart(USER, FOODID_R1, 1);
 
 		List<FoodOrderItem> res = client.cartContents(USER);
 
 		if(res.size() == 1) {
-			assertEqualFoodId(FOODID, res.get(0).getFoodId());
+			assertEqualFoodId(FOODID_R1, res.get(0).getFoodId());
 			assertEquals(ASKED_QNTY * 2, res.get(0).getFoodQuantity());
 
 		} else if(res.size() == 2) {
-			assertEqualFoodId(FOODID, res.get(0).getFoodId());
-			assertEquals(ASKED_QNTY, res.get(0).getFoodQuantity());
+			assertEqualFoodId(FOODID_R1, res.get(0).getFoodId());
+			assertEquals(ASKED_QNTY * 2, res.get(0).getFoodQuantity());
 
-			assertEqualFoodId(FOODID, res.get(1).getFoodId());
+			assertEqualFoodId(FOODID_R2, res.get(1).getFoodId());
 			assertEquals(ASKED_QNTY, res.get(1).getFoodQuantity());
 		} else {
 			fail(String.format("Non-sensical result: list of size %d (only 2 orders done)", res.size()));

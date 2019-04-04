@@ -27,8 +27,10 @@ public class OrderCartIT extends BaseIT {
 	private static final int QNTY = 5;
 	private static final int ASKED_QNTY = 1;
 	private static final String USER = "user@email";
-	private static final FoodId FOODID = createFoodId("A45_Restaurant1", "Menu1");
-	private static final Food FOOD = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20, FOODID);
+	private static final FoodId FOODID_R1 = createFoodId("A45_Restaurant1", "Menu1");
+	private static final FoodId FOODID_R2 = createFoodId("A45_Restaurant2", "Menu1");
+	private static final Food FOOD_R1 = createFood("Bitoque", "Bitoque", "Bitoque", 2, 20, FOODID_R1);
+	private static final Food FOOD_R2 = createFood("Pao de alho", "Hamburguer", "Mousse", 2, 20, FOODID_R2);
 
 	// tests
 	// assertEquals(expected, actual);
@@ -38,16 +40,23 @@ public class OrderCartIT extends BaseIT {
 	@Before
 	public void setup() throws InvalidInitFault_Exception, InvalidUserIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception {
 		client.ctrlClear();
-		client.ctrlInitFood(createFoodInitList(FOOD, QNTY));
+		client.ctrlInitFood(createFoodInitList(FOOD_R1, QNTY));
+		client.ctrlInitFood(createFoodInitList(FOOD_R2, QNTY));
 		client.activateAccount(USER);
-		client.addFoodToCart(USER, FOODID, ASKED_QNTY);
+		client.addFoodToCart(USER, FOODID_R1, ASKED_QNTY);
+		client.addFoodToCart(USER, FOODID_R2, ASKED_QNTY);
 	}
 
 	@Test
 	public void success() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
 		FoodOrderItem res = client.orderCart(USER).getItems().get(0);
 
-		assertEqualFoodId(FOODID, res.getFoodId());
+		assertEqualFoodId(FOODID_R1, res.getFoodId());
+		assertEquals(ASKED_QNTY, res.getFoodQuantity());
+		
+		res = client.orderCart(USER).getItems().get(1);
+		
+		assertEqualFoodId(FOODID_R2, res.getFoodId());
 		assertEquals(ASKED_QNTY, res.getFoodQuantity());
 	}
 
@@ -72,20 +81,20 @@ public class OrderCartIT extends BaseIT {
 	public void notEnoughPoints() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception, InvalidInitFault_Exception {
 		client.ctrlInitUserPoints(1);
 		client.activateAccount("user2@email");
-		client.addFoodToCart("user2@email", FOODID, 1);
+		client.addFoodToCart("user2@email", FOODID_R1, 1);
 		client.orderCart("user2@email");
 	}
 
 	@Test(expected = InvalidFoodQuantityFault_Exception.class)
 	public void tooMuchFood() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception {
-		client.addFoodToCart(USER, FOODID, QNTY);
+		client.addFoodToCart(USER, FOODID_R1, QNTY);
 		client.orderCart(USER);
 	}
 
 	@Test(expected = InvalidFoodQuantityFault_Exception.class)
 	public void foodAlreadyTaken() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception {
 		client.activateAccount("user2@email");
-		client.addFoodToCart("user2@email", FOODID, QNTY);
+		client.addFoodToCart("user2@email", FOODID_R1, QNTY);
 		try {
 			client.orderCart("user2@email"); // all the food is checked out here
 		} catch(Exception e) {
