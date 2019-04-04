@@ -61,6 +61,8 @@ public class Hub {
 	}
 
 	public User getUser(String userId) throws NoSuchUserException {
+		if (userId == null)
+			throw new NoSuchUserException("UserId set to null");
 		User user = _users.get(userId);
 		if(user == null)
 			throw new NoSuchUserException("User with Id: " + userId + " does not exist");

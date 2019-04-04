@@ -19,7 +19,8 @@ public class Cart {
             throw new MaximumCartQuantityException("The new order exceeds the allowed cart capacity: " + maximumQuantity);
         if (_food.containsKey(foodId))
             _food.get(foodId).setFoodQuantity(_food.get(foodId).getFoodQuantity() + quantity);
-        _food.put(foodId, new FoodOrderItem(foodId, quantity));
+        else
+            _food.put(foodId, new FoodOrderItem(foodId, quantity));
     }
 
     public int getQuantity() {
