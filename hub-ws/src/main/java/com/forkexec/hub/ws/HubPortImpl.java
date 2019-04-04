@@ -18,6 +18,8 @@ import com.forkexec.hub.domain.Hub;
 import com.forkexec.hub.domain.exceptions.NoSuchUserException;
 import com.forkexec.hub.domain.exceptions.DuplicateUserException;
 import com.forkexec.hub.domain.exceptions.MaximumCartQuantityException;
+import com.forkexec.hub.domain.exceptions.InvalidFoodQuantityException;
+
 
 
 
@@ -28,6 +30,9 @@ import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.BadInitFault;
 import com.forkexec.rst.ws.BadInitFault_Exception;
+import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.InsufficientQuantityFault_Exception;
+import com.forkexec.rst.ws.BadQuantityFault_Exception;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
@@ -36,6 +41,8 @@ import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
+
+
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 
@@ -59,8 +66,9 @@ public class HubPortImpl implements HubPortType {
 
 
 	private Hub hub = Hub.getInstance();
+	private int foodOrderId = 0;
 
-	int foodOrderId = 0;
+	//TODO synchronized
 
 
 	/**
@@ -118,6 +126,9 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception  {
 
+		if (description == null)
+			throwInvalidTextFault("Given description is null");
+
 		List<Food> res = new ArrayList<Food>();
 		try {
 			res = getAllFood(description);
@@ -138,6 +149,9 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
 		
+		if (description == null)
+			throwInvalidTextFault("Given description is null");
+			
 		List<Food> res = new ArrayList<Food>();
 		try {
 			res = getAllFood(description);
@@ -155,21 +169,17 @@ public class HubPortImpl implements HubPortType {
 		return res;
 	}
 
-	//TODO should the user's cart keep a list of FoodIds or Foods?
 	@Override
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
 		getFood(foodId); //testing if the food exists; will throw an exception if not
 		
-		if (foodQuantity < 1)
-			throwInvalidFoodQuantityFault("FoodQuantity " + foodQuantity + " is invalid");
-
 		try {
 			hub.addFood(userId, foodIdIntoDomain(foodId), foodQuantity);
 		} catch (NoSuchUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
-		} catch (MaximumCartQuantityException e) {
+		} catch (MaximumCartQuantityException | InvalidFoodQuantityException e) {
 			throwInvalidFoodQuantityFault(e.getMessage());
 		}
 	}
@@ -198,12 +208,13 @@ public class HubPortImpl implements HubPortType {
 		foodOrder.items = cartContents(userId);
 
 		int pointsToSpend = 0;
-		for(FoodOrderItem foodOrderItem : foodOrder.items)
+		for(FoodOrderItem foodOrderItem : foodOrder.items) {
 			try {
-				pointsToSpend += getFood(foodOrderItem.getFoodId()).getPrice();
+				pointsToSpend += getFood(foodOrderItem.getFoodId()).getPrice() * foodOrderItem.getFoodQuantity();
 			} catch (InvalidFoodIdFault_Exception e) {
-				//TODO this should never happen
+				throw new RuntimeException(e.getMessage());
 			}
+		}
 
 		try {
 			getPointsClient().spendPoints(userId, pointsToSpend);
@@ -211,6 +222,28 @@ public class HubPortImpl implements HubPortType {
 			throwNotEnoughPointsFault(e.getMessage());
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserIdFault(e.getMessage());
+		}
+
+		Map<String, RestaurantClient> restaurants = getRestaurants();
+
+		for (FoodOrderItem foodOrderItem : foodOrder.items) {
+			FoodId foodId = foodOrderItem.getFoodId();
+			RestaurantClient restaurant = restaurants.get(foodId.getRestaurantId());
+			if(restaurant == null)
+				throw new RuntimeException("Restaurant " + foodId.getRestaurantId() + " was not found");
+			
+			try {
+				restaurant.orderMenu(foodIdIntoMenuId(foodId), foodOrderItem.getFoodQuantity());
+			} catch (BadMenuIdFault_Exception | BadQuantityFault_Exception e) {
+				throw new RuntimeException(e.getMessage());
+		 	} catch(InsufficientQuantityFault_Exception e) {
+				try {
+				 	getPointsClient().addPoints(userId, getFood(foodOrderItem.getFoodId()).getPrice() * foodOrderItem.getFoodQuantity());
+					foodOrder.items.remove(foodOrderItem);
+				} catch (InvalidEmailFault_Exception | InvalidPointsFault_Exception | InvalidFoodIdFault_Exception exception) {
+					throw new RuntimeException(exception.getMessage());
+				}
+			}
 		}
 		
 		FoodOrderId id = new FoodOrderId();
@@ -237,14 +270,12 @@ public class HubPortImpl implements HubPortType {
 
 		Food food = null;
 		
-		if(foodId == null)
+		if(foodId == null || foodId.getRestaurantId() == null)
 			throwInvalidFoodIdFault("Invalid foodId");
 
 		String restaurantId = foodId.getRestaurantId();
-		if(restaurantId == null)
-			throwInvalidFoodIdFault("Invalid foodId");
-
 		RestaurantClient restaurant = getRestaurants().get(restaurantId);
+		
 		if (restaurant == null)
 			throwInvalidFoodIdFault("FoodId does not belong to any known Restaurant");
 
@@ -393,7 +424,6 @@ public class HubPortImpl implements HubPortType {
 		return pointsClient;
 	}
 
-	//TODO searchMenus can return null
 	private List<Food> getAllFood(String description) throws BadTextFault_Exception {
 		List<Food> res = new ArrayList<Food>();
 		Map<String, RestaurantClient> restaurants = getRestaurants();
