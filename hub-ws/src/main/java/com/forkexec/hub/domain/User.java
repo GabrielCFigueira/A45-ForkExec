@@ -2,6 +2,7 @@ package com.forkexec.hub.domain;
 
 
 import com.forkexec.hub.domain.exceptions.MaximumCartQuantityException;
+import com.forkexec.hub.domain.exceptions.InvalidFoodQuantityException;
 
 
 public class User {
@@ -15,7 +16,7 @@ public class User {
     public String getUserId() {return _userId;}
     public Cart getCart() {return _cart;}
 
-    public void addFood(FoodId foodId, int quantity) throws MaximumCartQuantityException {
+    public void addFood(FoodId foodId, int quantity) throws MaximumCartQuantityException, InvalidFoodQuantityException {
         _cart.addFood(foodId, quantity);
     }
 
