@@ -197,7 +197,7 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public FoodOrder orderCart(String userId)
-			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
+			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
 		
 		try {
 			if (hub.getUser(userId).getCart().isEmpty())
