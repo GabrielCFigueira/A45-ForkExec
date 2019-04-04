@@ -58,7 +58,7 @@ public class Points {
 		SingletonHolder.reset();
 	}
 
-	public static void resetInstance(int startPoints) throws InvalidNumberOfPointsException {
+	public static void changeStartPoints(int startPoints) throws InvalidNumberOfPointsException {
 		if(startPoints < 0) {
 			throw new InvalidNumberOfPointsException(startPoints);
 		}
@@ -102,7 +102,7 @@ public class Points {
 
 	public synchronized int changePoints(String userId, int delta) throws NotEnoughPoints, EmailIsNotRegisteredException {
 		if(user_points.containsKey(userId) == false) {
-			throw new EmailIsNotRegisteredException(userId);
+			throw new EmailIsNotRegisteredException;
 		}
 		if(user_points.get(userId) + delta < 0) {
 			throw new NotEnoughPoints(-delta, user_points.get(userId));
