@@ -7,6 +7,14 @@ import com.forkexec.hub.ws.cli.HubClient;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.forkexec.hub.ws.Food;
+import com.forkexec.hub.ws.FoodId;
+import com.forkexec.hub.ws.FoodInit;
 
 /**
  * Base class for testing a Park Load properties from test.properties
@@ -50,4 +58,57 @@ public class BaseIT {
 	public static void cleanup() {
 	}
 
+	protected static FoodId createFoodId(String restaurantId, String menuId) {
+		FoodId res = new FoodId();
+		res.setRestaurantId(restaurantId);
+		res.setMenuId(menuId);
+		return res;
+	}
+
+	protected static Food createFood(String entree, String plate, String dessert, int price, int prepTime) {
+		Food res = new Food();
+		res.setEntree(entree);
+		res.setPlate(plate);
+		res.setDessert(dessert);
+		res.setPrice(price);
+		res.setPreparationTime(prepTime);
+		return res;
+	}
+
+	protected static Food createFood(String entree, String plate, String dessert, int price, int prepTime, FoodId id) {
+		Food res = createFood(entree, plate, dessert, price, prepTime);
+		res.setId(id);
+		return res;
+	}
+
+	protected static FoodInit createFoodInit(Food f, int quantity) {
+		FoodInit res = new FoodInit();
+		res.setFood(f);
+		res.setQuantity(quantity);
+		return res;
+	}
+
+	protected static List<FoodInit> createFoodInitList(Food f, int quantity) {
+		List<FoodInit> res = new ArrayList<>();
+		res.add(createFoodInit(f, quantity));
+		return res;
+	}
+
+	protected static void assertEqualFood(Food expected, Food actual) {
+
+		assertEquals(expected.getEntree(),          actual.getEntree());
+		assertEquals(expected.getPlate(),           actual.getPlate());
+		assertEquals(expected.getDessert(),         actual.getDessert());
+		assertEquals(expected.getPrice(),           actual.getPrice());
+		assertEquals(expected.getPreparationTime(), actual.getPreparationTime());
+
+		assertEqualFoodId(expected.getId(), actual.getId());
+	}
+
+	protected static void assertEqualFoodId(FoodId expected, FoodId actual) {
+
+		assertEquals(expected.getRestaurantId(), actual.getRestaurantId());
+		assertEquals(expected.getMenuId(),       actual.getMenuId());
+
+	}
 }
