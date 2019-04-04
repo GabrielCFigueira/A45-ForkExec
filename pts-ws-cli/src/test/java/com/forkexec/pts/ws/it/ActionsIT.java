@@ -6,7 +6,7 @@ import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -101,9 +101,7 @@ public class ActionsIT extends BaseIT {
 		client.activateUser(mail);
 	}
 	
-	
-	
-	@Test (expected = InvalidEmailFault_Exception.class)
+	@Test
 	public void addAndSpendPointsErrorTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
 		String mail1 = "user1@tecnico.ulisboa.pt";
 		client.activateUser(mail1);
@@ -116,13 +114,17 @@ public class ActionsIT extends BaseIT {
 		assertEquals(150, client.pointsBalance(mail1));
 		assertEquals(50, client.pointsBalance(mail2));
 		
+		client.ctrlClear();
 		client.ctrlInit(10);
+		
+		client.activateUser(mail1);
+		client.activateUser(mail2);
 		
 		assertEquals(10, client.pointsBalance(mail1));
 		assertEquals(10, client.pointsBalance(mail2));
 	}
 	
-	@Test
+	@Test (expected = EmailAlreadyExistsFault_Exception.class)
 	public void addAndSpendPointsTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
 		String mail1 = "user1@tecnico.ulisboa.pt";
 		client.activateUser(mail1);
@@ -143,5 +145,5 @@ public class ActionsIT extends BaseIT {
 		assertEquals(10, client.pointsBalance(mail1));
 		assertEquals(10, client.pointsBalance(mail2));
 	}
-		
+	
 }
