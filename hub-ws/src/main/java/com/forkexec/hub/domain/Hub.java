@@ -240,7 +240,7 @@ public class Hub {
 	public void ctrlInitPoints(String UDDIUrl, String orgName, int startPoints) throws BadInitException {
 		try {
 			getPointsClient(UDDIUrl, orgName).ctrlInit(startPoints);
-		} catch (com.forkexec.pts.ws.BadInitFault_Exception e) {
+		} catch (com.forkexec.pts.ws.BadInitFault_Exception | RuntimeException e) {
 			throw new BadInitException(e.getMessage());
 		}
 	}
@@ -269,7 +269,7 @@ public class Hub {
 				restaurant = getRestaurantClient(UDDIUrl, id);
 				restaurant.ctrlInit(menuList.get(id));
 			}
-		} catch (com.forkexec.rst.ws.BadInitFault_Exception e) {
+		} catch (com.forkexec.rst.ws.BadInitFault_Exception | RuntimeException e) {
 			throw new BadInitException(e.getMessage());
 		}
 	}

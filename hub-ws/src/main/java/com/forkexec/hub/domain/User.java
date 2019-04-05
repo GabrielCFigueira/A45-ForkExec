@@ -14,13 +14,13 @@ public class User {
     }
 
     public String getUserId() {return _userId;}
-    public Cart getCart() {return _cart;}
+    public synchronized Cart getCart() {return _cart;}
 
-    public void addFood(FoodId foodId, int quantity) throws MaximumCartQuantityException, InvalidFoodQuantityException {
+    public synchronized void addFood(FoodId foodId, int quantity) throws MaximumCartQuantityException, InvalidFoodQuantityException {
         _cart.addFood(foodId, quantity);
     }
 
-    public void clearCart() {
+    public synchronized void clearCart() {
         _cart = new Cart();
     }
 }

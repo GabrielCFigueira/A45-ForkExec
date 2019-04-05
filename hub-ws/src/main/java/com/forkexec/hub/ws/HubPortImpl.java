@@ -376,34 +376,6 @@ public class HubPortImpl implements HubPortType {
 
 	//-------------------------------------------------------------------------
 
-
-	private Map<String, RestaurantClient> getRestaurants() {
-		Map<String, RestaurantClient> restaurants = new ConcurrentHashMap<String, RestaurantClient>();
-		try {
-			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%")) {
-				RestaurantClient restaurant = new RestaurantClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
-				restaurants.put(e.getOrgName(), restaurant);
-			}
-		} catch(UDDINamingException | RestaurantClientException e) {
-			throw new RuntimeException(e.getMessage());
-		}
-		return restaurants;
-	}
-
-	private PointsClient getPointsClient() {
-		PointsClient pointsClient = null;
-		try {
-			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) { //this should run only once
-				pointsClient = new PointsClient(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
-			}
-		} catch(UDDINamingException | PointsClientException e) {
-			throw new RuntimeException(e.getMessage());
-		}
-		if(pointsClient == null)
-			throw new RuntimeException("No point server was found");
-		return pointsClient;
-	}
-
 	private MenuId foodIdIntoMenuId(FoodId foodId) {
 		MenuId menuId = new MenuId();
 		menuId.setId(foodId.getMenuId());

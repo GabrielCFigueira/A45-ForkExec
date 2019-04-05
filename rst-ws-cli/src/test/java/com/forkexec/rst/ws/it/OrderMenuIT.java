@@ -60,7 +60,7 @@ public class OrderMenuIT extends BaseIT {
         MenuOrder menuOrder = client.orderMenu(createMenuId("8"), 3);
         assertEquals(menuOrder.getMenuId().getId(), "8");
         assertEquals(menuOrder.getMenuQuantity(), 1);
-        client.orderMenu(createMenuId("8"), 1));
+        client.orderMenu(createMenuId("8"), 1);
     }
 
     @Test (expected=BadMenuIdFault_Exception.class)
