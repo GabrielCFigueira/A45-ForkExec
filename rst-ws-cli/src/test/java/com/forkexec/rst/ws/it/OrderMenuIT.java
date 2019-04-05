@@ -59,7 +59,7 @@ public class OrderMenuIT extends BaseIT {
     public void updateMenuQuantity() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
         MenuOrder menuOrder = client.orderMenu(createMenuId("8"), 3);
         assertEquals(menuOrder.getMenuId().getId(), "8");
-        assertEquals(menuOrder.getMenuQuantity(), 1);
+        assertEquals(menuOrder.getMenuQuantity(), 3);
         client.orderMenu(createMenuId("8"), 1);
     }
 

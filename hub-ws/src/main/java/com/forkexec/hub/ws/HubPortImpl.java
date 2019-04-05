@@ -72,8 +72,6 @@ public class HubPortImpl implements HubPortType {
 	private Hub hub = Hub.getInstance();
 	private int foodOrderId = 0;
 
-	//TODO synchronized
-
 
 	/**
 	 * The Endpoint manager controls the Web Service instance during its whole
@@ -234,7 +232,10 @@ public class HubPortImpl implements HubPortType {
 
 
 		FoodOrderId id = new FoodOrderId();
-		id.setId(Integer.toString(foodOrderId++));
+
+		synchronized (this) {
+			id.setId(Integer.toString(foodOrderId++));
+		}
 		foodOrder.setFoodOrderId(id);
 
 		return foodOrder;
