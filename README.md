@@ -56,11 +56,11 @@ mvn -version
 
 0. Compile and install all modules:
 
-```
-mvn clean install -DskipTests
-```
+   ```
+   mvn clean install -DskipTests
+   ```
 
-(The tests are skipped because they require each server to be running)
+   (The tests are skipped because they require each server to be running)
 
 
 #### If you want to run the tests:
@@ -69,33 +69,33 @@ mvn clean install -DskipTests
    and 1 Points Server (pts-ws). To do that, navigate to the respective
    folder an run:
 
-```
-mvn compile exec:java
-```
+   ```
+   mvn compile exec:java
+   ```
 
-**Warning**: To be able to run 2 Restaurants, you need to provide a `ws.i`
-different than the default one; to do that, run
+   **Warning**: To be able to run 2 Restaurants, you need to provide a `ws.i`
+   different than the default one for one of the instances; to do that, run
 
-```
-mvn exec:java -Dws.i=2
-```
+   ```
+   mvn exec:java -Dws.i=2
+   ```
 
-The tests written for the Hub assume that all the servers where started with
-the default arguments, except for the 2nd Restaurant, that should be run with
-the above command.
-
-
-2. In the root of the project, after the servers are up, run:
-
-```
-mvn verify
-```
-
-(The servers are officialy running when the line "`Press enter to shutdown`"
-appears in the screen)
+   The tests written for the Hub assume that all the servers where started with
+   the default arguments, except for the 2nd Restaurant, that should be run with
+   the above command.
 
 
-This command can take a while.
+2. In the root of the project, while the servers are up, run:
+
+   ```
+   mvn verify
+   ```
+
+   (The servers are officialy running when the line "`Press enter to shutdown`"
+   appears in the screen)
+
+
+   This command can take a while.
 
 
 ## Built With
