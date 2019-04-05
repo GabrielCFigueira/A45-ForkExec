@@ -49,17 +49,20 @@ public class OrderCartIT extends BaseIT {
 
 	@Test
 	public void success() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
-		FoodOrderItem res = client.orderCart(USER).getItems().get(0);
+		List<FoodOrderItem> res = client.orderCart(USER).getItems();
 
-		assertEqualFoodId(FOODID_R1, res.getFoodId());
-		assertEquals(ASKED_QNTY, res.getFoodQuantity());
+		assertEqualFoodId(FOODID_R1, res.get(0).getFoodId());
+		assertEquals(ASKED_QNTY, res.get(1).getFoodQuantity());
 		
-		res = client.orderCart(USER).getItems().get(1);
-		
-		assertEqualFoodId(FOODID_R2, res.getFoodId());
-		assertEquals(ASKED_QNTY, res.getFoodQuantity());
+		assertEqualFoodId(FOODID_R2, res.get(1).getFoodId());
+		assertEquals(ASKED_QNTY, res.get(1).getFoodQuantity());
 	}
 
+	@Test
+	public void verifyCartIsEmpty() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
+		client.orderCart(USER);
+		assertEquals(0, client.cartContents(USER).size());
+	}
 
 	@Test(expected = InvalidUserIdFault_Exception.class)
 	public void nullUser() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
