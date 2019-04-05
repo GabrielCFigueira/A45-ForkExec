@@ -28,6 +28,12 @@ public class SearchDealIT extends BaseIT {
 	private static final Food FOOD1_R2 = createFood("Pao de alho Soberbo", "Hamburguer Bom", "Mousse Fantástico", 10, 10, FOODID1_R2);
 	private static final Food FOOD2_R2 = createFood("Pao de alho Horrível", "Hamburguer Mau", "Mousse Terrível", 5, 5, FOODID2_R2);
 
+	private static final FoodId FOODID3_R1 = createFoodId("A45_Restaurant1", "Menu3");
+	private static final FoodId FOODID3_R2 = createFoodId("A45_Restaurant2", "Menu3");
+	private static final Food FOOD3_R1 = createFood("Francesinha", "Francesinha", "Francesinha", 1000, 1000, FOODID3_R1);
+	private static final Food FOOD3_R2 = createFood("Francesinha", "Francesinha", "Francesinha", 1001, 1001, FOODID3_R2);
+
+
 	// tests
 	// assertEquals(expected, actual);
 
@@ -37,9 +43,10 @@ public class SearchDealIT extends BaseIT {
 		client.ctrlClear();
 		List<FoodInit> a = createFoodInitList(FOOD1_R1, QNTY);
 		a.add(createFoodInit(FOOD2_R1, QNTY));
-		client.ctrlInitFood(a);
-		a = createFoodInitList(FOOD1_R2, QNTY);
+		a.add(createFoodInit(FOOD1_R2, QNTY));
 		a.add(createFoodInit(FOOD2_R2, QNTY));
+		a.add(createFoodInit(FOOD3_R1, QNTY));
+		a.add(createFoodInit(FOOD3_R2, QNTY));
 		client.ctrlInitFood(a);
 	}
 
@@ -98,6 +105,13 @@ public class SearchDealIT extends BaseIT {
 		assertEqualFood(FOOD1_R2, res.get(1));
 		assertEqualFood(FOOD2_R1, res.get(2));
 		assertEqualFood(FOOD1_R1, res.get(3));
+	}
+
+	@Test
+	public void searchWithTwoResultsDifferentRestaurants() throws InvalidTextFault_Exception {
+		List<Food> res = client.searchDeal("Francesinha");
+		assertEqualFood(FOOD3_R1, res.get(0));
+		assertEqualFood(FOOD3_R2, res.get(1));
 	}
 
 	@Test(expected = InvalidTextFault_Exception.class)
