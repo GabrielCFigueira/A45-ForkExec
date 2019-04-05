@@ -1,4 +1,4 @@
-# Hub Web Service client
+# Credit Card Web Service client
 
 ## Authors
 
@@ -6,14 +6,14 @@ Group A45
 
 ### Lead developer 
 
-Rafael Pestana de Andrade 86503 RafaelPAndrade
+LÃ­vio Costa 86461 LivioCosta
 
 
 ### Contributors
 
 Gabriel Costa Figueira 86426 GabrielCFigueira
 
-Lívio Costa 86461 LivioCosta
+Rafael Pestana de Andrade 86503 RafaelPAndrade
 
 
 ## About
