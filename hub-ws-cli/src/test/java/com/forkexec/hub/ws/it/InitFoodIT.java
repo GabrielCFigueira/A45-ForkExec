@@ -42,11 +42,6 @@ public class InitFoodIT extends BaseIT {
 		assertEqualFood(FOOD_R2, client.getFood(FOODID_R2));
 	}
 
-	@Test(expected = InvalidInitFault_Exception.class)
-	public void nullInit() throws InvalidInitFault_Exception {
-		client.ctrlInitFood(null);
-	}
-
 	@Test
 	public void emptyInit() throws InvalidInitFault_Exception {
 		client.ctrlInitFood(new ArrayList<FoodInit>());

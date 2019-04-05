@@ -105,4 +105,13 @@ public class OrderCartIT extends BaseIT {
 		}
 		client.orderCart(USER);
 	}
+
+	@Test
+	public void verifyPointsAreCorrectlyTaken()  throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
+		int expected = client.accountBalance(USER) - FOOD_R1.getPrice()*ASKED_QNTY - FOOD_R2.getPrice()*ASKED_QNTY;
+
+		client.orderCart(USER);
+
+		assertEquals(expected, client.accountBalance(USER));
+	}
 }
