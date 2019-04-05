@@ -37,12 +37,10 @@ public class CreditCardClient implements CreditCard {
 
 	/** Stub creation and configuration */
 	private void createStub() {
-		System.out.println("Creating stub ...");
 		service = new CreditCardImplService();
 		port = service.getCreditCardImplPort();
 
 		if (wsURL != null) {
-			System.out.println("Setting endpoint address ...");
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
 			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
