@@ -40,7 +40,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
 		if(menuId == null) {
-			throwBadMenuId("MenuId is null!");
+			throwBadMenuId("MenuId cannot be null!");
 			return null;
 		}
 		
@@ -48,7 +48,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		RestaurantMenu menu = restaurantInstance.getMenu(menuId.getId());
 		
 		if(restaurantInstance.getMenu(menuId.getId()) == null) {
-			throwBadMenuId("Invalid MenuId: " + menuId.getId());
+			throwBadMenuId("Invalid MenuId: " + menuId.getId() + ". Does not exist!");
 			return null;
 		}
 		return createMenu(menu);
@@ -57,12 +57,12 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
 		if(descriptionText == null)
-			throwBadText("Description text is null!");
+			throwBadText("Description text cannot be null!");
 		
 		Restaurant restaurantInstance = Restaurant.getInstance();
 		
 		if(!restaurantInstance.availableString(descriptionText, false)) {
-			throwBadText("Invalid description: " + descriptionText);
+			throwBadText("Invalid description: " + descriptionText + ".");
 		}else {
 			
 			List<Menu> newMenuList = new ArrayList<>();

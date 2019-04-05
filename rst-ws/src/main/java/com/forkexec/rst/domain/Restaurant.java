@@ -112,7 +112,7 @@ public class Restaurant {
 	
 	public RestaurantMenuOrder orderMenu(String menuId, int qty) throws InsufficientQuantityException, BadQuantityException {
 		if(qty <= 0) {
-			throw new BadQuantityException("BadQuantityException");
+			throw new BadQuantityException("Quantity cannot be negative or zero!");
 		}
 		
 		Integer orderIdCounter = _orderIdCounter.incrementAndGet();
@@ -130,7 +130,7 @@ public class Restaurant {
 				
 			}else {
 				_orderIdCounter.decrementAndGet();
-				throw new InsufficientQuantityException("InsufficientQuantityException");
+				throw new InsufficientQuantityException("Menu do not have enough quantity!");
 			}
 		
 		}
