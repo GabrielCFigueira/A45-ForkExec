@@ -193,6 +193,7 @@ public class Hub {
 		for(FoodOrderItem foodOrderItem : order)
 			orderMenu(UDDIUrl, foodOrderItem.getFoodId().getRestaurantId(), userId, foodOrderItem.getFoodId(), foodOrderItem.getFoodQuantity());
 
+		getUser(userId).clearCart();
 		return order;
 	}
 

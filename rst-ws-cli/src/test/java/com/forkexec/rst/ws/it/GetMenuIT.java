@@ -11,6 +11,7 @@ import com.forkexec.rst.ws.MenuInit;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.BadInitFault_Exception;
 
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -97,8 +98,18 @@ public class GetMenuIT extends BaseIT {
     }
 
     @Test (expected = BadMenuIdFault_Exception.class)
-    public void nonExistantMenu() throws BadMenuIdFault_Exception {
+    public void nonExistantMenu1() throws BadMenuIdFault_Exception {
         client.getMenu(createMenuId("11"));
+    }
+
+    @Test (expected = BadMenuIdFault_Exception.class)
+    public void nonExistantMenu2() throws BadMenuIdFault_Exception {
+        client.getMenu(createMenuId("t"));
+    }
+
+    @Test (expected = BadMenuIdFault_Exception.class)
+    public void nonExistantMenu3() throws BadMenuIdFault_Exception {
+        client.getMenu(createMenuId("bomdia"));
     }
 
     @After

@@ -239,8 +239,6 @@ public class HubPortImpl implements HubPortType {
 		return foodOrder;
 	}
 
-	//TODO synchronized
-
 	@Override
 	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
 
