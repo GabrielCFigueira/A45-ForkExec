@@ -6,7 +6,7 @@ Group A45
 
 ### Lead developer 
 
-Lívio Costa 86461 LivioCosta
+LÃ­vio Costa 86461 LivioCosta
 
 
 ### Contributors

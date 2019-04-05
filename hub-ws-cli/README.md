@@ -13,7 +13,7 @@ Rafael Pestana de Andrade 86503 RafaelPAndrade
 
 Gabriel Costa Figueira 86426 GabrielCFigueira
 
-Lívio Costa 86461 LivioCosta
+LÃ­vio Costa 86461 LivioCosta
 
 
 ## About
