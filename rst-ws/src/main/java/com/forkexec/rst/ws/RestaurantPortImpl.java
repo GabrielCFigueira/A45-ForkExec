@@ -39,18 +39,15 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
-		if(menuId == null) {
+		if(menuId == null)
 			throwBadMenuId("MenuId cannot be null!");
-			return null;
-		}
 		
 		Restaurant restaurantInstance = Restaurant.getInstance();
 		RestaurantMenu menu = restaurantInstance.getMenu(menuId.getId());
 		
-		if(restaurantInstance.getMenu(menuId.getId()) == null) {
+		if(restaurantInstance.getMenu(menuId.getId()) == null)
 			throwBadMenuId("Invalid MenuId: " + menuId.getId() + ". Does not exist!");
-			return null;
-		}
+			
 		return createMenu(menu);
 	}
 	
@@ -61,20 +58,16 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		
 		Restaurant restaurantInstance = Restaurant.getInstance();
 		
-		if(!restaurantInstance.availableString(descriptionText, false)) {
+		if(!restaurantInstance.availableString(descriptionText, false))
 			throwBadText("Invalid description: " + descriptionText + ".");
-		}else {
-			
-			List<Menu> newMenuList = new ArrayList<>();
-			List<RestaurantMenu> menusList = restaurantInstance.getMenusByDescription(descriptionText);
-			
-			for(RestaurantMenu menu: menusList)
-				newMenuList.add(createMenu(menu));
-				
-			return newMenuList;
-		}
 		
-		return null;
+		List<Menu> newMenuList = new ArrayList<>();
+		List<RestaurantMenu> menusList = restaurantInstance.getMenusByDescription(descriptionText);
+		
+		for(RestaurantMenu menu: menusList)
+			newMenuList.add(createMenu(menu));
+			
+		return newMenuList;
 	}
 
 	@Override
@@ -83,17 +76,16 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			throwBadMenuId("MenuId is null!");
 		
 		Restaurant restaurantInstance = Restaurant.getInstance();
-		if(restaurantInstance.getMenu(arg0.getId()) == null) {
+		if(restaurantInstance.getMenu(arg0.getId()) == null)
 			throwBadMenuId("Invalid MenuId: " + arg0.getId());
-		}else {
-			try {
-				RestaurantMenuOrder menu =  restaurantInstance.orderMenu(arg0.getId(), arg1);
-				return createMenuOrder(menu);
-			}catch(InsufficientQuantityException e) {
-				throwInsufficientQuantity("Cannot create an order because quantity menu is insufficient. Input: " + arg1);
-			}catch(BadQuantityException e) {
-				throwBadQuantity("Quantity cannot be negative. Input: " + arg1);
-			}
+			
+		try {
+			RestaurantMenuOrder menu =  restaurantInstance.orderMenu(arg0.getId(), arg1);
+			return createMenuOrder(menu);
+		}catch(InsufficientQuantityException e) {
+			throwInsufficientQuantity("Cannot create an order because quantity menu is insufficient. Input: " + arg1);
+		}catch(BadQuantityException e) {
+			throwBadQuantity("Quantity cannot be negative. Input: " + arg1);
 		}
 		
 		return null;
@@ -129,37 +121,33 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
-		if(initialMenus == null) {
+		if(initialMenus == null) 
 			throwBadInit("Initial menus are null!");
-		}else {
 		
-			Restaurant restaurantInstance = Restaurant.getInstance();
+		Restaurant restaurantInstance = Restaurant.getInstance();
+		
+		for(MenuInit menu: initialMenus) {
 			
-			for(MenuInit menu: initialMenus) {
-				
-				if(restaurantInstance.getMenu(menu.getMenu().getId().getId()) != null) {
-					throwBadInit("Duplicate MenuId '" + menu.getMenu().getId().getId() + "'");
-					break;
-				}
-				
-				restaurantInstance.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
-				
-				if(restaurantInstance.getMenu(menu.getMenu().getId().getId()) == null) {
-					String error = "Invalid initialMenu:\n";
-					error += "\tMenuId: " + menu.getMenu().getId().getId();
-					error += "\tEntree: " + menu.getMenu().getEntree();
-					error += "\tPlate: " + menu.getMenu().getPlate();
-					error += "\tDessert: " + menu.getMenu().getDessert();
-					error += "\tPrice: " + menu.getMenu().getPrice();
-					error += "\tPreparationTime: " + menu.getMenu().getPreparationTime();
-					error += "\tQuantity: " + menu.getQuantity();
-					throwBadInit(error);
-					break;
-				}
+			if(restaurantInstance.getMenu(menu.getMenu().getId().getId()) != null) {
+				throwBadInit("Duplicate MenuId '" + menu.getMenu().getId().getId() + "'");
+				break;
+			}
+			
+			restaurantInstance.newMenu(menu.getMenu().getId().getId(), menu.getMenu().getEntree(), menu.getMenu().getPlate(), menu.getMenu().getDessert(), menu.getMenu().getPrice(), menu.getMenu().getPreparationTime(), menu.getQuantity());
+			
+			if(restaurantInstance.getMenu(menu.getMenu().getId().getId()) == null) {
+				String error = "Invalid initialMenu:\n";
+				error += "\tMenuId: " + menu.getMenu().getId().getId();
+				error += "\tEntree: " + menu.getMenu().getEntree();
+				error += "\tPlate: " + menu.getMenu().getPlate();
+				error += "\tDessert: " + menu.getMenu().getDessert();
+				error += "\tPrice: " + menu.getMenu().getPrice();
+				error += "\tPreparationTime: " + menu.getMenu().getPreparationTime();
+				error += "\tQuantity: " + menu.getQuantity();
+				throwBadInit(error);
+				break;
 			}
 		}
-		
-		return;
 	}
 
 	// View helpers ----------------------------------------------------------
