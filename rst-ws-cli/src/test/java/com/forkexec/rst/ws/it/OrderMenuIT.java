@@ -55,6 +55,46 @@ public class OrderMenuIT extends BaseIT {
         assertEquals(client.getMenu(menuOrder.getMenuId()).getPrice(), 200);
     }
 
+    @Test (expected=BadMenuIdFault_Exception.class)
+    public void inexistantMenu1() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("bomdia"), 1);
+    }
+
+    @Test (expected=BadMenuIdFault_Exception.class)
+    public void inexistantMenu2() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("0"), 1);
+    }
+
+    @Test (expected=BadMenuIdFault_Exception.class)
+    public void nullMenu() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(null, 1);
+    }
+
+    @Test (expected=BadMenuIdFault_Exception.class)
+    public void nullMenuId() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId(null), 1);
+    }
+
+    @Test (expected=BadQuantityFault_Exception.class)
+    public void invalidQuantity1() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("1"), -1);
+    }
+
+    @Test (expected=BadQuantityFault_Exception.class)
+    public void invalidQuantity2() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("5"), 0);
+    }
+
+    @Test (expected=InsufficientQuantityFault_Exception.class)
+    public void insufficientQuantity1() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("3"), 4);
+    }
+
+    @Test (expected=InsufficientQuantityFault_Exception.class)
+    public void insufficientQuantity2() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("7"), 300000000);
+    }
+
     @After
     public void tearDown() {
         client.ctrlClear();
