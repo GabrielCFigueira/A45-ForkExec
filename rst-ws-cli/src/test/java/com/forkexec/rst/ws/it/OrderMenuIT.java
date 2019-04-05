@@ -55,6 +55,14 @@ public class OrderMenuIT extends BaseIT {
         assertEquals(client.getMenu(menuOrder.getMenuId()).getPrice(), 200);
     }
 
+    @Test (expected=InsufficientQuantityFault_Exception.class)
+    public void updateMenuQuantity() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+        MenuOrder menuOrder = client.orderMenu(createMenuId("8"), 3);
+        assertEquals(menuOrder.getMenuId().getId(), "8");
+        assertEquals(menuOrder.getMenuQuantity(), 1);
+        client.orderMenu(createMenuId("8"), 1));
+    }
+
     @Test (expected=BadMenuIdFault_Exception.class)
     public void inexistantMenu1() throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
         MenuOrder menuOrder = client.orderMenu(createMenuId("bomdia"), 1);

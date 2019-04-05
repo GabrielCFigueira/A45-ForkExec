@@ -18,10 +18,12 @@ import com.forkexec.hub.domain.exceptions.InvalidUserIdException;
 import com.forkexec.hub.domain.exceptions.InvalidMoneyException;
 import com.forkexec.hub.domain.exceptions.EmptyCartException;
 import com.forkexec.hub.domain.exceptions.NotEnoughPointsException;
+import com.forkexec.hub.domain.exceptions.BadInitException;
 
 
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
+import com.forkexec.rst.ws.MenuInit;
 import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.InsufficientQuantityFault_Exception;
@@ -235,6 +237,51 @@ public class Hub {
 		return res;
 	}
 
+	public void ctrlInitPoints(String UDDIUrl, String orgName, int startPoints) throws BadInitException {
+		try {
+			getPointsClient(UDDIUrl, orgName).ctrlInit(startPoints);
+		} catch (com.forkexec.pts.ws.BadInitFault_Exception e) {
+			throw new BadInitException(e.getMessage());
+		}
+	}
+
+	public void ctrlInitFood(String UDDIUrl, List<FoodInit> initialFoods) throws BadInitException {
+		
+		if(initialFoods == null)
+			throw new BadInitException("List of FoodInit is set to null");
+
+		Map<String, List<MenuInit>> menuList = new TreeMap<String, List<MenuInit>>();
+
+		for (FoodInit foodInit : initialFoods) {
+			Food food = foodInit.getFood();
+			String restaurantId = food.getId().getRestaurantId();
+
+			if(!menuList.containsKey(restaurantId))
+				menuList.put(restaurantId, new ArrayList<MenuInit>());
+			menuList.get(restaurantId).add(createMenuInit(createMenu(createMenuId(food.getId().getMenuId()), 
+						food.getEntree(), food.getPlate(), food.getDessert(), food.getPrice(), 
+						food.getPreparationTime()), foodInit.getFoodQuantity()));
+		}
+
+		try {
+			RestaurantClient restaurant = null;
+			for (String id : menuList.keySet()) {
+				restaurant = getRestaurantClient(UDDIUrl, id);
+				restaurant.ctrlInit(menuList.get(id));
+			}
+		} catch (com.forkexec.rst.ws.BadInitFault_Exception e) {
+			throw new BadInitException(e.getMessage());
+		}
+	}
+
+	public void ctrlClearRestaurant(String UDDIUrl, String orgName) {
+		getRestaurantClient(UDDIUrl, orgName).ctrlClear();
+	}
+
+	public void ctrlClearPoints(String UDDIUrl, String orgName) {
+		getPointsClient(UDDIUrl, orgName).ctrlClear();
+	}
+
 
 
 	//-------------------------------UTILS-----------------------------------------------------
@@ -260,5 +307,31 @@ public class Hub {
 
 		return menuId;
 	}
+
+	private Menu createMenu(MenuId menuId, String entree, String plate, 
+                        String dessert, int price, int preparationTime) {
+        Menu menu = new Menu();
+        menu.setId(menuId);
+        menu.setEntree(entree);
+        menu.setPlate(plate);
+        menu.setDessert(dessert);
+        menu.setPrice(price);
+        menu.setPreparationTime(preparationTime);
+
+        return menu;
+    }
+
+    private MenuInit createMenuInit(Menu menu, int quantity) {
+        MenuInit menuInit = new MenuInit();
+        menuInit.setMenu(menu);
+        menuInit.setQuantity(quantity);
+        return menuInit;
+    }
+
+    private MenuId createMenuId(String id) {
+        MenuId menuId = new MenuId();
+        menuId.setId(id);
+        return menuId;
+    }
 
 }

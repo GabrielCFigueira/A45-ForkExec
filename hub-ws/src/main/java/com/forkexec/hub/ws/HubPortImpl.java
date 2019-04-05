@@ -27,6 +27,7 @@ import com.forkexec.hub.domain.exceptions.InvalidUserIdException;
 import com.forkexec.hub.domain.exceptions.InvalidMoneyException;
 import com.forkexec.hub.domain.exceptions.EmptyCartException;
 import com.forkexec.hub.domain.exceptions.NotEnoughPointsException;
+import com.forkexec.hub.domain.exceptions.BadInitException;
 
 
 import com.forkexec.rst.ws.Menu;
@@ -334,50 +335,40 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlClear() {
 		hub.reset();
-		for(RestaurantClient rst : getRestaurants().values())
-			rst.ctrlClear();
-		getPointsClient().ctrlClear();
+		try {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%"))
+				hub.ctrlClearRestaurant(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%")) //this should run only once
+				hub.ctrlClearPoints(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
+		} catch(UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
+		}
 	}
 
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInitFood(List<FoodInit> initialFoods) throws InvalidInitFault_Exception {
 
-		if(initialFoods == null)
-			throwInvalidInitFault("List of FoodInit is set to null");
+		List<com.forkexec.hub.domain.FoodInit> domainInitialFoods = new ArrayList<com.forkexec.hub.domain.FoodInit>();
 
-		Map<String, List<MenuInit>> menuList = new TreeMap<String, List<MenuInit>>();
-		Map<String, RestaurantClient> restaurants = getRestaurants();
-
-		for (FoodInit foodInit : initialFoods) {
-			Food food = foodInit.getFood();
-			String restaurantId = food.getId().getRestaurantId();
-
-			if (!restaurants.containsKey(restaurantId))
-				throwInvalidInitFault("Unknown Restaurant " + restaurantId);
-
-			if(!menuList.containsKey(restaurantId))
-				menuList.put(restaurantId, new ArrayList<MenuInit>());
-			menuList.get(restaurantId).add(createMenuInit(createMenu(createMenuId(food.getId().getMenuId()), 
-						food.getEntree(), food.getPlate(), food.getDessert(), food.getPrice(), 
-						food.getPreparationTime()), foodInit.getQuantity()));
-		}
-
+		for(FoodInit foodInit : initialFoods)
+				domainInitialFoods.add(foodInitIntoDomain(foodInit));
 		try {
-			for (String id : menuList.keySet())
-				restaurants.get(id).ctrlInit(menuList.get(id));
-		} catch (BadInitFault_Exception e) {
+			hub.ctrlInitFood(endpointManager.getUddiNaming().getUDDIUrl(), domainInitialFoods);
+		} catch (BadInitException e) {
 			throwInvalidInitFault(e.getMessage());
 		}
 	}
 	
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
-		
 		try {
-			getPointsClient().ctrlInit(startPoints);
-		} catch (com.forkexec.pts.ws.BadInitFault_Exception e) {
+			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%"))  //this should run only once
+				hub.ctrlInitPoints(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName(), startPoints);
+		} catch (BadInitException e) {
 			throwInvalidInitFault(e.getMessage());
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 
@@ -453,33 +444,22 @@ public class HubPortImpl implements HubPortType {
 		return new com.forkexec.hub.domain.FoodId(foodId.getRestaurantId(), foodId.getMenuId());
 	}
 
-	private Menu createMenu(MenuId menuId, String entree, String plate, 
-                        String dessert, int price, int preparationTime) {
-        Menu menu = new Menu();
-        menu.setId(menuId);
-        menu.setEntree(entree);
-        menu.setPlate(plate);
-        menu.setDessert(dessert);
-        menu.setPrice(price);
-        menu.setPreparationTime(preparationTime);
+	private com.forkexec.hub.domain.FoodInit foodInitIntoDomain(FoodInit foodInit) {
+		return new com.forkexec.hub.domain.FoodInit(foodIntoDomain(foodInit.getFood()), foodInit.getQuantity());
+	}
 
-        return menu;
-    }
+	private com.forkexec.hub.domain.Food foodIntoDomain(Food food) {
 
-    private MenuInit createMenuInit(Menu menu, int quantity) {
-        MenuInit menuInit = new MenuInit();
-        menuInit.setMenu(menu);
-        menuInit.setQuantity(quantity);
-        return menuInit;
-    }
+		com.forkexec.hub.domain.Food domainFood = new com.forkexec.hub.domain.Food();
+        domainFood.setId(foodIdIntoDomain(food.getId()));
+        domainFood.setEntree(food.getEntree());
+        domainFood.setPlate(food.getPlate());
+        domainFood.setDessert(food.getDessert());
+        domainFood.setPrice(food.getPrice());
+        domainFood.setPreparationTime(food.getPreparationTime());
 
-    private MenuId createMenuId(String id) {
-        MenuId menuId = new MenuId();
-        menuId.setId(id);
-        return menuId;
-    }
-
-
+        return domainFood;
+	}
 
 
 	/** Helpers to throw exceptions. */
