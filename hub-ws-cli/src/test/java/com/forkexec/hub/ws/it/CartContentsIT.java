@@ -11,7 +11,6 @@ import java.util.List;
 import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.FoodOrderItem;
-import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidFoodQuantityFault_Exception;
 import com.forkexec.hub.ws.InvalidUserIdFault_Exception;

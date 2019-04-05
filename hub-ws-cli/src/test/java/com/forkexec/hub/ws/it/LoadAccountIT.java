@@ -1,9 +1,7 @@
 package com.forkexec.hub.ws.it;
 
-import org.junit.Before;
-
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 
 import com.forkexec.hub.ws.InvalidUserIdFault_Exception;
 import com.forkexec.hub.ws.InvalidMoneyFault_Exception;
