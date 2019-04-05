@@ -94,6 +94,13 @@ mvn -version
    (The servers are officialy running when the line "`Press enter to shutdown`"
    appears in the screen)
 
+   **Note**: If any other projects are running concurrently their own `mvn verify`,
+   then the package `uddi-naming` may fail its tests. If that happens, then shutdown
+   the other projects, or wait and retry, or the just skip the uddi-naming tests with:
+   
+   ```
+   mvn verify -rf :pts-ws
+   ```
 
    This command can take a while.
 
