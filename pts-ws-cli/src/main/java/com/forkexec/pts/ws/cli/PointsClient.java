@@ -3,8 +3,11 @@ package com.forkexec.pts.ws.cli;
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Response;
 
 import com.forkexec.pts.ws.*;
 
@@ -106,12 +109,12 @@ public class PointsClient implements PointsPortType {
 	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		port.activateUser(userEmail);
 	}
-	
+
 	@Override
 	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
 		return port.pointsBalance(userEmail);
 	}
-	
+
 	@Override
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
@@ -123,9 +126,41 @@ public class PointsClient implements PointsPortType {
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 		return port.spendPoints(userEmail, pointsToSpend);
 	}
-	
-	
-	
+
+	// new QC methods ---------------------------------------------------------
+
+	@Override
+	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
+		return null;
+	}
+
+	@Override
+	public Future<?> getBalanceAsync(String userEmail, AsyncHandler<GetBalanceResponse> asyncHandler) {
+		return null;
+	}
+
+	@Override
+	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
+		return null;
+	}
+
+	@Override
+	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, TaggedBalance taggedBalance) {
+		return null;
+	}
+
+	@Override
+	public Future<?> setBalanceAsync(String userEmail, TaggedBalance taggedBalance,
+			AsyncHandler<SetBalanceResponse> asyncHandler) {
+		return null;
+	}
+
+	@Override
+	public void setBalance(String userEmail, TaggedBalance taggedBalance)
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+
+	}
+
 	// control operations -----------------------------------------------------
 
 	@Override

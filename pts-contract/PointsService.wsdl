@@ -31,6 +31,11 @@
       <xs:element name="pointsBalanceResponse" type="tns:pointsBalanceResponse" />
       <xs:element name="spendPoints" type="tns:spendPoints" />
       <xs:element name="spendPointsResponse" type="tns:spendPointsResponse" />
+      <!-- More element types for new QC-supporting methods-->
+      <xs:element name="getBalance" type="tns:getBalance" />
+      <xs:element name="getBalanceResponse" type="tns:getBalanceResponse" />
+      <xs:element name="setBalance" type="tns:setBalance" />
+      <xs:element name="setBalanceResponse" type="tns:setBalanceResponse" />
       <xs:complexType name="ctrlClear">
         <xs:sequence />
       </xs:complexType>
@@ -120,6 +125,32 @@
           <xs:element minOccurs="0" name="message" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
+      <!-- New types to support QC -->
+      <xs:complexType name="taggedBalance">
+        <xs:sequence>
+          <xs:element name="points" type="xs:int" />
+          <xs:element name="tag" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getBalance">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="userEmail" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getBalanceResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="tns:taggedBalance" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="setBalance">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="userEmail" type="xs:string" />
+          <xs:element minOccurs="0" name="taggedBalance" type="tns:taggedBalance" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="setBalanceResponse">
+        <xs:sequence />
+      </xs:complexType>
     </xs:schema>
   </types>
 
@@ -181,6 +212,19 @@
   <message name="NotEnoughBalanceFault">
     <part element="tns:NotEnoughBalanceFault" name="fault" />
   </message>
+  <!-- New messages to support QC -->
+  <message name="getBalance">
+    <part element="tns:getBalance" name="parameters" />
+  </message>
+  <message name="getBalanceResponse">
+    <part element="tns:getBalanceResponse" name="parameters" />
+  </message>
+  <message name="setBalance">
+    <part element="tns:setBalance" name="parameters" />
+  </message>
+  <message name="setBalanceResponse">
+    <part element="tns:setBalanceResponse" name="parameters" />
+  </message>
 
   <!--  Port type (interface). -->
   <!--  Each operation has input, output and fault messages. -->
@@ -221,6 +265,18 @@
       <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/spendPoints/Fault/InvalidEmailFault" />
       <fault message="tns:InvalidPointsFault" name="InvalidPointsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/spendPoints/Fault/InvalidPointsFault" />
       <fault message="tns:NotEnoughBalanceFault" name="NotEnoughBalanceFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/spendPoints/Fault/NotEnoughBalanceFault" />
+    </operation>
+    <!-- Operations on port type to support QC -->
+    <operation name="getBalance">
+      <input message="tns:getBalance" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/getBalanceRequest" />
+      <output message="tns:getBalanceResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/getBalanceResponse" />
+      <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/getBalance/Fault/InvalidEmailFault" />
+    </operation>
+    <operation name="setBalance">
+      <input message="tns:setBalance" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/setBalanceRequest" />
+      <output message="tns:setBalanceResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/setBalanceResponse" />
+      <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/setBalance/Fault/InvalidEmailFault" />
+      <fault message="tns:InvalidPointsFault" name="InvalidPointsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/setBalance/Fault/InvalidPointsFault" />
     </operation>
   </portType>
 
@@ -315,6 +371,34 @@
       </fault>
       <fault name="NotEnoughBalanceFault">
         <soap:fault name="NotEnoughBalanceFault" use="literal" />
+      </fault>
+    </operation>
+    <!-- Operations on binding to support QC -->
+    <operation name="getBalance">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+      <fault name="InvalidEmailFault">
+        <soap:fault name="InvalidEmailFault" use="literal" />
+      </fault>
+    </operation>
+    <operation name="setBalance">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+      <fault name="InvalidEmailFault">
+        <soap:fault name="InvalidEmailFault" use="literal" />
+      </fault>
+      <fault name="InvalidPointsFault">
+        <soap:fault name="InvalidPointsFault" use="literal" />
       </fault>
     </operation>
   </binding>

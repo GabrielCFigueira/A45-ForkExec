@@ -1,6 +1,10 @@
 package com.forkexec.pts.ws;
 
+import java.util.concurrent.Future;
+
 import javax.jws.WebService;
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
 
 import com.forkexec.pts.domain.Points;
 import com.forkexec.pts.domain.exception.EmailAlreadyRegisteredException;
@@ -72,11 +76,12 @@ public class PointsPortImpl implements PointsPortType {
 
 	@Override
 	public int spendPoints(final String userEmail, final int pointsToSpend)
-		throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 		int res = -1;
 
-		if(pointsToSpend <= 0) {
-			throwInvalidPointsFault(String.format("Cannot spend '%d' points (cannot be a negative number)", pointsToSpend));
+		if (pointsToSpend <= 0) {
+			throwInvalidPointsFault(
+					String.format("Cannot spend '%d' points (cannot be a negative number)", pointsToSpend));
 		}
 
 		try {
@@ -88,6 +93,39 @@ public class PointsPortImpl implements PointsPortType {
 		}
 
 		return res;
+	}
+
+	// QC-supporting methods
+	@Override
+	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
+		return null;
+	}
+
+	@Override
+	public Future<?> getBalanceAsync(String userEmail, AsyncHandler<GetBalanceResponse> asyncHandler) {
+		return null;
+	}
+
+	@Override
+	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
+		return null;
+	}
+
+	@Override
+	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, TaggedBalance taggedBalance) {
+		return null;
+	}
+
+	@Override
+	public Future<?> setBalanceAsync(String userEmail, TaggedBalance taggedBalance,
+			AsyncHandler<SetBalanceResponse> asyncHandler) {
+		return null;
+	}
+
+	@Override
+	public void setBalance(String userEmail, TaggedBalance taggedBalance)
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+
 	}
 
 	// Control operations ----------------------------------------------------
@@ -121,7 +159,7 @@ public class PointsPortImpl implements PointsPortType {
 	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
 		try {
 			Points.changeStartPoints(startPoints);
-		} catch(InvalidNumberOfPointsException e) {
+		} catch (InvalidNumberOfPointsException e) {
 			throwBadInit(e.getMessage());
 		}
 	}
