@@ -63,6 +63,16 @@ public class SearchMenusIT extends BaseIT {
         client.searchMenus("gelado de chocolate");
     }
 
+    @Test (expected = BadTextFault_Exception.class)
+    public void descriptionWithTabs() throws BadTextFault_Exception {
+        client.searchMenus("gelado\tde\tchocolate");
+    }
+
+    @Test (expected = BadTextFault_Exception.class)
+    public void descriptionWithNewlines() throws BadTextFault_Exception {
+        client.searchMenus("gelado\nde\nchocolate");
+    }
+
     @Test
     public void descriptionNonExistant() throws BadTextFault_Exception {
         List<Menu> menus = client.searchMenus("bomdia");

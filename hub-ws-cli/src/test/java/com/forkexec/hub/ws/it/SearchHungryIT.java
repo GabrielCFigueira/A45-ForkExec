@@ -131,4 +131,14 @@ public class SearchHungryIT extends BaseIT {
 	public void searchWithTextWithSpaces() throws InvalidTextFault_Exception {
 		client.searchHungry("Bitoque Bom");
 	}
+
+	@Test(expected = InvalidTextFault_Exception.class)
+	public void searchWithTextWithTab() throws InvalidTextFault_Exception {
+		client.searchHungry("Bitoque Bom");
+	}
+
+	@Test(expected = InvalidTextFault_Exception.class)
+	public void searchWithTextWithNewline() throws InvalidTextFault_Exception {
+		client.searchHungry("Bitoque Bom");
+	}
 }

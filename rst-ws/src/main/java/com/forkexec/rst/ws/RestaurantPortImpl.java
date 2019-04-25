@@ -39,7 +39,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
-		if(menuId == null)
+		if(menuId == null || menuId.getId() == null)
 			throwBadMenuId("MenuId cannot be null!");
 		
 		Restaurant restaurantInstance = Restaurant.getInstance();

@@ -112,6 +112,16 @@ public class GetMenuIT extends BaseIT {
         client.getMenu(createMenuId("bomdia"));
     }
 
+    @Test (expected = BadMenuIdFault_Exception.class)
+    public void nullMenuId() throws BadMenuIdFault_Exception {
+        client.getMenu(null);
+    }
+
+    @Test (expected = BadMenuIdFault_Exception.class)
+    public void menuIdWithNullString() throws BadMenuIdFault_Exception {
+        client.getMenu(createMenuId(null));
+    }
+
     @After
     public void clear() {
         client.ctrlClear();

@@ -133,4 +133,14 @@ public class SearchDealIT extends BaseIT {
 	public void searchWithTextWithSpaces() throws InvalidTextFault_Exception {
 		client.searchDeal("Bitoque Bom");
 	}
+
+	@Test(expected = InvalidTextFault_Exception.class)
+	public void searchWithTextWithTab() throws InvalidTextFault_Exception {
+		client.searchHungry("Bitoque Bom");
+	}
+
+	@Test(expected = InvalidTextFault_Exception.class)
+	public void searchWithTextWithNewline() throws InvalidTextFault_Exception {
+		client.searchHungry("Bitoque Bom");
+	}
 }
