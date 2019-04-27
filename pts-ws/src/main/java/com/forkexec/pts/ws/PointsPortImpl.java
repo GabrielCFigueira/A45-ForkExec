@@ -45,57 +45,17 @@ public class PointsPortImpl implements PointsPortType {
 		}
 	}
 
-	@Override
-	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
-		int res = -1;
-		try {
-			res = Points.getInstance().getPoints(userEmail);
-		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
-			throwInvalidEmailFault(e.getMessage());
-		}
-		return res;
-	}
-
-	@Override
-	public int addPoints(final String userEmail, final int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		int res = -1;
-		if (pointsToAdd <= 0) {
-			throwInvalidPointsFault(String.format("Cannot add '%d' points (cannot be a negative number)", pointsToAdd));
-		}
-		try {
-			res = Points.getInstance().changePoints(userEmail, pointsToAdd);
-		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
-			throwInvalidEmailFault(e.getMessage());
-		} catch (NotEnoughPoints e) {
-			throwInvalidPointsFault(e.getMessage());
-		}
-
-		return res;
-	}
-
-	@Override
-	public int spendPoints(final String userEmail, final int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-		int res = -1;
-
-		if (pointsToSpend <= 0) {
-			throwInvalidPointsFault(
-					String.format("Cannot spend '%d' points (cannot be a negative number)", pointsToSpend));
-		}
-
-		try {
-			res = Points.getInstance().changePoints(userEmail, -pointsToSpend);
-		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
-			throwInvalidEmailFault(e.getMessage());
-		} catch (NotEnoughPoints e) {
-			throwNotEnoughBalanceFault(e.getMessage());
-		}
-
-		return res;
-	}
-
 	// QC-supporting methods
+	@Override
+	public Response<ActivateUserResponse> activateUserAsync(String userEmail) {
+		return null;
+	}
+
+	@Override
+	public Future<?> activateUserAsync(String userEmail, AsyncHandler<ActivateUserResponse> asyncHandler) {
+		return null;
+	}
+
 	@Override
 	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
 		return null;
@@ -164,6 +124,36 @@ public class PointsPortImpl implements PointsPortType {
 		}
 	}
 
+	@Override
+	public Response<CtrlPingResponse> ctrlPingAsync(String input) {
+		return null;
+	}
+
+	@Override
+	public Future<?> ctrlPingAsync(String input, AsyncHandler<CtrlPingResponse> asyncHandler) {
+		return null;
+	}
+
+	@Override
+	public Response<CtrlInitResponse> ctrlInitAsync(int startPoints) {
+		return null;
+	}
+
+	@Override
+	public Future<?> ctrlInitAsync(int startPoints, AsyncHandler<CtrlInitResponse> asyncHandler) {
+		return null;
+	}
+
+	@Override
+	public Response<CtrlClearResponse> ctrlClearAsync() {
+		return null;
+	}
+
+	@Override
+	public Future<?> ctrlClearAsync(AsyncHandler<CtrlClearResponse> asyncHandler) {
+		return null;
+	}
+
 	// Exception helpers -----------------------------------------------------
 
 	/** Helper to throw a new BadInit exception. */
@@ -192,12 +182,5 @@ public class PointsPortImpl implements PointsPortType {
 		final InvalidPointsFault faultInfo = new InvalidPointsFault();
 		faultInfo.message = message;
 		throw new InvalidPointsFault_Exception(message, faultInfo);
-	}
-
-	/** Helper to throw a new NotEnoughBalanceFault exception. */
-	private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
-		final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
-		faultInfo.message = message;
-		throw new NotEnoughBalanceFault_Exception(message, faultInfo);
 	}
 }

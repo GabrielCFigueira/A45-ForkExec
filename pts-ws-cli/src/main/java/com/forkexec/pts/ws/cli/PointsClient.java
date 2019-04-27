@@ -104,6 +104,30 @@ public class PointsClient implements PointsPortType {
 	}
 
 	// remote invocation methods ----------------------------------------------
+	@Override
+	public Response<CtrlPingResponse> ctrlPingAsync(String input) {
+		return port.ctrlPingAsync(input);
+	}
+
+	@Override
+	public Future<?> ctrlPingAsync(String input, AsyncHandler<CtrlPingResponse> asyncHandler) {
+		return port.ctrlPingAsync(input, asyncHandler);
+	}
+
+	@Override
+	public String ctrlPing(String input) {
+		return port.ctrlPing(input);
+	}
+
+	@Override
+	public Response<ActivateUserResponse> activateUserAsync(String userEmail) {
+		return port.activateUserAsync(userEmail);
+	}
+
+	@Override
+	public Future<?> activateUserAsync(String userEmail, AsyncHandler<ActivateUserResponse> asyncHandler) {
+		return port.activateUserAsync(userEmail, asyncHandler);
+	}
 
 	@Override
 	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
@@ -111,61 +135,28 @@ public class PointsClient implements PointsPortType {
 	}
 
 	@Override
-	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
-		return port.pointsBalance(userEmail);
+	public Response<CtrlInitResponse> ctrlInitAsync(int startPoints) {
+		return port.ctrlInitAsync(startPoints);
 	}
 
 	@Override
-	public int addPoints(String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		return port.addPoints(userEmail, pointsToAdd);
+	public Future<?> ctrlInitAsync(int startPoints, AsyncHandler<CtrlInitResponse> asyncHandler) {
+		return port.ctrlInitAsync(startPoints, asyncHandler);
 	}
 
 	@Override
-	public int spendPoints(String userEmail, int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-		return port.spendPoints(userEmail, pointsToSpend);
-	}
-
-	// new QC methods ---------------------------------------------------------
-
-	@Override
-	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
-		return null;
+	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
+		port.ctrlInit(startPoints);
 	}
 
 	@Override
-	public Future<?> getBalanceAsync(String userEmail, AsyncHandler<GetBalanceResponse> asyncHandler) {
-		return null;
+	public Response<CtrlClearResponse> ctrlClearAsync() {
+		return port.ctrlClearAsync();
 	}
 
 	@Override
-	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
-		return null;
-	}
-
-	@Override
-	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, TaggedBalance taggedBalance) {
-		return null;
-	}
-
-	@Override
-	public Future<?> setBalanceAsync(String userEmail, TaggedBalance taggedBalance,
-			AsyncHandler<SetBalanceResponse> asyncHandler) {
-		return null;
-	}
-
-	@Override
-	public void setBalance(String userEmail, TaggedBalance taggedBalance)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-
-	}
-
-	// control operations -----------------------------------------------------
-
-	@Override
-	public String ctrlPing(String inputMessage) {
-		return port.ctrlPing(inputMessage);
+	public Future<?> ctrlClearAsync(AsyncHandler<CtrlClearResponse> asyncHandler) {
+		return port.ctrlClearAsync(asyncHandler);
 	}
 
 	@Override
@@ -174,8 +165,36 @@ public class PointsClient implements PointsPortType {
 	}
 
 	@Override
-	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
-		port.ctrlInit(startPoints);
+	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
+		return port.getBalanceAsync(userEmail);
 	}
+
+	@Override
+	public Future<?> getBalanceAsync(String userEmail, AsyncHandler<GetBalanceResponse> asyncHandler) {
+		return port.getBalanceAsync(userEmail, asyncHandler);
+	}
+
+	@Override
+	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
+		return port.getBalance(userEmail);
+	}
+
+	@Override
+	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, TaggedBalance taggedBalance) {
+		return port.setBalanceAsync(userEmail, taggedBalance);
+	}
+
+	@Override
+	public Future<?> setBalanceAsync(String userEmail, TaggedBalance taggedBalance,
+			AsyncHandler<SetBalanceResponse> asyncHandler) {
+		return port.setBalanceAsync(userEmail, taggedBalance, asyncHandler);
+	}
+
+	@Override
+	public void setBalance(String userEmail, TaggedBalance taggedBalance)
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+		port.setBalance(userEmail, taggedBalance);
+	}
+
 
 }
