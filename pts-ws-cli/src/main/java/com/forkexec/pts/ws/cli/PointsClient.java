@@ -105,18 +105,18 @@ public class PointsClient implements PointsPortType {
 
 	// remote invocation methods ----------------------------------------------
 	@Override
-	public Response<CtrlPingResponse> ctrlPingAsync(String input) {
-		return port.ctrlPingAsync(input);
-	}
-
-	@Override
-	public Future<?> ctrlPingAsync(String input, AsyncHandler<CtrlPingResponse> asyncHandler) {
-		return port.ctrlPingAsync(input, asyncHandler);
-	}
-
-	@Override
 	public String ctrlPing(String input) {
 		return port.ctrlPing(input);
+	}
+
+	@Override
+	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
+		port.ctrlInit(startPoints);
+	}
+
+	@Override
+	public void ctrlClear() {
+		port.ctrlClear();
 	}
 
 	@Override
@@ -132,36 +132,6 @@ public class PointsClient implements PointsPortType {
 	@Override
 	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		port.activateUser(userEmail);
-	}
-
-	@Override
-	public Response<CtrlInitResponse> ctrlInitAsync(int startPoints) {
-		return port.ctrlInitAsync(startPoints);
-	}
-
-	@Override
-	public Future<?> ctrlInitAsync(int startPoints, AsyncHandler<CtrlInitResponse> asyncHandler) {
-		return port.ctrlInitAsync(startPoints, asyncHandler);
-	}
-
-	@Override
-	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
-		port.ctrlInit(startPoints);
-	}
-
-	@Override
-	public Response<CtrlClearResponse> ctrlClearAsync() {
-		return port.ctrlClearAsync();
-	}
-
-	@Override
-	public Future<?> ctrlClearAsync(AsyncHandler<CtrlClearResponse> asyncHandler) {
-		return port.ctrlClearAsync(asyncHandler);
-	}
-
-	@Override
-	public void ctrlClear() {
-		port.ctrlClear();
 	}
 
 	@Override
@@ -195,6 +165,4 @@ public class PointsClient implements PointsPortType {
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		port.setBalance(userEmail, taggedBalance);
 	}
-
-
 }

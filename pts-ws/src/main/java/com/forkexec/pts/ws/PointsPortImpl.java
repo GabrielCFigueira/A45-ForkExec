@@ -47,45 +47,13 @@ public class PointsPortImpl implements PointsPortType {
 
 	// QC-supporting methods
 	@Override
-	public Response<ActivateUserResponse> activateUserAsync(String userEmail) {
-		return null;
-	}
-
-	@Override
-	public Future<?> activateUserAsync(String userEmail, AsyncHandler<ActivateUserResponse> asyncHandler) {
-		return null;
-	}
-
-	@Override
-	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
-		return null;
-	}
-
-	@Override
-	public Future<?> getBalanceAsync(String userEmail, AsyncHandler<GetBalanceResponse> asyncHandler) {
-		return null;
-	}
-
-	@Override
 	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
-		return null;
-	}
-
-	@Override
-	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, TaggedBalance taggedBalance) {
-		return null;
-	}
-
-	@Override
-	public Future<?> setBalanceAsync(String userEmail, TaggedBalance taggedBalance,
-			AsyncHandler<SetBalanceResponse> asyncHandler) {
 		return null;
 	}
 
 	@Override
 	public void setBalance(String userEmail, TaggedBalance taggedBalance)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-
 	}
 
 	// Control operations ----------------------------------------------------
@@ -122,36 +90,6 @@ public class PointsPortImpl implements PointsPortType {
 		} catch (InvalidNumberOfPointsException e) {
 			throwBadInit(e.getMessage());
 		}
-	}
-
-	@Override
-	public Response<CtrlPingResponse> ctrlPingAsync(String input) {
-		return null;
-	}
-
-	@Override
-	public Future<?> ctrlPingAsync(String input, AsyncHandler<CtrlPingResponse> asyncHandler) {
-		return null;
-	}
-
-	@Override
-	public Response<CtrlInitResponse> ctrlInitAsync(int startPoints) {
-		return null;
-	}
-
-	@Override
-	public Future<?> ctrlInitAsync(int startPoints, AsyncHandler<CtrlInitResponse> asyncHandler) {
-		return null;
-	}
-
-	@Override
-	public Response<CtrlClearResponse> ctrlClearAsync() {
-		return null;
-	}
-
-	@Override
-	public Future<?> ctrlClearAsync(AsyncHandler<CtrlClearResponse> asyncHandler) {
-		return null;
 	}
 
 	// Exception helpers -----------------------------------------------------
