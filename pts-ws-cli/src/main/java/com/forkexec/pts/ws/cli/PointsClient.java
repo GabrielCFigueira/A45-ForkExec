@@ -120,21 +120,6 @@ public class PointsClient implements PointsPortType {
 	}
 
 	@Override
-	public Response<ActivateUserResponse> activateUserAsync(String userEmail) {
-		return port.activateUserAsync(userEmail);
-	}
-
-	@Override
-	public Future<?> activateUserAsync(String userEmail, AsyncHandler<ActivateUserResponse> asyncHandler) {
-		return port.activateUserAsync(userEmail, asyncHandler);
-	}
-
-	@Override
-	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-		port.activateUser(userEmail);
-	}
-
-	@Override
 	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
 		return port.getBalanceAsync(userEmail);
 	}

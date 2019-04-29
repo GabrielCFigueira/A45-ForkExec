@@ -7,11 +7,7 @@ import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
 import com.forkexec.pts.domain.Points;
-import com.forkexec.pts.domain.exception.EmailAlreadyRegisteredException;
-import com.forkexec.pts.domain.exception.EmailIsNotRegisteredException;
-import com.forkexec.pts.domain.exception.InvalidEmailAddressException;
-import com.forkexec.pts.domain.exception.InvalidNumberOfPointsException;
-import com.forkexec.pts.domain.exception.NotEnoughPoints;
+import com.forkexec.pts.domain.exception.*;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -32,18 +28,6 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	// Main operations -------------------------------------------------------
-
-	@Override
-	public void activateUser(final String userEmail)
-			throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-		try {
-			Points.getInstance().addUser(userEmail);
-		} catch (EmailAlreadyRegisteredException e) {
-			throwEmailAlreadyExists(e.getMessage());
-		} catch (InvalidEmailAddressException e) {
-			throwInvalidEmailFault(e.getMessage());
-		}
-	}
 
 	// QC-supporting methods
 	@Override
@@ -106,13 +90,6 @@ public class PointsPortImpl implements PointsPortType {
 		final InvalidEmailFault faultInfo = new InvalidEmailFault();
 		faultInfo.message = message;
 		throw new InvalidEmailFault_Exception(message, faultInfo);
-	}
-
-	/** Helper to throw a new EmailAlreadyExistsFault exception. */
-	private void throwEmailAlreadyExists(final String message) throws EmailAlreadyExistsFault_Exception {
-		final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
-		faultInfo.message = message;
-		throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
 	}
 
 	/** Helper to throw a new InvalidPointsFault exception. */

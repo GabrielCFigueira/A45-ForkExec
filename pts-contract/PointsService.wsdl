@@ -13,11 +13,8 @@
   <types>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ws.pts.forkexec.com/" version="1.0">
       <xs:element name="BadInitFault" type="tns:BadInitFault" />
-      <xs:element name="EmailAlreadyExistsFault" type="tns:EmailAlreadyExistsFault" />
       <xs:element name="InvalidEmailFault" type="tns:InvalidEmailFault" />
       <xs:element name="InvalidPointsFault" type="tns:InvalidPointsFault" />
-      <xs:element name="activateUser" type="tns:activateUser" />
-      <xs:element name="activateUserResponse" type="tns:activateUserResponse" />
       <xs:element name="ctrlClear" type="tns:ctrlClear" />
       <xs:element name="ctrlClearResponse" type="tns:ctrlClearResponse" />
       <xs:element name="ctrlInit" type="tns:ctrlInit" />
@@ -35,36 +32,12 @@
       <xs:complexType name="ctrlClearResponse">
         <xs:sequence />
       </xs:complexType>
-      <xs:complexType name="addPoints">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="userEmail" type="xs:string" />
-          <xs:element name="pointsToAdd" type="xs:int" />
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="addPointsResponse">
-        <xs:sequence>
-          <xs:element name="return" type="xs:int" />
-        </xs:sequence>
-      </xs:complexType>
       <xs:complexType name="InvalidEmailFault">
         <xs:sequence>
           <xs:element minOccurs="0" name="message" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="InvalidPointsFault">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="message" type="xs:string" />
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="activateUser">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="userEmail" type="xs:string" />
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="activateUserResponse">
-        <xs:sequence />
-      </xs:complexType>
-      <xs:complexType name="EmailAlreadyExistsFault">
         <xs:sequence>
           <xs:element minOccurs="0" name="message" type="xs:string" />
         </xs:sequence>
@@ -131,15 +104,6 @@
   <message name="InvalidEmailFault">
     <part element="tns:InvalidEmailFault" name="fault" />
   </message>
-  <message name="activateUser">
-    <part element="tns:activateUser" name="parameters" />
-  </message>
-  <message name="activateUserResponse">
-    <part element="tns:activateUserResponse" name="parameters" />
-  </message>
-  <message name="EmailAlreadyExistsFault">
-    <part element="tns:EmailAlreadyExistsFault" name="fault" />
-  </message>
   <message name="ctrlInit">
     <part element="tns:ctrlInit" name="parameters" />
   </message>
@@ -179,12 +143,6 @@
       <input message="tns:ctrlPing" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlPingRequest" />
       <output message="tns:ctrlPingResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlPingResponse" />
     </operation>
-    <operation name="activateUser">
-      <input message="tns:activateUser" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/activateUserRequest" />
-      <output message="tns:activateUserResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/activateUserResponse" />
-      <fault message="tns:InvalidEmailFault" name="InvalidEmailFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/activateUser/Fault/InvalidEmailFault" />
-      <fault message="tns:EmailAlreadyExistsFault" name="EmailAlreadyExistsFault" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/activateUser/Fault/EmailAlreadyExistsFault" />
-    </operation>
     <operation name="ctrlInit">
       <input message="tns:ctrlInit" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlInitRequest" />
       <output message="tns:ctrlInitResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlInitResponse" />
@@ -219,21 +177,6 @@
       <output>
         <soap:body use="literal" />
       </output>
-    </operation>
-    <operation name="activateUser">
-      <soap:operation soapAction="" />
-      <input>
-        <soap:body use="literal" />
-      </input>
-      <output>
-        <soap:body use="literal" />
-      </output>
-      <fault name="InvalidEmailFault">
-        <soap:fault name="InvalidEmailFault" use="literal" />
-      </fault>
-      <fault name="EmailAlreadyExistsFault">
-        <soap:fault name="EmailAlreadyExistsFault" use="literal" />
-      </fault>
     </operation>
     <operation name="ctrlInit">
       <soap:operation soapAction="" />
