@@ -25,14 +25,15 @@ public class Points {
 	/**
 	 * Global map that holds the association between users and points
 	 */
-	private final Map<String, Integer> user_points = new ConcurrentHashMap<>();
+	private final Map<String, Balance> user_points = new ConcurrentHashMap<>();
 
 	// Singleton -------------------------------------------------------------
 
 	/**
 	 * Private constructor prevents instantiation from other classes.
 	 */
-	private Points() { }
+	private Points() {
+	}
 
 	private Points(int startPoints) {
 		this.initialBalance.set(startPoints);
@@ -89,32 +90,36 @@ public class Points {
 		if(user_points.containsKey(userId) == true) {
 			throw new EmailAlreadyRegisteredException(userId);
 		}
-		user_points.put(userId, initialBalance.get());
+		Balance b = new Balance();
+		b.setPoints(initialBalance.get());
+		user_points.put(userId, b);
 	}
 
-	public int getPoints(String userId) throws EmailIsNotRegisteredException, InvalidEmailAddressException {
+	public Balance getBalance(String userId) throws EmailIsNotRegisteredException, InvalidEmailAddressException {
 		if(userId == null || isValidEmailAddress(userId) == false) {
 			throw new InvalidEmailAddressException(userId);
 		}
-		Integer res = user_points.get(userId);
+		Balance res = user_points.get(userId);
 		if(res == null) {
 			throw new EmailIsNotRegisteredException(userId);
 		}
 		return res;
 	}
 
-	public synchronized int changePoints(String userId, int delta) throws NotEnoughPoints, EmailIsNotRegisteredException, InvalidEmailAddressException {
+	public void setBalance(String userId, int points, int version) throws EmailIsNotRegisteredException, InvalidEmailAddressException, InvalidNumberOfPointsException {
 		if(userId == null || isValidEmailAddress(userId) == false) {
 			throw new InvalidEmailAddressException(userId);
 		}
-		if(user_points.containsKey(userId) == false) {
-			throw new EmailIsNotRegisteredException(userId);
+		if(points < 0) {
+			throw new InvalidNumberOfPointsException(points);
 		}
-		if(user_points.get(userId) + delta < 0) {
-			throw new NotEnoughPoints(-delta, user_points.get(userId));
+		Balance b;
+		synchronized(b = user_points.computeIfAbsent(userId, k -> new Balance())) {
+			b.setPoints(points);
+			b.setSeq(version);
 		}
-		return user_points.computeIfPresent(userId, (user, old_val) -> old_val + delta);
 	}
+
 
 	// Verifiers ------------------------------------------------------------
 
