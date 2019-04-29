@@ -192,7 +192,7 @@ public class Hub {
 
 		try {
 			frontEnd.spendPoints(UDDIUrl, orgNames, userId, pointsToSpend);
-		} catch (NotEnoughBalanceFault_Exception | InvalidPointsFault_Exception e){
+		} catch (/*NotEnoughBalanceFault_Exception |*/ InvalidPointsFault_Exception e){
 			throw new NotEnoughPointsException(e.getMessage());
 		} catch (InvalidEmailFault_Exception e) {
 			throw new InvalidUserIdException(e.getMessage());
