@@ -60,3 +60,24 @@ Este protocolo garante consistência sequencial.
     O servidor de pontos pode tratar destes pedidos de forma paralela.
 
 # Protocolo
+
+Remoção de pontos:
+
+  - o FrontEnd envia pedidos de leitura aos `N` servidores de pontos
+  - cada servidor de pontos responde com os números de pontos e versão
+    armazenados para esse utilizador
+  - o FrontEnd espera por `(N+1)/2` respostas, e vai guardando o maior
+    número de versão observado e respetivo valor [^impl].
+    
+[^impl]: como opção de implementação, vamos utilizar callbacks, e podemos
+         ou não cancelar a espera pelas restantes respostas
+
+  - depois de ter as respostas, o FrontEnd verifica que o balance é suficiente,
+    senão lança uma exceção. (DÚVIDA: Antes esta exceção era auto-gerada, como fazemos?
+    usamos as antigas exceções do domínio, se calhar movendo-as para a package pts.exception?
+    e isto implica sempre mudanças no Hub, para mudar o tipo de exceções (das auto-geradas
+    Fault_Exception para as "nossas", e para remover exceções, como a NotRegistered)
+  - se puder, subtrai os pontos, incrementa por 1 a versão e manda `N` pedidos de escrita
+  
+  - Após ter `N` confirmações, retorna.  
+  
