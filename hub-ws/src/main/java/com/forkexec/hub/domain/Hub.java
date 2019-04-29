@@ -44,6 +44,8 @@ import com.forkexec.pts.ws.cli.PointsClientException;
 import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClient;
 import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClientException;
 
+import com.forkexec.pts.ws.cli.PointsFrontEnd;
+
 
 /**
  * Hub
@@ -52,7 +54,8 @@ import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClientException;
  *
  */
 public class Hub {
-
+	
+	private final PointsFrontEnd frontEnd = new PointsFrontEnd();
 
 	// Singleton -------------------------------------------------------------
 
@@ -87,13 +90,15 @@ public class Hub {
 		}
 	}
 
-	private PointsClient getPointsClient(String UDDIUrl, String orgName) {
+	// ---------- DELETE??? ----------
+	/*private PointsClient getPointsClient(String UDDIUrl, List<String> orgName) {
 		try {
 			return new PointsClient(UDDIUrl, orgName);
 		} catch(PointsClientException e) {
 			throw new RuntimeException(e.getMessage());
 		}
-	}
+	}*/
+	// -------------------------------
 
 	public List<Food> getAllFood(String UDDIUrl, String orgName, String description) throws InvalidTextException{
 		List<Food> res = new ArrayList<Food>();
@@ -116,8 +121,9 @@ public class Hub {
 		else
 			return user;
 	}
-
-	public void addUser(String UDDIUrl, String orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
+	
+	// ---------- DELETE??? ----------
+	/*public void addUser(String UDDIUrl, List<String> orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
 		PointsClient pointsClient = getPointsClient(UDDIUrl, orgName);
 		if(userId == null)
 			throw new InvalidUserIdException("UserId set to null");
@@ -129,25 +135,25 @@ public class Hub {
 			throw new InvalidUserIdException(e.getMessage());
 		}
 		_users.put(userId, new User(userId));
-	}
-
-	public void loadAccount(String UDDIUrl, String orgName, String userId, int moneyToAdd, String creditCardNumber) 
+	}*/
+	// -------------------------------
+	
+	public void loadAccount(String UDDIUrl, List<String> orgNames, String userId, int moneyToAdd, String creditCardNumber) 
 			throws InvalidCreditCardException, InvalidUserIdException, InvalidMoneyException {
 		
-		PointsClient pointsClient = getPointsClient(UDDIUrl, orgName);
 		try {
 			CreditCardClient creditCard = new CreditCardClient();
 
 			if (!creditCard.validateNumber(creditCardNumber)) 
 				throw new InvalidCreditCardException("Invalid creditcard number: " + creditCardNumber);
 			else if (moneyToAdd == 10)
-				pointsClient.addPoints(userId, 1000);
+				frontEnd.addPoints(UDDIUrl, orgNames, userId, 1000);
 			else if (moneyToAdd == 20)
-				pointsClient.addPoints(userId, 2100);
+				frontEnd.addPoints(UDDIUrl, orgNames, userId, 2100);
 			else if (moneyToAdd == 30)
-				pointsClient.addPoints(userId, 3300);
+				frontEnd.addPoints(UDDIUrl, orgNames, userId, 3300);
 			else if (moneyToAdd == 50)
-				pointsClient.addPoints(userId, 5500);
+				frontEnd.addPoints(UDDIUrl, orgNames, userId, 5500);
 			else
 				throw new InvalidMoneyException("Invalid money quantity: " + moneyToAdd);
 		} catch (InvalidEmailFault_Exception e) {
@@ -168,7 +174,7 @@ public class Hub {
 		getUser(userId).clearCart();
 	}
 
-	public List<FoodOrderItem> orderCart(String UDDIUrl, String pointOrgName, String userId) 
+	public List<FoodOrderItem> orderCart(String UDDIUrl, List<String> orgNames, String userId) 
 			throws EmptyCartException, NoSuchUserException, NotEnoughPointsException, InvalidUserIdException, InvalidFoodQuantityException {
 
 		if (getUser(userId).getCart().isEmpty())
@@ -185,7 +191,7 @@ public class Hub {
 		}
 
 		try {
-			getPointsClient(UDDIUrl, pointOrgName).spendPoints(userId, pointsToSpend);
+			frontEnd.spendPoints(UDDIUrl, orgNames, userId, pointsToSpend);
 		} catch (NotEnoughBalanceFault_Exception | InvalidPointsFault_Exception e){
 			throw new NotEnoughPointsException(e.getMessage());
 		} catch (InvalidEmailFault_Exception e) {
@@ -212,10 +218,9 @@ public class Hub {
 		}
 	}
 
-	public int accountBalance(String UDDIUrl, String orgName, String userId) throws InvalidUserIdException {
-		PointsClient pointsClient = getPointsClient(UDDIUrl, orgName);
+	public int accountBalance(String UDDIUrl, List<String> orgNames, String userId) throws InvalidUserIdException {
 		try {
-			return pointsClient.pointsBalance(userId);
+			return frontEnd.pointsBalance(UDDIUrl, orgNames, userId);
 		} catch (InvalidEmailFault_Exception e) {
 			throw new InvalidUserIdException(e.getMessage());
 		}
@@ -237,9 +242,9 @@ public class Hub {
 		return res;
 	}
 
-	public void ctrlInitPoints(String UDDIUrl, String orgName, int startPoints) throws BadInitException {
+	public void ctrlInitPoints(String UDDIUrl, List<String> orgNames, int startPoints) throws BadInitException {
 		try {
-			getPointsClient(UDDIUrl, orgName).ctrlInit(startPoints);
+			frontEnd.ctrlInit(UDDIUrl, orgNames, startPoints);
 		} catch (com.forkexec.pts.ws.BadInitFault_Exception | RuntimeException e) {
 			throw new BadInitException(e.getMessage());
 		}
@@ -278,8 +283,8 @@ public class Hub {
 		getRestaurantClient(UDDIUrl, orgName).ctrlClear();
 	}
 
-	public void ctrlClearPoints(String UDDIUrl, String orgName) {
-		getPointsClient(UDDIUrl, orgName).ctrlClear();
+	public void ctrlClearPoints(String UDDIUrl, List<String> orgNames) {
+		frontEnd.ctrlClear(UDDIUrl, orgNames);
 	}
 
 
