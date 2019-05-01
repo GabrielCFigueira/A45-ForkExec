@@ -123,6 +123,7 @@ public class PointsFrontEnd {
 		TaggedBalance balance = new TaggedBalance();
 		balance.setTag(-1);
 		while(nResponses < majority) {
+			if(responses.size() == 0) break; //TODO error
 			for(int i=responses.size()-1; i >= 0; --i) {
 				if(responses.get(i).isDone()) {
 					TaggedBalance newTag = new TaggedBalance();
@@ -159,6 +160,7 @@ public class PointsFrontEnd {
 		
 		int nResponses = 0;
 		while(nResponses < majority) {
+			if(responses.size() == 0) break; //TODO error
 			for(int i=responses.size()-1; i >= 0; --i) {
 				if(responses.get(i).isDone()) {
 					try {
