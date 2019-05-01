@@ -139,13 +139,13 @@ public class Hub {
 			if (!creditCard.validateNumber(creditCardNumber))
 				throw new InvalidCreditCardException("Invalid creditcard number: " + creditCardNumber);
 			else if (moneyToAdd == 10)
-				frontEnd.addPoints(UDDIUrl, orgNames, userId, 1000);
+				frontEnd.addPoints(userId, 1000);
 			else if (moneyToAdd == 20)
-				frontEnd.addPoints(UDDIUrl, orgNames, userId, 2100);
+				frontEnd.addPoints(userId, 2100);
 			else if (moneyToAdd == 30)
-				frontEnd.addPoints(UDDIUrl, orgNames, userId, 3300);
+				frontEnd.addPoints(userId, 3300);
 			else if (moneyToAdd == 50)
-				frontEnd.addPoints(UDDIUrl, orgNames, userId, 5500);
+				frontEnd.addPoints(userId, 5500);
 			else
 				throw new InvalidMoneyException("Invalid money quantity: " + moneyToAdd);
 		} catch (CreditCardClientException e) {
@@ -183,7 +183,7 @@ public class Hub {
 		}
 
 		try {
-			frontEnd.spendPoints(UDDIUrl, orgNames, userId, pointsToSpend);
+			frontEnd.spendPoints(userId, pointsToSpend);
 		} catch (com.forkexec.pts.ws.cli.exception.NotEnoughPointsException | InvalidNumberOfPointsException e){
 			throw new NotEnoughPointsException(e.getMessage());
 		} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
@@ -212,7 +212,7 @@ public class Hub {
 
 	public int accountBalance(String UDDIUrl, List<String> orgNames, String userId) throws InvalidUserIdException {
 		try {
-			return frontEnd.pointsBalance(UDDIUrl, orgNames, userId);
+			return frontEnd.pointsBalance(userId);
 		} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
 			throw new InvalidUserIdException(e.getMessage());
 		}
@@ -236,7 +236,7 @@ public class Hub {
 
 	public void ctrlInitPoints(String UDDIUrl, List<String> orgNames, int startPoints) throws BadInitException {
 		try {
-			frontEnd.ctrlInit(UDDIUrl, orgNames, startPoints);
+			frontEnd.ctrlInit(startPoints);
 		} catch (com.forkexec.pts.ws.BadInitFault_Exception | RuntimeException e) {
 			throw new BadInitException(e.getMessage());
 		}
@@ -276,7 +276,7 @@ public class Hub {
 	}
 
 	public void ctrlClearPoints(String UDDIUrl, List<String> orgNames) {
-		frontEnd.ctrlClear(UDDIUrl, orgNames);
+		frontEnd.ctrlClear();
 	}
 
 

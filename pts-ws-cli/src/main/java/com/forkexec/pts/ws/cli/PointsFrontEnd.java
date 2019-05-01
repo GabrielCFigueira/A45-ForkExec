@@ -35,40 +35,40 @@ public class PointsFrontEnd {
 		}
 	}
 
-	public int pointsBalance(String UDDIUrl , List<String> orgNames, String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
-		return read(UDDIUrl, orgNames, userEmail).getPoints();
+	public int pointsBalance(String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
+		return read(userEmail).getPoints();
 	}
 
-	public int addPoints(String UDDIUrl , List<String> orgNames, String userEmail, int pointsToAdd)
+	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
 		
-		TaggedBalance balance = read(UDDIUrl, orgNames, userEmail);
+		TaggedBalance balance = read(userEmail);
 		
 		balance.setPoints(pointsToAdd+balance.getPoints());
 		balance.setTag(balance.getTag() + 1);
 		
-		write(UDDIUrl, orgNames, userEmail, balance);
+		write(userEmail, balance);
 
 		return balance.getPoints();
 	}
 
-	public int spendPoints(String UDDIUrl, List<String> orgNames, String userEmail, int pointsToSpend)
+	public int spendPoints(String userEmail, int pointsToSpend)
 			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException,
 			NotEnoughPointsException {
 		
-		TaggedBalance balance = read(UDDIUrl, orgNames, userEmail);
+		TaggedBalance balance = read(userEmail);
 		
 		balance.setPoints(balance.getPoints()-pointsToSpend);
 		balance.setTag(balance.getTag() + 1);
 		
-		write(UDDIUrl, orgNames, userEmail, balance);
+		write(userEmail, balance);
 
 		return balance.getPoints();
 	}
 
 	// control operations -----------------------------------------------------
 
-	public String ctrlPing(String UDDIUrl , List<String> orgNames, String inputMessage) {
+	public String ctrlPing(String inputMessage) {
 		// If no input is received, return a default name.
 		if (inputMessage == null || inputMessage.trim().length() == 0)
 			inputMessage = "friend";
@@ -78,28 +78,20 @@ public class PointsFrontEnd {
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append("Hub");
 
-		for(String orgName : orgNames)
-			builder.append("\n").append(getPointsClient(UDDIUrl, orgName).ctrlPing("points client"));
+		for(PointsClient client : getPointsClients())
+			builder.append("\n").append(client.ctrlPing("points client"));
 
 		return builder.toString();
 	}
 
-	public void ctrlClear(String UDDIUrl , List<String> orgNames) {
-		for(String orgName : orgNames)
-			getPointsClient(UDDIUrl, orgName).ctrlClear();
+	public void ctrlClear() {
+		for(PointsClient client : getPointsClients())
+			client.ctrlClear();
 	}
 
-	public void ctrlInit(String UDDIUrl , List<String> orgNames, int startPoints) throws BadInitFault_Exception {
-		for(String orgName : orgNames)
-			getPointsClient(UDDIUrl, orgName).ctrlInit(startPoints);
-	}
-
-	private PointsClient getPointsClient(String UDDIUrl, String orgName) {
-		try {
-			return new PointsClient(UDDIUrl, orgName);
-		} catch(PointsClientException e) {
-			throw new RuntimeException(e.getMessage());
-		}
+	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
+		for(PointsClient client : getPointsClients())
+			client.ctrlInit(startPoints);
 	}
 
 	private List<PointsClient> getPointsClients() {
@@ -107,8 +99,8 @@ public class PointsFrontEnd {
 
 		try {
 			for(UDDIRecord e: endpoint.listRecords("A45_Points%"))
-				res.add(getPointsClient(endpoint.getUDDIUrl(), e.getOrgName()));
-		} catch (UDDINamingException e) {
+				res.add(new PointsClient(endpoint.getUDDIUrl(), e.getOrgName()));
+		} catch (UDDINamingException | PointsClientException e) {
 			throw new RuntimeException(e.getMessage());
 		}
 		return res;
@@ -116,7 +108,7 @@ public class PointsFrontEnd {
 	
 	// Aux --------------------------------------------------------------------
 	
-	private TaggedBalance read(String UDDIUrl, List<String> orgNames, String userEmail) {
+	private TaggedBalance read(String userEmail) {
 		
 		List<PointsClient> clients = getPointsClients();
 
@@ -151,7 +143,7 @@ public class PointsFrontEnd {
 		
 	}
 	
-	private boolean write(String UDDIUrl, List<String> orgNames, String userEmail, TaggedBalance balance) {
+	private boolean write(String userEmail, TaggedBalance balance) {
 		List<PointsClient> clients = getPointsClients();
 
 		List<Response<SetBalanceResponse>> responses = new ArrayList<Response<SetBalanceResponse>>();
