@@ -47,7 +47,7 @@ import com.forkexec.pts.ws.cli.exception.*;
  */
 public class Hub {
 
-	private final PointsFrontEnd frontEnd = new PointsFrontEnd();
+	private final PointsFrontEnd frontEnd = new PointsFrontEnd(3); //TODO: get number of replicas
 
 	// Singleton -------------------------------------------------------------
 

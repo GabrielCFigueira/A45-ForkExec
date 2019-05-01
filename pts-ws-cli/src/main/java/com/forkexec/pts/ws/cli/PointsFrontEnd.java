@@ -26,12 +26,12 @@ public class PointsFrontEnd {
 		majority = (num / 2) + 1;
 	}
 
-	public int pointsBalance(String UDDIUrl , List<String> orgNames, String userEmail) throws InvalidEmailFault_Exception {
+	public int pointsBalance(String UDDIUrl , List<String> orgNames, String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
 		return read(UDDIUrl, orgNames, userEmail).getPoints();
 	}
 
 	public int addPoints(String UDDIUrl , List<String> orgNames, String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
 		
 		TaggedBalance balance = read(UDDIUrl, orgNames, userEmail);
 		
