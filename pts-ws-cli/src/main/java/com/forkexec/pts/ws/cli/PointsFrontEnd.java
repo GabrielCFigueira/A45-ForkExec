@@ -44,7 +44,7 @@ public class PointsFrontEnd {
 		
 		TaggedBalance balance = read(userEmail);
 		
-		balance.setPoints(pointsToAdd+balance.getPoints());
+		balance.setPoints(pointsToAdd + balance.getPoints());
 		balance.setTag(balance.getTag() + 1);
 		
 		write(userEmail, balance);
@@ -58,6 +58,9 @@ public class PointsFrontEnd {
 		
 		TaggedBalance balance = read(userEmail);
 		
+		if (balance.getPoints()-pointsToSpend < 0)
+			throw new NotEnoughPointsException(pointsToSpend, balance.getPoints());
+
 		balance.setPoints(balance.getPoints()-pointsToSpend);
 		balance.setTag(balance.getTag() + 1);
 		
@@ -108,7 +111,7 @@ public class PointsFrontEnd {
 	
 	// Aux --------------------------------------------------------------------
 	
-	private TaggedBalance read(String userEmail) {
+	private TaggedBalance read(String userEmail) throws InvalidEmailAddressException {
 		
 		List<PointsClient> clients = getPointsClients();
 
@@ -127,8 +130,11 @@ public class PointsFrontEnd {
 					try {
 						newTag = responses.get(i).get().getReturn();
 						nResponses++;
-					} catch (InterruptedException | ExecutionException e) {
-						// TODO Auto-generated catch block
+					} catch (InterruptedException e) {
+						
+					} catch (ExecutionException e) {
+						if(e.getCause() instanceof InvalidEmailFault_Exception)
+							throw new InvalidEmailAddressException(userEmail);
 					}
 					if(newTag.getTag() > balance.getTag()) {
 						balance = newTag;
@@ -143,7 +149,7 @@ public class PointsFrontEnd {
 		
 	}
 	
-	private boolean write(String userEmail, TaggedBalance balance) {
+	private boolean write(String userEmail, TaggedBalance balance) throws InvalidEmailAddressException, InvalidNumberOfPointsException {
 		List<PointsClient> clients = getPointsClients();
 
 		List<Response<SetBalanceResponse>> responses = new ArrayList<Response<SetBalanceResponse>>();
@@ -158,8 +164,13 @@ public class PointsFrontEnd {
 					try {
 						responses.get(i).get();
 						nResponses++;
-					} catch (InterruptedException | ExecutionException e) {
-						// TODO Auto-generated catch block
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e.getMessage());
+					} catch (ExecutionException e) {
+						if(e.getCause() instanceof InvalidEmailFault_Exception)
+							throw new InvalidEmailAddressException(userEmail);
+						else if(e.getCause() instanceof InvalidPointsFault_Exception)
+							throw new InvalidNumberOfPointsException(balance.getPoints());
 					}
 					responses.remove(i);
 				}
