@@ -11,12 +11,16 @@ import javax.xml.ws.Response;
 
 import com.forkexec.pts.ws.cli.exception.*;
 import com.forkexec.pts.ws.*;
+import pt.ulisboa.tecnico.sdis.ws.uddi.*;
+
 
 /**
  * A class to implement QC protocol using the PointsClient for communication
  * with the server
  */
 public class PointsFrontEnd {
+
+	private PointsFrontEndEndPointManager endpoint;
 	
 	private static int nSERVERS;
 	private static int majority;
@@ -24,6 +28,11 @@ public class PointsFrontEnd {
 	public PointsFrontEnd(int num){
 		nSERVERS = num;
 		majority = (num / 2) + 1;
+		try {
+			endpoint = new PointsFrontEndEndPointManager("http://a45:!UG1osky@uddi.sd.rnl.tecnico.ulisboa.pt:9090");
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
+		}
 	}
 
 	public int pointsBalance(String UDDIUrl , List<String> orgNames, String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
@@ -93,12 +102,15 @@ public class PointsFrontEnd {
 		}
 	}
 
-	private List<PointsClient> getPointsClients(String UDDIUrl, List<String> orgNames) {
+	private List<PointsClient> getPointsClients() {
 		List<PointsClient> res = new ArrayList<PointsClient>();
 
-		for(String orgName : orgNames)
-			res.add(getPointsClient(UDDIUrl, orgName));
-		
+		try {
+			for(UDDIRecord e: endpoint.listRecords("A45_Points%"))
+				res.add(getPointsClient(endpoint.getUDDIUrl(), e.getOrgName()));
+		} catch (UDDINamingException e) {
+			throw new RuntimeException(e.getMessage());
+		}
 		return res;
 	}
 	
@@ -106,7 +118,7 @@ public class PointsFrontEnd {
 	
 	private TaggedBalance read(String UDDIUrl, List<String> orgNames, String userEmail) {
 		
-		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
+		List<PointsClient> clients = getPointsClients();
 
 		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
 		for(PointsClient client : clients)
@@ -140,7 +152,7 @@ public class PointsFrontEnd {
 	}
 	
 	private boolean write(String UDDIUrl, List<String> orgNames, String userEmail, TaggedBalance balance) {
-		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
+		List<PointsClient> clients = getPointsClients();
 
 		List<Response<SetBalanceResponse>> responses = new ArrayList<Response<SetBalanceResponse>>();
 				
