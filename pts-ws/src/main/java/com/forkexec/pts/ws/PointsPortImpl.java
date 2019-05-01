@@ -1,12 +1,9 @@
 package com.forkexec.pts.ws;
 
-import java.util.concurrent.Future;
-
 import javax.jws.WebService;
-import javax.xml.ws.AsyncHandler;
-import javax.xml.ws.Response;
 
 import com.forkexec.pts.domain.Points;
+import com.forkexec.pts.domain.Balance;
 import com.forkexec.pts.domain.exception.*;
 
 /**
@@ -32,12 +29,25 @@ public class PointsPortImpl implements PointsPortType {
 	// QC-supporting methods
 	@Override
 	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
-		return null;
+		TaggedBalance t = null;
+		try {
+			t = balanceToTaggedBalance(Points.getInstance().getBalance(userEmail));
+		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+			throwInvalidEmailFault(e.getMessage());
+		}
+		return t;
 	}
 
 	@Override
 	public void setBalance(String userEmail, TaggedBalance taggedBalance)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+		try {
+			Points.getInstance().setBalance(userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
+		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+			throwInvalidEmailFault(e.getMessage());
+		} catch (InvalidNumberOfPointsException e) {
+			throwInvalidPointsFault(e.getMessage());
+		}
 	}
 
 	// Control operations ----------------------------------------------------
@@ -97,5 +107,12 @@ public class PointsPortImpl implements PointsPortType {
 		final InvalidPointsFault faultInfo = new InvalidPointsFault();
 		faultInfo.message = message;
 		throw new InvalidPointsFault_Exception(message, faultInfo);
+	}
+
+	private TaggedBalance balanceToTaggedBalance(Balance b) {
+		TaggedBalance res = new TaggedBalance();
+		res.setPoints(b.getPoints());
+		res.setTag(b.getSeq());
+		return res;
 	}
 }

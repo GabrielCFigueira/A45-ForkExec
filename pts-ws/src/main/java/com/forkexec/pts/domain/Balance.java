@@ -1,8 +1,15 @@
 package com.forkexec.pts.domain;
 
-class Balance {
+public class Balance {
 	private int points = 0;
 	private int seq = 0;
+
+	public Balance() {}
+
+	public Balance(int points, int seq) {
+		this.points = points;
+		this.seq = seq;
+	}
 
 	/**
 	 * @return the points

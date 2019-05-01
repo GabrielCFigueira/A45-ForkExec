@@ -83,18 +83,6 @@ public class Points {
 
 	// Functionality functions ----------------------------------------------
 
-	public synchronized void addUser(String userId) throws EmailAlreadyRegisteredException, InvalidEmailAddressException {
-		if(isValidEmailAddress(userId) == false) {
-			throw new InvalidEmailAddressException(userId);
-		}
-		if(user_points.containsKey(userId) == true) {
-			throw new EmailAlreadyRegisteredException(userId);
-		}
-		Balance b = new Balance();
-		b.setPoints(initialBalance.get());
-		user_points.put(userId, b);
-	}
-
 	public Balance getBalance(String userId) throws EmailIsNotRegisteredException, InvalidEmailAddressException {
 		if(userId == null || isValidEmailAddress(userId) == false) {
 			throw new InvalidEmailAddressException(userId);
@@ -113,8 +101,11 @@ public class Points {
 		if(points < 0) {
 			throw new InvalidNumberOfPointsException(points);
 		}
+
+		//FIXME: race condition here
 		Balance b;
-		synchronized(b = user_points.computeIfAbsent(userId, k -> new Balance())) {
+		user_points.putIfAbsent(userId, new Balance());
+		synchronized(b = user_points.get(userId)) {
 			b.setPoints(points);
 			b.setSeq(version);
 		}
