@@ -3,6 +3,7 @@ package com.forkexec.pts.ws.cli;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.AsyncHandler;
@@ -16,46 +17,44 @@ import com.forkexec.pts.ws.*;
  * with the server
  */
 public class PointsFrontEnd {
-
-	public int pointsBalance(String UDDIUrl, List<String> orgNames, String userEmail)
-			throws InvalidEmailAddressException, EmailIsNotRegisteredException {
-		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
-
-		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
-		for (PointsClient client : clients)
-			responses.add(client.getBalanceAsync(userEmail));
-
-		int nServers = clients.size();
-		int majority = nServers / 2 + 1;
-		int nResponses = 0;
-		// while(nResponses < majority)
-
-		return 0;
+	
+	private static int nSERVERS;
+	private static int majority;
+	
+	public PointsFrontEnd(int num){
+		nSERVERS = num;
+		majority = (num / 2) + 1;
 	}
 
-	public int addPoints(String UDDIUrl, List<String> orgNames, String userEmail, int pointsToAdd)
-			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
+	public int pointsBalance(String UDDIUrl , List<String> orgNames, String userEmail) throws InvalidEmailFault_Exception {
+		return read(UDDIUrl, orgNames, userEmail).getPoints();
+	}
 
-		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
+	public int addPoints(String UDDIUrl , List<String> orgNames, String userEmail, int pointsToAdd)
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+		
+		TaggedBalance balance = read(UDDIUrl, orgNames, userEmail);
+		
+		balance.setPoints(pointsToAdd+balance.getPoints());
+		balance.setTag(balance.getTag() + 1);
+		
+		write(UDDIUrl, orgNames, userEmail, balance);
 
-		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
-		for (PointsClient client : clients)
-			responses.add(client.getBalanceAsync(userEmail));
-
-		return 0;
+		return balance.getPoints();
 	}
 
 	public int spendPoints(String UDDIUrl, List<String> orgNames, String userEmail, int pointsToSpend)
 			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException,
 			NotEnoughPointsException {
 		
-		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
+		TaggedBalance balance = read(UDDIUrl, orgNames, userEmail);
+		
+		balance.setPoints(balance.getPoints()-pointsToSpend);
+		balance.setTag(balance.getTag() + 1);
+		
+		write(UDDIUrl, orgNames, userEmail, balance);
 
-		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
-		for(PointsClient client : clients)
-			responses.add(client.getBalanceAsync(userEmail));
-
-		return 0;
+		return balance.getPoints();
 	}
 
 	// control operations -----------------------------------------------------
@@ -101,6 +100,69 @@ public class PointsFrontEnd {
 			res.add(getPointsClient(UDDIUrl, orgName));
 		
 		return res;
+	}
+	
+	// Aux --------------------------------------------------------------------
+	
+	private TaggedBalance read(String UDDIUrl, List<String> orgNames, String userEmail) {
+		
+		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
+
+		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
+		for(PointsClient client : clients)
+			responses.add(client.getBalanceAsync(userEmail));
+
+		int nResponses = 0;
+		TaggedBalance balance = new TaggedBalance();
+		balance.setTag(-1);
+		while(nResponses < majority) {
+			for(int i=responses.size()-1; i >= 0; --i) {
+				if(responses.get(i).isDone()) {
+					TaggedBalance newTag = new TaggedBalance();
+					newTag.setTag(-1);
+					try {
+						newTag = responses.get(i).get().getReturn();
+						nResponses++;
+					} catch (InterruptedException | ExecutionException e) {
+						// TODO Auto-generated catch block
+					}
+					if(newTag.getTag() > balance.getTag()) {
+						balance = newTag;
+					}
+					
+					responses.remove(i);
+				}
+			}
+		}
+		
+		return balance;
+		
+	}
+	
+	private boolean write(String UDDIUrl, List<String> orgNames, String userEmail, TaggedBalance balance) {
+		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
+
+		List<Response<SetBalanceResponse>> responses = new ArrayList<Response<SetBalanceResponse>>();
+				
+		for(PointsClient client : clients)
+			responses.add(client.setBalanceAsync(userEmail, balance));
+		
+		int nResponses = 0;
+		while(nResponses < majority) {
+			for(int i=responses.size()-1; i >= 0; --i) {
+				if(responses.get(i).isDone()) {
+					try {
+						responses.get(i).get();
+						nResponses++;
+					} catch (InterruptedException | ExecutionException e) {
+						// TODO Auto-generated catch block
+					}
+					responses.remove(i);
+				}
+			}
+		}
+		
+		return true;
 	}
 
 }
