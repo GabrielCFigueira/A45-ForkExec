@@ -63,7 +63,7 @@ public class ActionsIT extends BaseIT {
 		frontend.spendPoints(mail, -101);
 	}
 	
-	@Test (expected = InvalidEmailAddressException.class)
+	/*@Test (expected = InvalidEmailAddressException.class)
 	public void addPointsUserNotExistsTest() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
 		String mail = "user@tecnico.ulisboa.pt";
 		frontend.addPoints(mail, 150);
@@ -81,7 +81,7 @@ public class ActionsIT extends BaseIT {
 		frontend.pointsBalance(mail);
 	}
 	
-	/*@Test (expected = EmailAlreadyExistsFault_Exception.class)
+	@Test (expected = EmailAlreadyExistsFault_Exception.class)
 	public void addPointsUserExistsTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception {
 		String mail = "user@tecnico.ulisboa.pt";
 		frontend.addPoints(mail, 150);
@@ -160,7 +160,7 @@ public class ActionsIT extends BaseIT {
 		frontend.spendPoints(mail1, 20);
 		frontend.spendPoints(mail2, 20);
 		
-		assertEquals(80, frontend.pointsBalance(mail1));
+		assertEquals(5, frontend.pointsBalance(mail1));
 		assertEquals(5, frontend.pointsBalance(mail2));
 	}
 	

@@ -1,6 +1,7 @@
 package com.forkexec.pts.ws.cli;
 
 import java.util.List;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -57,7 +58,8 @@ public class PointsFrontEnd {
 			NotEnoughPointsException {
 		
 		TaggedBalance balance = read(userEmail);
-		
+		if(pointsToSpend < 0)
+			throw new InvalidNumberOfPointsException(pointsToSpend);
 		if (balance.getPoints()-pointsToSpend < 0)
 			throw new NotEnoughPointsException(pointsToSpend, balance.getPoints());
 
@@ -81,6 +83,7 @@ public class PointsFrontEnd {
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append("Hub");
 
+		//FIXME try catch
 		for(PointsClient client : getPointsClients())
 			builder.append("\n").append(client.ctrlPing("points client"));
 
@@ -88,22 +91,38 @@ public class PointsFrontEnd {
 	}
 
 	public void ctrlClear() {
-		for(PointsClient client : getPointsClients())
-			client.ctrlClear();
+		for(PointsClient client : getPointsClients()) {
+			try {
+				client.ctrlClear();
+			} catch (RuntimeException e) {
+				/* move on */
+			}
+		}
 	}
 
 	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
-		for(PointsClient client : getPointsClients())
-			client.ctrlInit(startPoints);
+		for(PointsClient client : getPointsClients()) {
+			try {
+				client.ctrlInit(startPoints);				
+			} catch (RuntimeException e) {
+				/* move on */
+			}
+		}
 	}
 
 	private List<PointsClient> getPointsClients() {
 		List<PointsClient> res = new ArrayList<PointsClient>();
 
 		try {
-			for(UDDIRecord e: endpoint.listRecords("A45_Points%"))
-				res.add(new PointsClient(endpoint.getUDDIUrl(), e.getOrgName()));
-		} catch (UDDINamingException | PointsClientException e) {
+			for(UDDIRecord r: endpoint.listRecords("A45_Points%")) {
+				try {
+					PointsClient p = new PointsClient(endpoint.getUDDIUrl(), r.getOrgName());
+					res.add(p);
+				} catch (PointsClientException e) {
+					/* let qc take care of this*/
+				}
+			}
+		} catch (UDDINamingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
 		return res;
