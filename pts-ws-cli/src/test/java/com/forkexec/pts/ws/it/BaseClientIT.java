@@ -1,8 +1,11 @@
 package com.forkexec.pts.ws.it;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.Properties;
 
+import com.forkexec.pts.ws.TaggedBalance;
 import com.forkexec.pts.ws.cli.PointsClient;
 
 import org.junit.AfterClass;
@@ -11,10 +14,12 @@ import org.junit.BeforeClass;
 /**
  * Base class for testing a Park Load properties from test.properties
  */
-public class BaseIT {
+public class BaseClientIT {
 
 	private static final String TEST_PROP_FILE = "/test.properties";
 	protected static Properties testProps;
+	
+	protected static String EMAIL = "user@tecnico.ulisboa.pt";
 
 	protected static PointsClient client;
 
@@ -22,7 +27,7 @@ public class BaseIT {
 	public static void oneTimeSetup() throws Exception {
 		testProps = new Properties();
 		try {
-			testProps.load(BaseIT.class.getResourceAsStream(TEST_PROP_FILE));
+			testProps.load(BaseClientIT.class.getResourceAsStream(TEST_PROP_FILE));
 			System.out.println("Loaded test properties:");
 			System.out.println(testProps);
 		} catch (IOException e) {
@@ -48,5 +53,10 @@ public class BaseIT {
 
 	@AfterClass
 	public static void cleanup() {
+	}
+	
+	public void assertEqualTaggedBalance(TaggedBalance b1, TaggedBalance b2) {
+		assertEquals(b1.getPoints(), b2.getPoints());
+		assertEquals(b1.getTag(), b2.getTag());
 	}
 }
