@@ -1,22 +1,22 @@
 package com.forkexec.pts.ws.it;
 
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
+//import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+//import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 
 import org.junit.Before;
-import org.junit.Test;
+//import org.junit.Test;
 
 /**
  * Class that tests ActivateUser operation
  */
-public class ActivateUserIT extends BaseIT {
+public class ActivateUserClientIT extends BaseClientIT {
 	
 	@Before
 	public void setUp(){
 		client.ctrlClear();
 	}
 
-	@Test (expected = InvalidEmailFault_Exception.class)
+	/*@Test (expected = InvalidEmailFault_Exception.class)
 	public void invalidEmailTest1() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		client.activateUser(" ");
 	}
@@ -157,5 +157,5 @@ public class ActivateUserIT extends BaseIT {
 		client.activateUser(mail);
 		
 		client.activateUser(mail);
-	}
+	}*/
 }
