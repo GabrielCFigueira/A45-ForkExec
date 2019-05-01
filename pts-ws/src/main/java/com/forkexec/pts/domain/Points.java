@@ -99,12 +99,14 @@ public class Points {
 			throw new InvalidNumberOfPointsException(points);
 		}
 
-		//FIXME: race condition here
+		//FIXME: race condition here?
 		Balance b;
-		user_points.putIfAbsent(userId, new Balance());
+		user_points.putIfAbsent(userId, new Balance(points, version));
 		synchronized(b = user_points.get(userId)) {
-			b.setPoints(points);
-			b.setSeq(version);
+			if(version > b.getSeq()) {
+				b.setPoints(points);
+				b.setSeq(version);
+			}
 		}
 	}
 
