@@ -1,4 +1,4 @@
-package com.forkexec.pts.domain.exception;
+package com.forkexec.pts.ws.cli.exception;
 
 public class InvalidEmailAddressException extends Exception {
 

@@ -43,12 +43,7 @@ import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
 
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
-import com.forkexec.pts.ws.cli.PointsClient;
-import com.forkexec.pts.ws.cli.PointsClientException;
+import com.forkexec.pts.ws.cli.*;
 
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.*;
@@ -92,7 +87,7 @@ public class HubPortImpl implements HubPortType {
 
 		/*try {
 			hub.addUser(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers(), userId);
-		} catch (InvalidUserIdException | DuplicateUserException e) {
+		} catch (InvalidEmailAddressException | DuplicateUserException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		}*/
 	}

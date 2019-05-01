@@ -8,44 +8,46 @@ import java.util.concurrent.Future;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
-
+import com.forkexec.pts.ws.cli.exception.*;
 import com.forkexec.pts.ws.*;
 
 /**
- * A class to implement QC protocol using the PointsClient
- * for communication with the server
+ * A class to implement QC protocol using the PointsClient for communication
+ * with the server
  */
 public class PointsFrontEnd {
 
-	public int pointsBalance(String UDDIUrl , List<String> orgNames, String userEmail) throws InvalidEmailFault_Exception {
+	public int pointsBalance(String UDDIUrl, List<String> orgNames, String userEmail)
+			throws InvalidEmailAddressException, EmailIsNotRegisteredException {
 		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
 
 		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
-		for(PointsClient client : clients)
+		for (PointsClient client : clients)
 			responses.add(client.getBalanceAsync(userEmail));
 
 		int nServers = clients.size();
 		int majority = nServers / 2 + 1;
 		int nResponses = 0;
-		//while(nResponses < majority) 
+		// while(nResponses < majority)
 
 		return 0;
 	}
 
-	public int addPoints(String UDDIUrl , List<String> orgNames, String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		
+	public int addPoints(String UDDIUrl, List<String> orgNames, String userEmail, int pointsToAdd)
+			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
+
 		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
 
 		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
-		for(PointsClient client : clients)
+		for (PointsClient client : clients)
 			responses.add(client.getBalanceAsync(userEmail));
 
 		return 0;
 	}
 
-	public int spendPoints(String UDDIUrl , List<String> orgNames, String userEmail, int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception /*, NotEnoughBalanceFault_Exception*/ {
+	public int spendPoints(String UDDIUrl, List<String> orgNames, String userEmail, int pointsToSpend)
+			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException,
+			NotEnoughPointsException {
 		
 		List<PointsClient> clients = getPointsClients(UDDIUrl, orgNames);
 

@@ -33,19 +33,11 @@ import com.forkexec.rst.ws.cli.RestaurantClientException;
 
 
 
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
-import com.forkexec.pts.ws.cli.PointsClient;
-import com.forkexec.pts.ws.cli.PointsClientException;
-
-
 import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClient;
 import pt.ulisboa.tecnico.sdis.ws.cc.CreditCardClientException;
 
 import com.forkexec.pts.ws.cli.PointsFrontEnd;
-
+import com.forkexec.pts.ws.cli.exception.*;
 
 /**
  * Hub
@@ -54,7 +46,7 @@ import com.forkexec.pts.ws.cli.PointsFrontEnd;
  *
  */
 public class Hub {
-	
+
 	private final PointsFrontEnd frontEnd = new PointsFrontEnd();
 
 	// Singleton -------------------------------------------------------------
@@ -82,10 +74,10 @@ public class Hub {
 		_users = new TreeMap<String, User>();
 	}
 
-	private RestaurantClient getRestaurantClient(String UDDIUrl, String orgName)  {
+	private RestaurantClient getRestaurantClient(String UDDIUrl, String orgName) {
 		try {
 			return new RestaurantClient(UDDIUrl, orgName);
-		} catch(RestaurantClientException e) {
+		} catch (RestaurantClientException e) {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
@@ -100,7 +92,7 @@ public class Hub {
 	}*/
 	// -------------------------------
 
-	public List<Food> getAllFood(String UDDIUrl, String orgName, String description) throws InvalidTextException{
+	public List<Food> getAllFood(String UDDIUrl, String orgName, String description) throws InvalidTextException {
 		List<Food> res = new ArrayList<Food>();
 		RestaurantClient restaurantClient = getRestaurantClient(UDDIUrl, orgName);
 		try {
@@ -116,12 +108,12 @@ public class Hub {
 		if (userId == null)
 			throw new NoSuchUserException("UserId set to null");
 		User user = _users.get(userId);
-		if(user == null)
+		if (user == null)
 			throw new NoSuchUserException("User with Id: " + userId + " does not exist");
 		else
 			return user;
 	}
-	
+
 	// ---------- DELETE??? ----------
 	/*public void addUser(String UDDIUrl, List<String> orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
 		PointsClient pointsClient = getPointsClient(UDDIUrl, orgName);
@@ -137,14 +129,14 @@ public class Hub {
 		_users.put(userId, new User(userId));
 	}*/
 	// -------------------------------
-	
-	public void loadAccount(String UDDIUrl, List<String> orgNames, String userId, int moneyToAdd, String creditCardNumber) 
-			throws InvalidCreditCardException, InvalidUserIdException, InvalidMoneyException {
-		
+
+	public void loadAccount(String UDDIUrl, List<String> orgNames, String userId, int moneyToAdd,
+			String creditCardNumber) throws InvalidCreditCardException, InvalidUserIdException, InvalidMoneyException {
+
 		try {
 			CreditCardClient creditCard = new CreditCardClient();
 
-			if (!creditCard.validateNumber(creditCardNumber)) 
+			if (!creditCard.validateNumber(creditCardNumber))
 				throw new InvalidCreditCardException("Invalid creditcard number: " + creditCardNumber);
 			else if (moneyToAdd == 10)
 				frontEnd.addPoints(UDDIUrl, orgNames, userId, 1000);
@@ -156,12 +148,12 @@ public class Hub {
 				frontEnd.addPoints(UDDIUrl, orgNames, userId, 5500);
 			else
 				throw new InvalidMoneyException("Invalid money quantity: " + moneyToAdd);
-		} catch (InvalidEmailFault_Exception e) {
-			throw new InvalidUserIdException(e.getMessage());
-		} catch (InvalidPointsFault_Exception e) {
-			throw new InvalidMoneyException(e.getMessage());
 		} catch (CreditCardClientException e) {
 			throw new InvalidCreditCardException(e.getMessage());
+		} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
+			throw new InvalidUserIdException(e.getMessage());
+		} catch (InvalidNumberOfPointsException e) {
+			throw new InvalidMoneyException(e.getMessage());
 		}
 	}
 
@@ -192,9 +184,9 @@ public class Hub {
 
 		try {
 			frontEnd.spendPoints(UDDIUrl, orgNames, userId, pointsToSpend);
-		} catch (/*NotEnoughBalanceFault_Exception |*/ InvalidPointsFault_Exception e){
+		} catch (com.forkexec.pts.ws.cli.exception.NotEnoughPointsException | InvalidNumberOfPointsException e){
 			throw new NotEnoughPointsException(e.getMessage());
-		} catch (InvalidEmailFault_Exception e) {
+		} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
 			throw new InvalidUserIdException(e.getMessage());
 		}
 
@@ -221,7 +213,7 @@ public class Hub {
 	public int accountBalance(String UDDIUrl, List<String> orgNames, String userId) throws InvalidUserIdException {
 		try {
 			return frontEnd.pointsBalance(UDDIUrl, orgNames, userId);
-		} catch (InvalidEmailFault_Exception e) {
+		} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
 			throw new InvalidUserIdException(e.getMessage());
 		}
 	}
