@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * Class that tests Ping operation
  */
-public class PingIT extends BaseIT {
+public class PingClientIT extends BaseClientIT {
 
 	// tests
 	// assertEquals(expected, actual);
