@@ -32,7 +32,7 @@ public class PointsPortImpl implements PointsPortType {
 		TaggedBalance t = null;
 		try {
 			t = balanceToTaggedBalance(Points.getInstance().getBalance(userEmail));
-		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+		} catch (InvalidEmailAddressException e) {
 			throwInvalidEmailFault(e.getMessage());
 		}
 		return t;
@@ -43,7 +43,7 @@ public class PointsPortImpl implements PointsPortType {
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		try {
 			Points.getInstance().setBalance(userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
-		} catch (EmailIsNotRegisteredException | InvalidEmailAddressException e) {
+		} catch (InvalidEmailAddressException e) {
 			throwInvalidEmailFault(e.getMessage());
 		} catch (InvalidNumberOfPointsException e) {
 			throwInvalidPointsFault(e.getMessage());

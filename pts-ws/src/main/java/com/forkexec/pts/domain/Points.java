@@ -83,18 +83,15 @@ public class Points {
 
 	// Functionality functions ----------------------------------------------
 
-	public Balance getBalance(String userId) throws EmailIsNotRegisteredException, InvalidEmailAddressException {
+	public Balance getBalance(String userId) throws InvalidEmailAddressException {
 		if(userId == null || isValidEmailAddress(userId) == false) {
 			throw new InvalidEmailAddressException(userId);
 		}
-		Balance res = user_points.get(userId);
-		if(res == null) {
-			throw new EmailIsNotRegisteredException(userId);
-		}
-		return res;
+		user_points.putIfAbsent(userId, new Balance(initialBalance.get(),0));
+		return user_points.get(userId);
 	}
 
-	public void setBalance(String userId, int points, int version) throws EmailIsNotRegisteredException, InvalidEmailAddressException, InvalidNumberOfPointsException {
+	public void setBalance(String userId, int points, int version) throws InvalidEmailAddressException, InvalidNumberOfPointsException {
 		if(userId == null || isValidEmailAddress(userId) == false) {
 			throw new InvalidEmailAddressException(userId);
 		}
