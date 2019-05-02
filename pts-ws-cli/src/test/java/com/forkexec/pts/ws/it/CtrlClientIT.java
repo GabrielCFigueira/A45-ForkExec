@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * Class that tests Control operation
  */
-public class CtrlIT extends BaseClientIT {
+public class CtrlClientIT extends BaseClientIT {
 	
 	@Before
 	public void setUp(){
