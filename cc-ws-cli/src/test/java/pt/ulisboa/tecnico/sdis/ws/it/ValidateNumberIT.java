@@ -57,7 +57,7 @@ public class ValidateNumberIT extends BaseIT {
 	
 	@Test
 	public void validateNumber_VisaLong() {
-		assertFalse(client.validateNumber("4539425109372955004"));
+		assertTrue(client.validateNumber("4539425109372955004"));
 	}
 	
 	@Test
@@ -72,17 +72,17 @@ public class ValidateNumberIT extends BaseIT {
 	
 	@Test
 	public void validateNumber_DiscoverLong() {
-		assertFalse(client.validateNumber("6011519892160773227"));
+		assertTrue(client.validateNumber("6011519892160773227"));
 	}
 	
 	@Test
 	public void validateNumber_DinersClub_Carte_Blanche() {
-		assertFalse(client.validateNumber("30365099888928"));
+		assertTrue(client.validateNumber("30365099888928"));
 	}
 	
 	@Test
 	public void validateNumber_DinersClub_International() {
-		assertFalse(client.validateNumber("36739336179727"));
+		assertTrue(client.validateNumber("36739336179727"));
 	}
 	
 	@Test
@@ -102,7 +102,7 @@ public class ValidateNumberIT extends BaseIT {
 	
 	@Test
 	public void validateNumber_JCBLong() {
-		assertFalse(client.validateNumber("3534557107578355864"));
+		assertTrue(client.validateNumber("3534557107578355864"));
 	}
 	
 	@Test
@@ -117,6 +117,6 @@ public class ValidateNumberIT extends BaseIT {
 	
 	@Test
 	public void validateNumber_AmericanExpression() {
-		assertFalse(client.validateNumber("373123899700065"));
+		assertTrue(client.validateNumber("373123899700065"));
 	}
 }

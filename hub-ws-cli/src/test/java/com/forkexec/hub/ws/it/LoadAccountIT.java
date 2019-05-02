@@ -33,7 +33,7 @@ public class LoadAccountIT extends BaseIT {
 		client.loadAccount(USER, 20, CC);
 	}
 
-	@Test(expected = InvalidUserIdFault_Exception.class)
+	@Test//Before P2 - (expected = InvalidUserIdFault_Exception.class)
 	public void invalidUser() throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 		client.loadAccount("user2@email", 20, CC);
 	}

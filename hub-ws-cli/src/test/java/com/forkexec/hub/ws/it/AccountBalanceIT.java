@@ -39,7 +39,7 @@ public class AccountBalanceIT extends BaseIT {
 		client.accountBalance(null);
 	}
 
-	@Test(expected = InvalidUserIdFault_Exception.class)
+	@Test//Before P2 - (expected = InvalidUserIdFault_Exception.class)
 	public void unknownID() throws InvalidUserIdFault_Exception {
 		client.accountBalance("user2@email");
 	}
