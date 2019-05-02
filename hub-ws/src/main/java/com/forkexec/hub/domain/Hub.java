@@ -86,16 +86,6 @@ public class Hub {
 		}
 	}
 
-	// ---------- DELETE??? ----------
-	/*private PointsClient getPointsClient(String UDDIUrl, List<String> orgName) {
-		try {
-			return new PointsClient(UDDIUrl, orgName);
-		} catch(PointsClientException e) {
-			throw new RuntimeException(e.getMessage());
-		}
-	}*/
-	// -------------------------------
-
 	public List<Food> getAllFood(String UDDIUrl, String orgName, String description) throws InvalidTextException {
 		List<Food> res = new ArrayList<Food>();
 		RestaurantClient restaurantClient = getRestaurantClient(UDDIUrl, orgName);
@@ -117,9 +107,8 @@ public class Hub {
 		else
 			return user;
 	}
-
-	// ---------- DELETE??? ----------
-	public void addUser(String UDDIUrl, List<String> orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
+	
+	public void addUser(String userId) throws DuplicateUserException, InvalidUserIdException {
 		if(userId == null)
 			throw new InvalidUserIdException("UserId set to null");
 		else if (_users.containsKey(userId))
@@ -131,10 +120,9 @@ public class Hub {
 		}
 		_users.put(userId, new User(userId));
 	}
-	// -------------------------------
 
-	public void loadAccount(String UDDIUrl, List<String> orgNames, String userId, int moneyToAdd,
-			String creditCardNumber) throws InvalidCreditCardException, InvalidUserIdException, InvalidMoneyException {
+	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber) throws InvalidCreditCardException,
+	InvalidUserIdException, InvalidMoneyException {
 
 		try {
 			CreditCardClient creditCard = new CreditCardClient();
@@ -169,7 +157,7 @@ public class Hub {
 		getUser(userId).clearCart();
 	}
 
-	public List<FoodOrderItem> orderCart(String UDDIUrl, List<String> orgNames, String userId) 
+	public List<FoodOrderItem> orderCart(String UDDIUrl, String userId) 
 			throws EmptyCartException, NoSuchUserException, NotEnoughPointsException, InvalidUserIdException, InvalidFoodQuantityException {
 
 		if (getUser(userId).getCart().isEmpty())
@@ -213,7 +201,7 @@ public class Hub {
 		}
 	}
 
-	public int accountBalance(String UDDIUrl, List<String> orgNames, String userId) throws InvalidUserIdException {
+	public int accountBalance(String userId) throws InvalidUserIdException {
 		try {
 			return frontEnd.pointsBalance(userId);
 		} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
@@ -237,7 +225,7 @@ public class Hub {
 		return res;
 	}
 
-	public void ctrlInitPoints(String UDDIUrl, List<String> orgNames, int startPoints) throws BadInitException {
+	public void ctrlInitPoints(int startPoints) throws BadInitException {
 		try {
 			frontEnd.ctrlInit(startPoints);
 		} catch (com.forkexec.pts.ws.BadInitFault_Exception | RuntimeException e) {
@@ -278,7 +266,7 @@ public class Hub {
 		getRestaurantClient(UDDIUrl, orgName).ctrlClear();
 	}
 
-	public void ctrlClearPoints(String UDDIUrl, List<String> orgNames) {
+	public void ctrlClearPoints() {
 		frontEnd.ctrlClear();
 	}
 

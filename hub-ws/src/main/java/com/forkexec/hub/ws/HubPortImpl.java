@@ -86,7 +86,7 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
 		try {
-			hub.addUser(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers(), userId);
+			hub.addUser(userId);
 		} catch (DuplicateUserException | InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		}
@@ -97,7 +97,7 @@ public class HubPortImpl implements HubPortType {
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 
 		try {
-			hub.loadAccount(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers(), userId, moneyToAdd, creditCardNumber);
+			hub.loadAccount(userId, moneyToAdd, creditCardNumber);
 		} catch (InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		} catch (InvalidMoneyException e) {
@@ -197,7 +197,7 @@ public class HubPortImpl implements HubPortType {
 
 		List<com.forkexec.hub.domain.FoodOrderItem> order = null;
 		try {
-			order = hub.orderCart(UDDIUrl, getPointsServers(), userId);
+			order = hub.orderCart(UDDIUrl, userId);
 		} catch (EmptyCartException e) {
 			throwEmptyCartFault(e.getMessage());
 		} catch (NoSuchUserException | InvalidUserIdException e) {
@@ -231,7 +231,7 @@ public class HubPortImpl implements HubPortType {
 
 		int balance = -1;
 		try {
-			balance = hub.accountBalance(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers(), userId);
+			balance = hub.accountBalance(userId);
 		} catch (InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
 		}
@@ -322,7 +322,7 @@ public class HubPortImpl implements HubPortType {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Restaurant%"))
 				hub.ctrlClearRestaurant(endpointManager.getUddiNaming().getUDDIUrl(), e.getOrgName());
 			
-			hub.ctrlClearPoints(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers());
+			hub.ctrlClearPoints();
 		} catch(UDDINamingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
@@ -346,7 +346,7 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		try {
-			hub.ctrlInitPoints(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers(), startPoints);
+			hub.ctrlInitPoints(startPoints);
 		} catch (BadInitException e) {
 			throwInvalidInitFault(e.getMessage());
 		}
