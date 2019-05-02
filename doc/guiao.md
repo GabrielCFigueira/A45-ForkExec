@@ -12,10 +12,48 @@ geometry: margin=3cm
 ---
 
 
-\newpage
+    \newpage
+
+# Instalação e Configuração do projeto
+
+0. Buscar o código entregue
+
+```
+git clone https://github.com/tecnico-distsys/A45-ForkExec.git
+git checkout SD_P2
+```
+
+1. Instalar módulos
+
+```
+cd A45-ForkExec/
+mvn install -DskipTests (TODO: ou ver -Dmaven-test)
+```
+
+2. Colocar 3 servidores a correr (variar `N` entre 1 e 3):
+
+```
+cd pts-ws/
+mvn exec:java -Dws.i=N
+```
+
+# Demonstrações
+
+## F1 -- Funcionamento normal
+
+3. Correr o seguinte comando
+
+```
+cd pts-ws-cli/
+mvn exec:java -Dws.test=F1
+```
 
 
-# F1 -- Funcionamento normal
+## F2 -- Funcionamento em casos de falta
 
-# F2 -- Funcionamento em casos de falta
+3. Correr o seguinte comando
 
+```
+cd pts-ws-cli/
+mvn exec:java -Dws.test=F2
+```
