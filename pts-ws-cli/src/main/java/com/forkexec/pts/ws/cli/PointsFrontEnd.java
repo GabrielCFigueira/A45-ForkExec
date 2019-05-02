@@ -104,7 +104,7 @@ public class PointsFrontEnd {
 		// Build a string with a message to return.
 		StringBuilder builder = new StringBuilder();
 		builder.append("Hello ").append(inputMessage);
-		builder.append(" from ").append("Hub");
+		builder.append(" from ").append("FrontEnd");
 
 		// FIXME try catch
 		for (PointsClient client : getPointsClients()) {
