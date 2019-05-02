@@ -34,13 +34,14 @@ public class PointsPortImpl implements PointsPortType {
 	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
 		delayExecution();
 		TaggedBalance t = null;
-		System.out.println("getBalance() from user " + userEmail);
+		System.out.printf("getBalance():\tuser '%s'", userEmail);
 		try {
 			t = balanceToTaggedBalance(Points.getInstance().getBalance(userEmail));
 		} catch (InvalidEmailAddressException e) {
-			System.out.println("Invalid user/email");
+			System.out.println("\tInvalid user/email");
 			throwInvalidEmailFault(e.getMessage());
 		}
+		System.out.printf("\t<points: %d, tag: %d>\n", t.getPoints(), t.getTag());
 		return t;
 	}
 
@@ -48,14 +49,14 @@ public class PointsPortImpl implements PointsPortType {
 	public void setBalance(String userEmail, TaggedBalance taggedBalance)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		delayExecution();
-		System.out.println("setBalance() from user " + userEmail);
+		System.out.printf("setBalance():\tuser '%s'\t<points: %d, tag: %d>\n", userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
 		try {
 			Points.getInstance().setBalance(userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
 		} catch (InvalidEmailAddressException e) {
-			System.out.println("Invalid user/email");
+			System.out.println("setBalance():\tInvalid user/email");
 			throwInvalidEmailFault(e.getMessage());
 		} catch (InvalidNumberOfPointsException e) {
-			System.out.println("Invalid number of points: " + taggedBalance.getPoints());
+			System.out.println("setBalance():\tInvalid number of points: " + taggedBalance.getPoints());
 			throwInvalidPointsFault(e.getMessage());
 		}
 	}
@@ -78,7 +79,7 @@ public class PointsPortImpl implements PointsPortType {
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append(wsName);
 
-		System.out.println("ctrlPing from Hub");
+		System.out.println("ctrlPing()");
 
 		return builder.toString();
 	}
@@ -86,7 +87,7 @@ public class PointsPortImpl implements PointsPortType {
 	/** Return all variables to default values. */
 	@Override
 	public void ctrlClear() {
-		System.out.println("Resetting...");
+		System.out.println("ctrlClear():\tResetting...");
 		Points.resetInstance();
 	}
 
@@ -94,12 +95,12 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
 
-		System.out.println("ctrInit from Hub with startPoints as " + startPoints);
+		System.out.printf("ctrInit():\tstartPoints: %d\n", startPoints);
 
 		try {
 			Points.changeStartPoints(startPoints);
 		} catch (InvalidNumberOfPointsException e) {
-			System.out.println("Invalid number of points: " + startPoints);
+			System.out.println("ctrlInit():\tInvalid number of points: " + startPoints);
 			throwBadInit(e.getMessage());
 		}
 	}
@@ -108,7 +109,7 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public void ctrlEnable(final int delay) {
 
-		System.out.println("ctrlEnable with delay as " + delay);
+		System.out.printf("ctrlEnable():\tdelay: " + delay);
 
 		this.delay.set(delay);
 	}
