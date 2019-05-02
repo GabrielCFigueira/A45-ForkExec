@@ -13,17 +13,31 @@ public class HubEndpointManager {
 	private String uddiURL = null;
 	/** Web Service name */
 	private String wsName = null;
+	/** Number of Servers */
+	private String wsN = null;
 
 	/** Get Web Service UDDI publication name */
 	public String getWsName() {
 		return wsName;
+	}
+	
+	public String getWsN() {
+		return wsN;
+	}
+	
+	public String getUDDIUrl() {
+		return uddiURL;
 	}
 
 	/** Web Service location to publish */
 	private String wsURL = null;
 
 	/** Port implementation */
-	private HubPortImpl portImpl = new HubPortImpl(this);
+	private HubPortImpl portImpl;
+	
+	private void initPortImpl() {
+		this.portImpl = new HubPortImpl(this);
+	}
 
 	/** Obtain Port implementation */
 	public HubPortType getPort() {
@@ -52,10 +66,12 @@ public class HubEndpointManager {
 	}
 
 	/** constructor with provided UDDI location, WS name, and WS URL */
-	public HubEndpointManager(String uddiURL, String wsName, String wsURL) {
+	public HubEndpointManager(String uddiURL, String wsName, String wsURL, String wsN) {
 		this.uddiURL = uddiURL;
 		this.wsName = wsName;
 		this.wsURL = wsURL;
+		this.wsN = wsN;
+		initPortImpl();
 	}
 
 	/** constructor with provided web service URL */
@@ -63,6 +79,7 @@ public class HubEndpointManager {
 		if (wsURL == null)
 			throw new NullPointerException("Web Service URL cannot be null!");
 		this.wsURL = wsURL;
+		initPortImpl();
 	}
 
 	/* end point management */
