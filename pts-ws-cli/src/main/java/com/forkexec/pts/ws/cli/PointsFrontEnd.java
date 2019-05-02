@@ -29,7 +29,10 @@ public class PointsFrontEnd {
 	private static int nSERVERS;
 	private static int majority;
 
+	/** Locking mechanism, per user, with read and write locks (allows multiple reads, and only 1 write) */
 	private ConcurrentMap<String, ReadWriteLock> user_lock;
+	/** Caching mechanism, valid because no need for cache invalidation (1 client only) */
+	private ConcurrentMap<String, TaggedBalance> user_cache;
 
 	public PointsFrontEnd(int num, String UDDIUrl){
 		nSERVERS = num;
@@ -41,6 +44,7 @@ public class PointsFrontEnd {
 		}
 
 		user_lock = new ConcurrentHashMap<>();
+		user_cache = new ConcurrentHashMap<>();
 	}
 
 	public void activateUser(String userEmail) throws InvalidEmailAddressException, EmailAlreadyRegisteredException {
@@ -48,7 +52,7 @@ public class PointsFrontEnd {
 			throw new EmailAlreadyRegisteredException(userEmail);
 		}
 
-		// Check if email exists
+		// Check if email is valid, and adds value to cache
 		read(userEmail);
 	}
 
@@ -159,11 +163,17 @@ public class PointsFrontEnd {
 	
 	// Aux --------------------------------------------------------------------
 	
+	/** QC read. Uses value from cache, and if not, then it performs QC and puts value in cache */
 	public TaggedBalance read(String userEmail) throws InvalidEmailAddressException {
 
 		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
 		Lock read_lock = user_lock.get(userEmail).readLock();
 		read_lock.lock();
+
+		if(user_cache.containsKey(userEmail)) {
+			read_lock.unlock();
+			return user_cache.get(userEmail);
+		}
 
 		List<PointsClient> clients = getPointsClients();
 
@@ -198,11 +208,13 @@ public class PointsFrontEnd {
 			}
 		}
 		
+		user_cache.put(userEmail, balance);
 		read_lock.unlock();
 		return balance;
 		
 	}
 	
+	/** QC write. Also updates the cache */
 	public boolean write(String userEmail, TaggedBalance balance) throws InvalidEmailAddressException, InvalidNumberOfPointsException {
 
 		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
@@ -237,6 +249,7 @@ public class PointsFrontEnd {
 			}
 		}
 		
+		user_cache.put(userEmail, balance);
 		write_lock.unlock();
 		return true;
 	}
