@@ -18,6 +18,7 @@ public class HubApp {
 		String uddiURL = null;
 		String wsName = null;
 		String wsURL = null;
+		String wsN = null;
 
 		// Create server implementation object, according to options
 		HubEndpointManager endpoint = null;
@@ -29,7 +30,8 @@ public class HubApp {
 			uddiURL = args[0];
 			wsName = args[1];
 			wsURL = args[2];
-			endpoint = new HubEndpointManager(uddiURL, wsName, wsURL);
+			wsN = args[3];
+			endpoint = new HubEndpointManager(uddiURL, wsName, wsURL, wsN);
 
 		}
 
