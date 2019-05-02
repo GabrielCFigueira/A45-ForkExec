@@ -15,6 +15,8 @@
       <xs:element name="BadInitFault" type="tns:BadInitFault" />
       <xs:element name="InvalidEmailFault" type="tns:InvalidEmailFault" />
       <xs:element name="InvalidPointsFault" type="tns:InvalidPointsFault" />
+      <xs:element name="ctrlEnable" type="tns:ctrlEnable" />
+      <xs:element name="ctrlEnableResponse" type="tns:ctrlEnableResponse" />
       <xs:element name="ctrlClear" type="tns:ctrlClear" />
       <xs:element name="ctrlClearResponse" type="tns:ctrlClearResponse" />
       <xs:element name="ctrlInit" type="tns:ctrlInit" />
@@ -66,6 +68,14 @@
         </xs:sequence>
       </xs:complexType>
       <!-- New types to support QC -->
+      <xs:complexType name="ctrlEnable">
+        <xs:sequence>
+          <xs:element name="delay" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ctrlEnableResponse">
+        <xs:sequence />
+      </xs:complexType>
       <xs:complexType name="taggedBalance">
         <xs:sequence>
           <xs:element name="points" type="xs:int" />
@@ -123,6 +133,12 @@
     <part element="tns:InvalidPointsFault" name="fault" />
   </message>
   <!-- New messages to support QC -->
+  <message name="ctrlEnable">
+    <part element="tns:ctrlEnable" name="parameters" />
+  </message>
+  <message name="ctrlEnableResponse">
+    <part element="tns:ctrlEnableResponse" name="parameters" />
+  </message>
   <message name="getBalance">
     <part element="tns:getBalance" name="parameters" />
   </message>
@@ -153,6 +169,10 @@
       <output message="tns:ctrlClearResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlClearResponse" />
     </operation>
     <!-- Operations on port type to support QC -->
+    <operation name="ctrlEnable">
+      <input message="tns:ctrlEnable" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlEnableRequest" />
+      <output message="tns:ctrlEnableResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/ctrlEnableResponse" />
+    </operation>
     <operation name="getBalance">
       <input message="tns:getBalance" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/getBalanceRequest" />
       <output message="tns:getBalanceResponse" wsam:Action="http://ws.pts.forkexec.com/PointsPortType/getBalanceResponse" />
@@ -200,6 +220,15 @@
       </output>
     </operation>
     <!-- Operations on binding to support QC -->
+    <operation name="ctrlEnable">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
     <operation name="getBalance">
       <soap:operation soapAction="" />
       <input>

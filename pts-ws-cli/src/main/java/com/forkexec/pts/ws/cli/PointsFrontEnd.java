@@ -14,7 +14,6 @@ import com.forkexec.pts.ws.cli.exception.*;
 import com.forkexec.pts.ws.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 
-
 /**
  * A class to implement QC protocol using the PointsClient for communication
  * with the server
@@ -22,11 +21,11 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 public class PointsFrontEnd {
 
 	private PointsFrontEndEndPointManager endpoint;
-	
+
 	private static int nSERVERS;
 	private static int majority;
-	
-	public PointsFrontEnd(int num){
+
+	public PointsFrontEnd(int num) {
 		nSERVERS = num;
 		majority = (num / 2) + 1;
 		try {
@@ -42,30 +41,29 @@ public class PointsFrontEnd {
 
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
-		
+
 		TaggedBalance balance = read(userEmail);
-		
+
 		balance.setPoints(pointsToAdd + balance.getPoints());
 		balance.setTag(balance.getTag() + 1);
-		
+
 		write(userEmail, balance);
 
 		return balance.getPoints();
 	}
 
-	public int spendPoints(String userEmail, int pointsToSpend)
-			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException,
-			NotEnoughPointsException {
-		
+	public int spendPoints(String userEmail, int pointsToSpend) throws InvalidEmailAddressException,
+			InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException {
+
 		TaggedBalance balance = read(userEmail);
-		if(pointsToSpend < 0)
+		if (pointsToSpend < 0)
 			throw new InvalidNumberOfPointsException(pointsToSpend);
-		if (balance.getPoints()-pointsToSpend < 0)
+		if (balance.getPoints() - pointsToSpend < 0)
 			throw new NotEnoughPointsException(pointsToSpend, balance.getPoints());
 
-		balance.setPoints(balance.getPoints()-pointsToSpend);
+		balance.setPoints(balance.getPoints() - pointsToSpend);
 		balance.setTag(balance.getTag() + 1);
-		
+
 		write(userEmail, balance);
 
 		return balance.getPoints();
@@ -83,8 +81,8 @@ public class PointsFrontEnd {
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append("Hub");
 
-		//FIXME try catch
-		for(PointsClient client : getPointsClients()) {
+		// FIXME try catch
+		for (PointsClient client : getPointsClients()) {
 			try {
 				builder.append("\n").append(client.ctrlPing("points client"));
 			} catch (RuntimeException e) {
@@ -95,7 +93,7 @@ public class PointsFrontEnd {
 	}
 
 	public void ctrlClear() {
-		for(PointsClient client : getPointsClients()) {
+		for (PointsClient client : getPointsClients()) {
 			try {
 				client.ctrlClear();
 			} catch (RuntimeException e) {
@@ -105,12 +103,22 @@ public class PointsFrontEnd {
 	}
 
 	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
-		for(PointsClient client : getPointsClients()) {
+		for (PointsClient client : getPointsClients()) {
 			try {
-				client.ctrlInit(startPoints);				
+				client.ctrlInit(startPoints);
 			} catch (RuntimeException e) {
 				/* move on */
 			}
+		}
+	}
+
+	public void ctrlEnable(int server, int delay) {
+		try {
+			PointsClient p = new PointsClient(endpoint.getUDDIUrl(), String.format("A45_Points%d", server));
+			p.ctrlEnable(delay);
+		} catch (PointsClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

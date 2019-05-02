@@ -1,5 +1,7 @@
 package com.forkexec.pts.ws;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jws.WebService;
 
 import com.forkexec.pts.domain.Points;
@@ -18,10 +20,12 @@ public class PointsPortImpl implements PointsPortType {
 	 * lifecycle.
 	 */
 	private final PointsEndpointManager endpointManager;
+	private AtomicInteger delay;
 
 	/** Constructor receives a reference to the endpoint manager. */
 	public PointsPortImpl(final PointsEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
+		this.delay.set(0);
 	}
 
 	// Main operations -------------------------------------------------------
@@ -29,6 +33,7 @@ public class PointsPortImpl implements PointsPortType {
 	// QC-supporting methods
 	@Override
 	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
+		delayExecution();
 		TaggedBalance t = null;
 		try {
 			t = balanceToTaggedBalance(Points.getInstance().getBalance(userEmail));
@@ -41,6 +46,7 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public void setBalance(String userEmail, TaggedBalance taggedBalance)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+		delayExecution();
 		try {
 			Points.getInstance().setBalance(userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
 		} catch (InvalidEmailAddressException e) {
@@ -86,6 +92,12 @@ public class PointsPortImpl implements PointsPortType {
 		}
 	}
 
+	/** Sets a delay on the server response, in seconds (-1 disables responses) */
+	@Override
+	public void ctrlEnable(final int delay) {
+		this.delay.set(delay);
+	}
+
 	// Exception helpers -----------------------------------------------------
 
 	/** Helper to throw a new BadInit exception. */
@@ -109,10 +121,26 @@ public class PointsPortImpl implements PointsPortType {
 		throw new InvalidPointsFault_Exception(message, faultInfo);
 	}
 
+	// Other helpers
+
+	/** Translates domain's balance into WS taggedBalance */
 	private TaggedBalance balanceToTaggedBalance(Balance b) {
 		TaggedBalance res = new TaggedBalance();
 		res.setPoints(b.getPoints());
 		res.setTag(b.getSeq());
 		return res;
+	}
+
+	private void delayExecution() {
+		try {
+			if(this.delay.get() >= 0) {
+				Thread.sleep(this.delay.get() * 1000);
+			} else {
+				Thread.sleep(1000000);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
