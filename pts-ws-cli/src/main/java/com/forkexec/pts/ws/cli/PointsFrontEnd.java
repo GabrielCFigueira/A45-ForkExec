@@ -25,11 +25,11 @@ public class PointsFrontEnd {
 	private static int nSERVERS;
 	private static int majority;
 
-	public PointsFrontEnd(int num) {
+	public PointsFrontEnd(int num, String UDDIUrl) {
 		nSERVERS = num;
 		majority = (num / 2) + 1;
 		try {
-			endpoint = new PointsFrontEndEndPointManager("http://a45:!UG1osky@uddi.sd.rnl.tecnico.ulisboa.pt:9090");
+			endpoint = new PointsFrontEndEndPointManager(UDDIUrl);
 		} catch (UDDINamingException e) {
 			throw new RuntimeException(e.getMessage());
 		}

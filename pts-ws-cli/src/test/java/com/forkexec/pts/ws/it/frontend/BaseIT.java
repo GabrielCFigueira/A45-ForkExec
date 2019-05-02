@@ -31,7 +31,7 @@ public class BaseIT {
 			throw e;
 		}
 
-		frontend = new PointsFrontEnd(3);
+		frontend = new PointsFrontEnd(3, "http://a45:!UG1osky@uddi.sd.rnl.tecnico.ulisboa.pt:9090");
 	}
 
 	@AfterClass
