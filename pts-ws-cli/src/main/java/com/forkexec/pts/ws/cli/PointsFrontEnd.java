@@ -3,9 +3,13 @@ package com.forkexec.pts.ws.cli;
 import java.util.List;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
@@ -25,7 +29,9 @@ public class PointsFrontEnd {
 	private static int nSERVERS;
 	private static int majority;
 
-	public PointsFrontEnd(int num, String UDDIUrl) {
+	private ConcurrentMap<String, ReadWriteLock> user_lock;
+
+	public PointsFrontEnd(int num, String UDDIUrl){
 		nSERVERS = num;
 		majority = (num / 2) + 1;
 		try {
@@ -33,6 +39,17 @@ public class PointsFrontEnd {
 		} catch (UDDINamingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
+
+		user_lock = new ConcurrentHashMap<>();
+	}
+
+	public void activateUser(String userEmail) throws InvalidEmailAddressException, EmailAlreadyRegisteredException {
+		if(user_lock.containsKey(userEmail)) {
+			throw new EmailAlreadyRegisteredException(userEmail);
+		}
+
+		// Check if email exists
+		read(userEmail);
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
@@ -142,8 +159,12 @@ public class PointsFrontEnd {
 	
 	// Aux --------------------------------------------------------------------
 	
-	private TaggedBalance read(String userEmail) throws InvalidEmailAddressException {
-		
+	public TaggedBalance read(String userEmail) throws InvalidEmailAddressException {
+
+		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
+		Lock read_lock = user_lock.get(userEmail).readLock();
+		read_lock.lock();
+
 		List<PointsClient> clients = getPointsClients();
 
 		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
@@ -177,11 +198,17 @@ public class PointsFrontEnd {
 			}
 		}
 		
+		read_lock.unlock();
 		return balance;
 		
 	}
 	
-	private boolean write(String userEmail, TaggedBalance balance) throws InvalidEmailAddressException, InvalidNumberOfPointsException {
+	public boolean write(String userEmail, TaggedBalance balance) throws InvalidEmailAddressException, InvalidNumberOfPointsException {
+
+		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
+		Lock write_lock = user_lock.get(userEmail).writeLock();
+		write_lock.lock();
+
 		List<PointsClient> clients = getPointsClients();
 
 		List<Response<SetBalanceResponse>> responses = new ArrayList<Response<SetBalanceResponse>>();
@@ -210,6 +237,7 @@ public class PointsFrontEnd {
 			}
 		}
 		
+		write_lock.unlock();
 		return true;
 	}
 
