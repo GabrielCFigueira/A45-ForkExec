@@ -59,6 +59,8 @@ public class PointsFrontEnd {
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
+		if(userEmail == null)
+			throw new InvalidEmailAddressException(userEmail);
 		return read(userEmail).getPoints();
 	}
 
@@ -123,6 +125,7 @@ public class PointsFrontEnd {
 				/* move on */
 			}
 		}
+		user_lock = new ConcurrentHashMap<>();
 		user_cache = new ConcurrentHashMap<>();
 	}
 
