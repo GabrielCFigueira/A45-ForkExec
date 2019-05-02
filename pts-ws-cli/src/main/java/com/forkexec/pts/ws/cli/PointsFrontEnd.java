@@ -84,9 +84,13 @@ public class PointsFrontEnd {
 		builder.append(" from ").append("Hub");
 
 		//FIXME try catch
-		for(PointsClient client : getPointsClients())
-			builder.append("\n").append(client.ctrlPing("points client"));
-
+		for(PointsClient client : getPointsClients()) {
+			try {
+				builder.append("\n").append(client.ctrlPing("points client"));
+			} catch (RuntimeException e) {
+				/* move on */
+			}
+		}
 		return builder.toString();
 	}
 
