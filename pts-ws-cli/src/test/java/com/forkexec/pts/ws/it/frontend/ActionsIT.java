@@ -3,6 +3,7 @@ package com.forkexec.pts.ws.it.frontend;
 import com.forkexec.pts.ws.cli.exception.InvalidEmailAddressException;
 import com.forkexec.pts.ws.cli.exception.InvalidNumberOfPointsException;
 import com.forkexec.pts.ws.cli.exception.NotEnoughPointsException;
+import com.forkexec.pts.ws.cli.exception.EmailAlreadyRegisteredException;
 import com.forkexec.pts.ws.cli.exception.EmailIsNotRegisteredException;
 
 import com.forkexec.pts.ws.BadInitFault_Exception;
@@ -63,40 +64,37 @@ public class ActionsIT extends BaseIT {
 		frontend.spendPoints(mail, -101);
 	}
 	
-	/*@Test (expected = InvalidEmailAddressException.class)
 	public void addPointsUserNotExistsTest() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
 		String mail = "user@tecnico.ulisboa.pt";
 		frontend.addPoints(mail, 150);
 	}
 	
-	@Test (expected = InvalidEmailAddressException.class)
 	public void spendPointsUserNotExistsTest() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException {
 		String mail = "user@tecnico.ulisboa.pt";
 		frontend.spendPoints(mail, 150);
 	}
 	
-	@Test (expected = InvalidEmailAddressException.class)
 	public void pointsBalanceUserNotExistsTest() throws InvalidEmailAddressException, EmailIsNotRegisteredException {
 		String mail = "user@tecnico.ulisboa.pt";
 		frontend.pointsBalance(mail);
 	}
 	
-	@Test (expected = EmailAlreadyExistsFault_Exception.class)
-	public void addPointsUserExistsTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test (expected = EmailAlreadyRegisteredException.class)
+	public void addPointsUserExistsTest() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException, EmailAlreadyRegisteredException{
 		String mail = "user@tecnico.ulisboa.pt";
 		frontend.addPoints(mail, 150);
 		
-		.activateUser(mail);
+		frontend.activateUser(mail);
 	}
 	
-	@Test (expected = EmailAlreadyExistsFault_Exception.class)
-	public void spendPointsSameUserTest() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test (expected = EmailAlreadyRegisteredException.class)
+	public void spendPointsSameUserTest() throws InvalidEmailAddressException, EmailAlreadyRegisteredException, InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException{
 		String mail = "user@tecnico.ulisboa.pt";
-		client.activateUser(mail);
-		client.spendPoints(mail, 50);
+		frontend.activateUser(mail);
+		frontend.spendPoints(mail, 50);
 		
-		client.activateUser(mail);
-	}*/
+		frontend.activateUser(mail);
+	}
 	
 	@Test
 	public void addAndSpendPointsTest() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException, BadInitFault_Exception {
@@ -116,27 +114,27 @@ public class ActionsIT extends BaseIT {
 		assertEquals(10, frontend.pointsBalance(mail2));
 	}
 	
-	/*@Test (expected = EmailAlreadyExistsFault_Exception.class)
-	public void addAndSpendPointsError1Test() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, EmailAlreadyExistsFault_Exception, NotEnoughBalanceFault_Exception, BadInitFault_Exception {
+	@Test(expected = EmailAlreadyRegisteredException.class)
+	public void addAndSpendPointsError1Test() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException, EmailAlreadyRegisteredException, BadInitFault_Exception {
 		String mail1 = "user1@tecnico.ulisboa.pt";
-		client.activateUser(mail1);
-		client.addPoints(mail1, 50);
+		frontend.activateUser(mail1);
+		frontend.addPoints(mail1, 50);
 		
 		String mail2 = "user2@tecnico.ulisboa.pt";
-		client.activateUser(mail2);
-		client.spendPoints(mail2, 50);
+		frontend.activateUser(mail2);
+		frontend.spendPoints(mail2, 50);
 		
-		assertEquals(150, client.pointsBalance(mail1));
-		assertEquals(50, client.pointsBalance(mail2));
+		assertEquals(150, frontend.pointsBalance(mail1));
+		assertEquals(50, frontend.pointsBalance(mail2));
 		
-		client.ctrlInit(10);
+		frontend.ctrlInit(10);
 		
-		client.activateUser(mail1);
-		client.activateUser(mail2);
+		frontend.activateUser(mail1);
+		frontend.activateUser(mail2);
 		
-		assertEquals(10, client.pointsBalance(mail1));
-		assertEquals(10, client.pointsBalance(mail2));
-	}*/
+		assertEquals(10, frontend.pointsBalance(mail1));
+		assertEquals(10, frontend.pointsBalance(mail2));
+	}
 	
 	@Test (expected = NotEnoughPointsException.class)
 	public void addAndSpendPointsError2Test() throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException, BadInitFault_Exception {
