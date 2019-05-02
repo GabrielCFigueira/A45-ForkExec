@@ -24,6 +24,9 @@
 		
 		<!-- instance number -->
 		<ws.i>1</ws.i>
+		
+		<!-- number of servers -->
+		<ws.n>3</ws.n>
 
 		<ws.host>localhost</ws.host>
 		<ws.port>8080</ws.port>
@@ -135,6 +138,7 @@
 						<argument>${uddi.url_with_pass}</argument>
 						<argument>${ws.name}</argument>
 						<argument>${ws.url}</argument>
+						<argument>${ws.n}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
