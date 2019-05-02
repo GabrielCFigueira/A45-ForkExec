@@ -77,6 +77,8 @@ public class HubPortImpl implements HubPortType {
 	/** Constructor receives a reference to the endpoint manager. */
 	public HubPortImpl(HubEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
+		if(endpointManager.getWsN() != null)
+			hub.setFrontEnd(Integer.parseInt(endpointManager.getWsN()), endpointManager.getUDDIUrl());
 	}
 	
 	// Main operations -------------------------------------------------------
@@ -357,6 +359,7 @@ public class HubPortImpl implements HubPortType {
 
 	//-------------------------------------------------------------------------
 	private List<String> getPointsServers(){
+		System.out.println("\n\nEndpoint N" + endpointManager.getWsN() + "\n\n");
 		List<String> orgNamesList = new ArrayList<String>();
 		try {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%"))
