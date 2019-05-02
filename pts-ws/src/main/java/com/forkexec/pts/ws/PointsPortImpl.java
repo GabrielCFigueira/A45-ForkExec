@@ -34,9 +34,11 @@ public class PointsPortImpl implements PointsPortType {
 	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
 		delayExecution();
 		TaggedBalance t = null;
+		System.out.println("getBalance() from user " + userEmail);
 		try {
 			t = balanceToTaggedBalance(Points.getInstance().getBalance(userEmail));
 		} catch (InvalidEmailAddressException e) {
+			System.out.println("Invalid user/email");
 			throwInvalidEmailFault(e.getMessage());
 		}
 		return t;
@@ -46,11 +48,14 @@ public class PointsPortImpl implements PointsPortType {
 	public void setBalance(String userEmail, TaggedBalance taggedBalance)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 		delayExecution();
+		System.out.println("setBalance() from user " + userEmail);
 		try {
 			Points.getInstance().setBalance(userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
 		} catch (InvalidEmailAddressException e) {
+			System.out.println("Invalid user/email");
 			throwInvalidEmailFault(e.getMessage());
 		} catch (InvalidNumberOfPointsException e) {
+			System.out.println("Invalid number of points: " + taggedBalance.getPoints());
 			throwInvalidPointsFault(e.getMessage());
 		}
 	}
@@ -72,21 +77,29 @@ public class PointsPortImpl implements PointsPortType {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append(wsName);
+
+		System.out.println("ctrlPing from Hub");
+
 		return builder.toString();
 	}
 
 	/** Return all variables to default values. */
 	@Override
 	public void ctrlClear() {
+		System.out.println("Resetting...");
 		Points.resetInstance();
 	}
 
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
+
+		System.out.println("ctrInit from Hub with startPoints as " + startPoints);
+
 		try {
 			Points.changeStartPoints(startPoints);
 		} catch (InvalidNumberOfPointsException e) {
+			System.out.println("Invalid number of points: " + startPoints);
 			throwBadInit(e.getMessage());
 		}
 	}
@@ -94,6 +107,9 @@ public class PointsPortImpl implements PointsPortType {
 	/** Sets a delay on the server response, in seconds (-1 disables responses) */
 	@Override
 	public void ctrlEnable(final int delay) {
+
+		System.out.println("ctrlEnable with delay as " + delay);
+
 		this.delay.set(delay);
 	}
 
@@ -131,6 +147,7 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	private void delayExecution() {
+		//System.out.println("delayExecution");
 		try {
 			if(this.delay.get() >= 0) {
 				Thread.sleep(this.delay.get() * 1000);
