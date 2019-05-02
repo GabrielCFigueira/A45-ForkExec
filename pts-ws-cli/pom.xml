@@ -25,6 +25,8 @@
 		<ws.url>http://${ws.host}:${ws.port}/pts-ws/endpoint</ws.url>
 
 		<ws.name>${pts.ws.name}${ws.i}</ws.name>
+		<ws.n>3</ws.n>
+		<ws.test>ping</ws.test>
 	</properties>
 	<dependencies>
 		<!-- JAX-WS -->
@@ -126,7 +128,8 @@
 					<mainClass>${mainclass}</mainClass>
 					<arguments>
 						<argument>${uddi.url}</argument>
-						<argument>${ws.name}</argument>
+						<argument>${ws.n}</argument>
+						<argument>${ws.test}</argument>
 					</arguments>
 				</configuration>
 			</plugin>

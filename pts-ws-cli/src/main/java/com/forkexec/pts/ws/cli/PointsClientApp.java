@@ -9,39 +9,39 @@ public class PointsClientApp {
 
 	public static void main(String[] args) throws Exception {
 		// Check arguments.
-		if (args.length == 0) {
+		if (args.length < 2) {
 			System.err.println("Argument(s) missing!");
-			System.err.println("Usage: java " + PointsClientApp.class.getName() + " wsURL OR uddiURL wsName");
+			System.err.println("Usage: java " + PointsClientApp.class.getName() + " uddiURL N [Test]");
 			return;
 		}
-		String uddiURL = null;
-		String wsName = null;
-		String wsURL = null;
-		if (args.length == 1) {
-			wsURL = args[0];
-		} else if (args.length >= 2) {
-			uddiURL = args[0];
-			wsName = args[1];
+
+		for (String var : args) {
+			System.out.println(var);
 		}
+		String uddiURL = args[0];
+		int n = Integer.parseInt(args[1]);
+		String testCase = args[2];
 
-		// Create client.
-		PointsClient client = null;
+		// Create frontend
+		PointsFrontEnd frontEnd = new PointsFrontEnd(n, uddiURL);
 
-		if (wsURL != null) {
-			System.out.printf("Creating client for server at %s%n", wsURL);
-			client = new PointsClient(wsURL);
-		} else if (uddiURL != null) {
-			System.out.printf("Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
-			client = new PointsClient(uddiURL, wsName);
+
+		switch(testCase){
+			case "ping":
+				System.out.println("Invoke ping()...");
+				String result = frontEnd.ctrlPing("client");
+				System.out.print("Result: ");
+				System.out.println(result);
+			break;
+			case "F1":
+				System.out.println("Starting test case F1");
+				System.out.println("Ending test case F1");
+			break;
+			case "F2":
+				System.out.println("Starting end case F2");
+				System.out.println("Ending test case F2");
+			break;
 		}
-
-		// The following remote invocation is just a basic example.
-		// The actual tests are made using JUnit.
-
-		System.out.println("Invoke ping()...");
-		String result = client.ctrlPing("client");
-		System.out.print("Result: ");
-		System.out.println(result);
 	}
 
 }
