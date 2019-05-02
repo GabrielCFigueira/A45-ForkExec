@@ -83,17 +83,14 @@ public class HubPortImpl implements HubPortType {
 	
 	// Main operations -------------------------------------------------------
 	
-	// ---------- DELETE??? ----------
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
-
-		/*try {
+		try {
 			hub.addUser(endpointManager.getUddiNaming().getUDDIUrl(), getPointsServers(), userId);
-		} catch (InvalidEmailAddressException | DuplicateUserException e) {
+		} catch (DuplicateUserException | InvalidUserIdException e) {
 			throwInvalidUserIdFault(e.getMessage());
-		}*/
+		}
 	}
-	// -------------------------------
 
 	@Override
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
@@ -359,7 +356,6 @@ public class HubPortImpl implements HubPortType {
 
 	//-------------------------------------------------------------------------
 	private List<String> getPointsServers(){
-		System.out.println("\n\nEndpoint N" + endpointManager.getWsN() + "\n\n");
 		List<String> orgNamesList = new ArrayList<String>();
 		try {
 			for(UDDIRecord e: endpointManager.getUddiNaming().listRecords("A45_Points%"))

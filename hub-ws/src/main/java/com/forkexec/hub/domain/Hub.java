@@ -119,19 +119,18 @@ public class Hub {
 	}
 
 	// ---------- DELETE??? ----------
-	/*public void addUser(String UDDIUrl, List<String> orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
-		PointsClient pointsClient = getPointsClient(UDDIUrl, orgName);
+	public void addUser(String UDDIUrl, List<String> orgName, String userId) throws DuplicateUserException, InvalidUserIdException {
 		if(userId == null)
 			throw new InvalidUserIdException("UserId set to null");
 		else if (_users.containsKey(userId))
 			throw new DuplicateUserException("User with Id: " + userId + " already exists");
 		try {
-			pointsClient.activateUser(userId);
-		} catch (EmailAlreadyExistsFault_Exception | InvalidEmailFault_Exception e) {
+			frontEnd.activateUser(userId);
+		} catch (InvalidEmailAddressException | EmailAlreadyRegisteredException e) {
 			throw new InvalidUserIdException(e.getMessage());
 		}
 		_users.put(userId, new User(userId));
-	}*/
+	}
 	// -------------------------------
 
 	public void loadAccount(String UDDIUrl, List<String> orgNames, String userId, int moneyToAdd,
