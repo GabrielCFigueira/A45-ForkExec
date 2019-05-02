@@ -47,7 +47,7 @@ import com.forkexec.pts.ws.cli.exception.*;
  */
 public class Hub {
 
-	private final PointsFrontEnd frontEnd = new PointsFrontEnd(3); //TODO: get number of replicas
+	private PointsFrontEnd frontEnd; //TODO: get number of replicas
 
 	// Singleton -------------------------------------------------------------
 
@@ -66,6 +66,10 @@ public class Hub {
 
 	public static synchronized Hub getInstance() {
 		return SingletonHolder.INSTANCE;
+	}
+	
+	public void setFrontEnd(int n, String UDDIUrl) {
+		this.frontEnd = new PointsFrontEnd(n, UDDIUrl);
 	}
 
 	private Map<String, User> _users = new TreeMap<String, User>();
