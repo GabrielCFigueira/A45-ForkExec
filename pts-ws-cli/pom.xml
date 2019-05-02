@@ -27,6 +27,8 @@
 		<ws.name>${pts.ws.name}${ws.i}</ws.name>
 		<ws.n>3</ws.n>
 		<ws.test>ping</ws.test>
+		<!-- To avoid mvn messing up async threads -->
+		<exec.cleanupDaemonThreads>false</exec.cleanupDaemonThreads>
 	</properties>
 	<dependencies>
 		<!-- JAX-WS -->

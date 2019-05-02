@@ -139,10 +139,10 @@ public class PointsFrontEnd {
 		}
 	}
 
-	public void ctrlEnable(int server, int delay) {
+	public void ctrlFail(int server, String failString) {
 		try {
 			PointsClient p = new PointsClient(endpoint.getUDDIUrl(), String.format("A45_Points%d", server));
-			p.ctrlEnable(delay);
+			p.ctrlFail(failString);
 		} catch (PointsClientException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

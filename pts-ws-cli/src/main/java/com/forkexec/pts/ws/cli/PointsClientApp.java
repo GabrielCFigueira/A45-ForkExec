@@ -15,9 +15,6 @@ public class PointsClientApp {
 			return;
 		}
 
-		for (String var : args) {
-			System.out.println(var);
-		}
 		String uddiURL = args[0];
 		int n = Integer.parseInt(args[1]);
 		String testCase = args[2];
@@ -35,6 +32,8 @@ public class PointsClientApp {
 			break;
 			case "F1":
 				System.out.println("Starting test case F1");
+				frontEnd.ctrlFail(1, "delay:5");
+				frontEnd.pointsBalance("a@b");
 				System.out.println("Ending test case F1");
 			break;
 			case "F2":

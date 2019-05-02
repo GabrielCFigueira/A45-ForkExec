@@ -120,8 +120,8 @@ public class PointsClient implements PointsPortType {
 	}
 
 	@Override
-	public void ctrlEnable(final int delay) {
-		port.ctrlEnable(delay);
+	public void ctrlFail(String failString) {
+		port.ctrlFail(failString);
 	}
 	
 	@Override

@@ -1,5 +1,8 @@
 package com.forkexec.pts.ws;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jws.WebService;
@@ -20,11 +23,12 @@ public class PointsPortImpl implements PointsPortType {
 	 * lifecycle.
 	 */
 	private final PointsEndpointManager endpointManager;
-	private AtomicInteger delay = new AtomicInteger(0);
+	private List<String> failWay;
 
 	/** Constructor receives a reference to the endpoint manager. */
 	public PointsPortImpl(final PointsEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
+		this.failWay = new ArrayList<>();
 	}
 
 	// Main operations -------------------------------------------------------
@@ -32,7 +36,7 @@ public class PointsPortImpl implements PointsPortType {
 	// QC-supporting methods
 	@Override
 	public TaggedBalance getBalance(String userEmail) throws InvalidEmailFault_Exception {
-		delayExecution();
+		failExecution();
 		TaggedBalance t = null;
 		System.out.printf("getBalance():\tuser '%s'", userEmail);
 		try {
@@ -48,7 +52,7 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public void setBalance(String userEmail, TaggedBalance taggedBalance)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		delayExecution();
+		failExecution();
 		System.out.printf("setBalance():\tuser '%s'\t<points: %d, tag: %d>\n", userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
 		try {
 			Points.getInstance().setBalance(userEmail, taggedBalance.getPoints(), taggedBalance.getTag());
@@ -89,6 +93,7 @@ public class PointsPortImpl implements PointsPortType {
 	public void ctrlClear() {
 		System.out.println("ctrlClear():\tResetting...");
 		Points.resetInstance();
+		this.failWay = new ArrayList<>();
 	}
 
 	/** Set variables with specific values. */
@@ -107,11 +112,9 @@ public class PointsPortImpl implements PointsPortType {
 
 	/** Sets a delay on the server response, in seconds (-1 disables responses) */
 	@Override
-	public void ctrlEnable(final int delay) {
-
-		System.out.printf("ctrlEnable():\tdelay: " + delay);
-
-		this.delay.set(delay);
+	public synchronized void ctrlFail(String failString) {
+		failWay = Arrays.asList(failString.split(":"));
+		System.out.printf("ctrlFail():\t%s\n", String.join(", ", failString));
 	}
 
 	// Exception helpers -----------------------------------------------------
@@ -147,17 +150,29 @@ public class PointsPortImpl implements PointsPortType {
 		return res;
 	}
 
-	private void delayExecution() {
+	private void failExecution() {
 		//System.out.println("delayExecution");
-		try {
-			if(this.delay.get() >= 0) {
-				Thread.sleep(this.delay.get() * 1000);
-			} else {
-				Thread.sleep(1000000);
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(failWay.isEmpty()) return;
+
+		System.out.printf("failExecution():\t%s", failWay.get(0));
+
+		switch(failWay.get(0)) {
+			case "delay":
+				System.out.printf(" for %d seconds\n", Integer.parseInt(failWay.get(1)));
+				try {
+					Thread.sleep(Integer.parseInt(failWay.get(1)) * 1000);
+				} catch(InterruptedException e) {}
+			break;
+			case "exit":
+				System.out.print('\n');
+				try { endpointManager.stop(); } catch(Exception e) {}
+				System.exit(0);
+			break;
+			case "exception":
+				System.out.print(" (throwing a NullPointerException)\n");
+				throw new NullPointerException("This is a test exception");
+			default:
+				System.out.print("not found\n");
 		}
 	}
 }
