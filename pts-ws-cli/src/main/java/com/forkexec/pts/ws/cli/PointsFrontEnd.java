@@ -48,9 +48,11 @@ public class PointsFrontEnd {
 	}
 
 	public void activateUser(String userEmail) throws InvalidEmailAddressException, EmailAlreadyRegisteredException {
-		if(user_lock.containsKey(userEmail)) {
+		if(userEmail == null)
+			throw new InvalidEmailAddressException(userEmail);
+		
+		if(user_lock.containsKey(userEmail))
 			throw new EmailAlreadyRegisteredException(userEmail);
-		}
 
 		// Check if email is valid, and adds value to cache
 		read(userEmail);
@@ -121,6 +123,7 @@ public class PointsFrontEnd {
 				/* move on */
 			}
 		}
+		user_cache = new ConcurrentHashMap<>();
 	}
 
 	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
@@ -176,8 +179,12 @@ public class PointsFrontEnd {
 		}
 
 		List<PointsClient> clients = getPointsClients();
+		
+		if(clients.size() < majority)
+			throw new RuntimeException();
 
 		List<Response<GetBalanceResponse>> responses = new ArrayList<Response<GetBalanceResponse>>();
+		
 		for(PointsClient client : clients)
 			responses.add(client.getBalanceAsync(userEmail));
 
@@ -185,7 +192,7 @@ public class PointsFrontEnd {
 		TaggedBalance balance = new TaggedBalance();
 		balance.setTag(-1);
 		while(nResponses < majority) {
-			if(responses.size() == 0) break; //TODO error
+			if(responses.isEmpty()) throw new RuntimeException();
 			for(int i=responses.size()-1; i >= 0; --i) {
 				if(responses.get(i).isDone()) {
 					TaggedBalance newTag = new TaggedBalance();
@@ -222,6 +229,9 @@ public class PointsFrontEnd {
 		write_lock.lock();
 
 		List<PointsClient> clients = getPointsClients();
+		
+		if(clients.size() < majority)
+			throw new RuntimeException();
 
 		List<Response<SetBalanceResponse>> responses = new ArrayList<Response<SetBalanceResponse>>();
 				
@@ -230,7 +240,7 @@ public class PointsFrontEnd {
 		
 		int nResponses = 0;
 		while(nResponses < majority) {
-			if(responses.size() == 0) break; //TODO error
+			if(responses.isEmpty()) throw new RuntimeException();
 			for(int i=responses.size()-1; i >= 0; --i) {
 				if(responses.get(i).isDone()) {
 					try {

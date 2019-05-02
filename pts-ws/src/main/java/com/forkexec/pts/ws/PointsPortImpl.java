@@ -20,12 +20,11 @@ public class PointsPortImpl implements PointsPortType {
 	 * lifecycle.
 	 */
 	private final PointsEndpointManager endpointManager;
-	private AtomicInteger delay;
+	private AtomicInteger delay = new AtomicInteger(0);
 
 	/** Constructor receives a reference to the endpoint manager. */
 	public PointsPortImpl(final PointsEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
-		this.delay.set(0);
 	}
 
 	// Main operations -------------------------------------------------------
