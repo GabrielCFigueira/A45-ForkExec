@@ -2,6 +2,8 @@ package com.forkexec.pts.ws.cli;
 
 import com.forkexec.pts.ws.cli.exception.EmailIsNotRegisteredException;
 import com.forkexec.pts.ws.cli.exception.InvalidEmailAddressException;
+import com.forkexec.pts.ws.cli.exception.InvalidNumberOfPointsException;
+import com.forkexec.pts.ws.cli.exception.NotEnoughPointsException;
 
 /**
  * Client application.
@@ -27,6 +29,10 @@ public class PointsClientApp {
 
 		// To help measure time taken
 		long start;
+		
+		// Threads
+		Thread thread1;
+		Thread thread2;
 
 		frontEnd.ctrlClear();
 		System.out.printf("Starting test case %s\n", testCase);
@@ -62,21 +68,21 @@ public class PointsClientApp {
 			case "F5": // Concurrent access: reads on same address
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
-				Thread thread1 = new Thread() {
+				thread1 = new Thread() {
 					public void run() {
 						try {
 							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
 						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+							
 						}
 					}
 				};
-				Thread thread2 = new Thread() {
+				thread2 = new Thread() {
 					public void run() {
 						try {
 							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
 						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+							
 						}
 					}
 				};
@@ -90,21 +96,21 @@ public class PointsClientApp {
 			case "F6": // Concurrent access: writes on same address
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
-				Thread thread1 = new Thread() {
+				thread1 = new Thread() {
 					public void run() {
 						try {
-							System.out.println(frontEnd.addPoints("bomdia@tecnico"));
-						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+							System.out.println(frontEnd.addPoints("bomdia@tecnico", 100));
+						} catch (InvalidEmailAddressException | InvalidNumberOfPointsException | EmailIsNotRegisteredException e) {
+							
 						}
 					}
 				};
-				Thread thread2 = new Thread() {
+				thread2 = new Thread() {
 					public void run() {
 						try {
-							System.out.println(frontEnd.spendPoints("bomdia@tecnico"));
-						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+							System.out.println(frontEnd.spendPoints("bomdia@tecnico", 100));
+						} catch (InvalidEmailAddressException | InvalidNumberOfPointsException | EmailIsNotRegisteredException | NotEnoughPointsException e) {
+							
 						}
 					}
 				};
@@ -119,21 +125,21 @@ public class PointsClientApp {
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
 
-				Thread thread1 = new Thread() {
+				thread1 = new Thread() {
 					public void run() {
 						try {
 							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
 						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+							
 						}
 					}
 				};
-				Thread thread2 = new Thread() {
+				thread2 = new Thread() {
 					public void run() {
 						try {
 							System.out.println(frontEnd.pointsBalance("boanoite@tecnico"));
 						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+							
 						}
 					}
 				};
@@ -151,21 +157,21 @@ public class PointsClientApp {
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
 
-				Thread thread1 = new Thread() {
+				thread1 = new Thread() {
 					public void run() {
 						try {
 							System.out.println(frontEnd.addPoints("bomdia@tecnico", 100));
-						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+						} catch (InvalidEmailAddressException | InvalidNumberOfPointsException | EmailIsNotRegisteredException e) {
+							
 						}
 					}
 				};
-				Thread thread2 = new Thread() {
+				thread2 = new Thread() {
 					public void run() {
 						try {
 							System.out.println(frontEnd.spendPoints("boanoite@tecnico", 100));
-						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							// TODO Auto-generated catch block
+						} catch (InvalidEmailAddressException | InvalidNumberOfPointsException | EmailIsNotRegisteredException | NotEnoughPointsException e) {
+							
 						}
 					}
 				};
