@@ -152,8 +152,6 @@ public class PointsClientApp {
 					}
 				};
 
-				frontEnd.pointsBalance("bomdia@tecnico");
-				frontEnd.pointsBalance("boanoite@tecnico");
 				start = System.currentTimeMillis();
 				thread1.start();
 				thread2.start();
@@ -185,6 +183,8 @@ public class PointsClientApp {
 					}
 				};
 
+				frontEnd.pointsBalance("bomdia@tecnico");
+				frontEnd.pointsBalance("boanoite@tecnico");
 				start = System.currentTimeMillis();
 				thread1.start();
 				thread2.start();

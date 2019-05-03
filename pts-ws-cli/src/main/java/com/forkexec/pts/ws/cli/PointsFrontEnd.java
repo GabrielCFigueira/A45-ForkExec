@@ -1,17 +1,14 @@
 package com.forkexec.pts.ws.cli;
 
 import java.util.List;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
 import com.forkexec.pts.ws.cli.exception.*;
@@ -52,6 +49,7 @@ public class PointsFrontEnd {
 		if(user_lock.containsKey(userEmail))
 			throw new EmailAlreadyRegisteredException(userEmail);
 
+		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
 		Lock read_lock = user_lock.get(userEmail).readLock();
 		read_lock.lock();
 
@@ -132,7 +130,6 @@ public class PointsFrontEnd {
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append("FrontEnd");
 
-		// FIXME try catch
 		for (PointsClient client : getPointsClients()) {
 			try {
 				builder.append("\n").append(client.ctrlPing("points client"));
@@ -170,8 +167,7 @@ public class PointsFrontEnd {
 			PointsClient p = new PointsClient(endpoint.getUDDIUrl(), String.format("A45_Points%d", server));
 			p.ctrlFail(failString);
 		} catch (PointsClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException();
 		}
 	}
 
