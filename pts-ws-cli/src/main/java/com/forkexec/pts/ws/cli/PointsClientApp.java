@@ -1,5 +1,8 @@
 package com.forkexec.pts.ws.cli;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.forkexec.pts.ws.cli.exception.EmailIsNotRegisteredException;
 import com.forkexec.pts.ws.cli.exception.InvalidEmailAddressException;
 import com.forkexec.pts.ws.cli.exception.InvalidNumberOfPointsException;
@@ -11,6 +14,21 @@ import com.forkexec.pts.ws.cli.exception.NotEnoughPointsException;
  * Looks for Points using UDDI and arguments provided
  */
 public class PointsClientApp {
+
+	public static List<Thread> createThreadsPointsBalance(PointsFrontEnd frontEnd, int num) {
+		List<Thread> threads = new ArrayList<>();
+		for(int i = 0; i < num; i++)
+			threads.add(new Thread() {
+				public void run() {
+					try {
+						System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
+					} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
+						
+					}
+				}
+			});
+		return threads;
+	}
 
 	public static void main(String[] args) throws Exception {
 		// Check arguments.
@@ -68,30 +86,16 @@ public class PointsClientApp {
 			case "F5": // Concurrent access: reads on same address
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
-				thread1 = new Thread() {
-					public void run() {
-						try {
-							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
-						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							
-						}
-					}
-				};
-				thread2 = new Thread() {
-					public void run() {
-						try {
-							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
-						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-							
-						}
-					}
-				};
 
-				thread1.start();
-				thread2.start();
+				List<Thread> threads = createThreadsPointsBalance(frontEnd, 10);
 
-				thread1.join();
-				thread2.join();
+				for (Thread thread : threads)
+					thread.start();
+				
+				for (Thread thread : threads)
+					thread.join();
+
+
 			break;
 			case "F6": // Concurrent access: writes on same address
 				frontEnd.ctrlFail(1, "delay:5");
@@ -154,8 +158,6 @@ public class PointsClientApp {
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
 
-				frontEnd.ctrlFail(1, "delay:5");
-				frontEnd.ctrlFail(2, "delay:5");
 
 				thread1 = new Thread() {
 					public void run() {
