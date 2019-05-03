@@ -12,22 +12,20 @@ geometry: margin=3cm
 ---
 
 
-    \newpage
-
 # Instalação e Configuração do projeto
 
 0. Buscar o código entregue
 
 ```
 git clone https://github.com/tecnico-distsys/A45-ForkExec.git
+cd A45-ForkExec
 git checkout SD_P2
 ```
 
 1. Instalar módulos
 
 ```
-cd A45-ForkExec/
-mvn install -DskipTests (TODO: ou ver -Dmaven-test)
+mvn install -DskipTests
 ```
 
 2. Colocar 3 servidores a correr (variar `N` entre 1 e 3):
@@ -43,7 +41,7 @@ mvn exec:java -Dws.i=N
 
 ```
 cd pts-ws-cli/
-mvn exec:java -Dws.test=Código-do-teste
+mvn exec:java -Dws.test=FX
 ```
 
 Por exemplo, para a primeira demonstração, seria `mvn exec:java -Dws.test=F1`
@@ -56,16 +54,6 @@ Por exemplo, para a primeira demonstração, seria `mvn exec:java -Dws.test=F1`
   - F4: Demonstração do mecanismo da cache -- o método `pointsBalance` é invocado 10 vezes,
         mas sem o mecanismo de cache, aumentando o tempo de teste.
   - F5: Demonstração da concorrência de _reads_ no mesmo _user_
-  - F5: Demonstração da concorrência de _writes_ no mesmo _user_
-  - F5: Demonstração da concorrência de _reads_ em diferentes _users_
-  - F5: Demonstração da concorrência de _writes_ em diferentes _users_
-
-
-## F2 -- Funcionamento em casos de falta
-
-3. Correr o seguinte comando
-
-```
-cd pts-ws-cli/
-mvn exec:java -Dws.test=F2
-```
+  - F6: Demonstração da concorrência de _writes_ no mesmo _user_
+  - F7: Demonstração da concorrência de _reads_ em diferentes _users_
+  - F8: Demonstração da concorrência de _writes_ em diferentes _users_
