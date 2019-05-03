@@ -25,8 +25,7 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.*;
 public class PointsFrontEnd {
 
 	private PointsFrontEndEndPointManager endpoint;
-
-	private static int nSERVERS;
+	
 	private static int majority;
 
 	/** Locking mechanism, per user, with read and write locks (allows multiple reads, and only 1 write) */
@@ -35,7 +34,6 @@ public class PointsFrontEnd {
 	private ConcurrentMap<String, TaggedBalance> user_cache;
 
 	public PointsFrontEnd(int num, String UDDIUrl){
-		nSERVERS = num;
 		majority = (num / 2) + 1;
 		try {
 			endpoint = new PointsFrontEndEndPointManager(UDDIUrl);
