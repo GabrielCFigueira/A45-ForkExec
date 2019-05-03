@@ -195,7 +195,7 @@ public class PointsFrontEnd {
 		TaggedBalance balance = new TaggedBalance();
 		balance.setTag(-1);
 		while(nResponses < majority) {
-			if(responses.isEmpty()) throw new RuntimeException();
+			if(responses.isEmpty()) throw new RuntimeException("Not enough servers for quorum consensus");
 			for(int i=responses.size()-1; i >= 0; --i) {
 				if(responses.get(i).isDone()) {
 					TaggedBalance newTag = new TaggedBalance();
