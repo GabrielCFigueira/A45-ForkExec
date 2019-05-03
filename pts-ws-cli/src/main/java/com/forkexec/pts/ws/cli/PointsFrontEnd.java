@@ -52,18 +52,34 @@ public class PointsFrontEnd {
 		if(user_lock.containsKey(userEmail))
 			throw new EmailAlreadyRegisteredException(userEmail);
 
+		Lock read_lock = user_lock.get(userEmail).readLock();
+		read_lock.lock();
+
 		// Check if email is valid, and adds value to cache
 		read(userEmail);
+		read_lock.unlock();
+
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailAddressException, EmailIsNotRegisteredException {
 		if(userEmail == null)
 			throw new InvalidEmailAddressException(userEmail);
-		return read(userEmail).getPoints();
+		
+		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
+		Lock read_lock = user_lock.get(userEmail).readLock();
+		read_lock.lock();
+		int balance = read(userEmail).getPoints();
+		read_lock.unlock();
+		return balance; 
+
 	}
 
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
+
+		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
+		Lock write_lock = user_lock.get(userEmail).writeLock();
+		write_lock.lock();
 
 		TaggedBalance balance = read(userEmail);
 
@@ -72,11 +88,17 @@ public class PointsFrontEnd {
 
 		write(userEmail, balance);
 
+		write_lock.unlock();
+
 		return balance.getPoints();
 	}
 
 	public int spendPoints(String userEmail, int pointsToSpend) throws InvalidEmailAddressException,
 			InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException {
+
+		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
+		Lock write_lock = user_lock.get(userEmail).writeLock();
+		write_lock.lock();
 
 		TaggedBalance balance = read(userEmail);
 		if (pointsToSpend < 0)
@@ -88,6 +110,8 @@ public class PointsFrontEnd {
 		balance.setTag(balance.getTag() + 1);
 
 		write(userEmail, balance);
+
+		write_lock.unlock();
 
 		return balance.getPoints();
 	}
@@ -170,14 +194,8 @@ public class PointsFrontEnd {
 	/** QC read. Uses value from cache, and if not, then it performs QC and puts value in cache */
 	public TaggedBalance read(String userEmail) throws InvalidEmailAddressException {
 
-		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
-		Lock read_lock = user_lock.get(userEmail).readLock();
-		read_lock.lock();
-
-		if(user_cache.containsKey(userEmail)) {
-			read_lock.unlock();
+		if(user_cache.containsKey(userEmail))
 			return user_cache.get(userEmail);
-		}
 
 		List<PointsClient> clients = getPointsClients();
 		
@@ -217,17 +235,12 @@ public class PointsFrontEnd {
 		}
 		
 		user_cache.put(userEmail, balance);
-		read_lock.unlock();
 		return balance;
 		
 	}
 	
 	/** QC write. Also updates the cache */
 	public boolean write(String userEmail, TaggedBalance balance) throws InvalidEmailAddressException, InvalidNumberOfPointsException {
-
-		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
-		Lock write_lock = user_lock.get(userEmail).writeLock();
-		write_lock.lock();
 
 		List<PointsClient> clients = getPointsClients();
 		
@@ -261,7 +274,6 @@ public class PointsFrontEnd {
 		}
 		
 		user_cache.put(userEmail, balance);
-		write_lock.unlock();
 		return true;
 	}
 

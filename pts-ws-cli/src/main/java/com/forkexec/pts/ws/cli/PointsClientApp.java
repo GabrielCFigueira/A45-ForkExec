@@ -1,8 +1,5 @@
 package com.forkexec.pts.ws.cli;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.forkexec.pts.ws.cli.exception.EmailIsNotRegisteredException;
 import com.forkexec.pts.ws.cli.exception.InvalidEmailAddressException;
 import com.forkexec.pts.ws.cli.exception.InvalidNumberOfPointsException;
@@ -14,21 +11,6 @@ import com.forkexec.pts.ws.cli.exception.NotEnoughPointsException;
  * Looks for Points using UDDI and arguments provided
  */
 public class PointsClientApp {
-
-	public static List<Thread> createThreadsPointsBalance(PointsFrontEnd frontEnd, int num) {
-		List<Thread> threads = new ArrayList<>();
-		for(int i = 0; i < num; i++)
-			threads.add(new Thread() {
-				public void run() {
-					try {
-						System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
-					} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
-						
-					}
-				}
-			});
-		return threads;
-	}
 
 	public static void main(String[] args) throws Exception {
 		// Check arguments.
@@ -86,16 +68,31 @@ public class PointsClientApp {
 			case "F5": // Concurrent access: reads on same address
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
-
-				List<Thread> threads = createThreadsPointsBalance(frontEnd, 10);
-
-				for (Thread thread : threads)
-					thread.start();
 				
-				for (Thread thread : threads)
-					thread.join();
+				thread1 = new Thread() {
+					public void run() {
+						try {
+							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
+						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
+							
+						}
+					}
+				};
+				thread2 = new Thread() {
+					public void run() {
+						try {
+							System.out.println(frontEnd.pointsBalance("bomdia@tecnico"));
+						} catch (InvalidEmailAddressException | EmailIsNotRegisteredException e) {
+							
+						}
+					}
+				};
 
+				thread1.start();
+				thread2.start();
 
+				thread1.join();
+				thread2.join();
 			break;
 			case "F6": // Concurrent access: writes on same address
 				frontEnd.ctrlFail(1, "delay:5");
@@ -103,7 +100,7 @@ public class PointsClientApp {
 				thread1 = new Thread() {
 					public void run() {
 						try {
-							System.out.println(frontEnd.addPoints("bomdia@tecnico", 100));
+							frontEnd.addPoints("bomdia@tecnico", 100);
 						} catch (InvalidEmailAddressException | InvalidNumberOfPointsException | EmailIsNotRegisteredException e) {
 							
 						}
@@ -112,7 +109,7 @@ public class PointsClientApp {
 				thread2 = new Thread() {
 					public void run() {
 						try {
-							System.out.println(frontEnd.spendPoints("bomdia@tecnico", 100));
+							frontEnd.spendPoints("bomdia@tecnico", 100);
 						} catch (InvalidEmailAddressException | InvalidNumberOfPointsException | EmailIsNotRegisteredException | NotEnoughPointsException e) {
 							
 						}
@@ -124,6 +121,7 @@ public class PointsClientApp {
 
 				thread1.join();
 				thread2.join();
+				System.out.println("100 = " + frontEnd.pointsBalance("bomdia@tecnico"));
 			break;
 			case "F7": // Concurrent access: reads on diferent addresses
 				frontEnd.ctrlFail(1, "delay:5");
@@ -158,6 +156,8 @@ public class PointsClientApp {
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
 
+				frontEnd.ctrlFail(1, "delay:5");
+				frontEnd.ctrlFail(2, "delay:5");
 
 				thread1 = new Thread() {
 					public void run() {
