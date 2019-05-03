@@ -44,7 +44,9 @@ public class PointsClientApp {
 				System.out.println(result);
 			break;
 			case "F1": // normal case
+				start = System.currentTimeMillis();
 				frontEnd.pointsBalance("a@b");
+				System.out.printf("Total time taken: %d ms\n", System.currentTimeMillis() - start);
 			break;
 			case "F2": // fault demonstration (delay)
 				frontEnd.ctrlFail(1, "delay:10");
@@ -88,11 +90,13 @@ public class PointsClientApp {
 					}
 				};
 
+				start = System.currentTimeMillis();
 				thread1.start();
 				thread2.start();
 
 				thread1.join();
 				thread2.join();
+				System.out.printf("Total time taken: %d ms\n", System.currentTimeMillis() - start);
 			break;
 			case "F6": // Concurrent access: writes on same address
 				frontEnd.ctrlFail(1, "delay:5");
@@ -116,12 +120,14 @@ public class PointsClientApp {
 					}
 				};
 
+				frontEnd.pointsBalance("bomdia@tecnico");
+				start = System.currentTimeMillis();
 				thread1.start();
 				thread2.start();
 
 				thread1.join();
 				thread2.join();
-				System.out.println("100 = " + frontEnd.pointsBalance("bomdia@tecnico"));
+				System.out.printf("Total time taken: %d ms\n", System.currentTimeMillis() - start);
 			break;
 			case "F7": // Concurrent access: reads on diferent addresses
 				frontEnd.ctrlFail(1, "delay:5");
@@ -146,16 +152,17 @@ public class PointsClientApp {
 					}
 				};
 
+				frontEnd.pointsBalance("bomdia@tecnico");
+				frontEnd.pointsBalance("boanoite@tecnico");
+				start = System.currentTimeMillis();
 				thread1.start();
 				thread2.start();
 
 				thread1.join();
 				thread2.join();
+				System.out.printf("Total time taken: %d ms\n", System.currentTimeMillis() - start);
 			break;
 			case "F8": // Concurrent access: writes on diferent addresses
-				frontEnd.ctrlFail(1, "delay:5");
-				frontEnd.ctrlFail(2, "delay:5");
-
 				frontEnd.ctrlFail(1, "delay:5");
 				frontEnd.ctrlFail(2, "delay:5");
 
@@ -178,11 +185,13 @@ public class PointsClientApp {
 					}
 				};
 
+				start = System.currentTimeMillis();
 				thread1.start();
 				thread2.start();
 
 				thread1.join();
 				thread2.join();
+				System.out.printf("Total time taken: %d ms\n", System.currentTimeMillis() - start);
 			break;
 		}
 		System.out.printf("Ending test case %s\n", testCase);

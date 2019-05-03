@@ -76,6 +76,8 @@ public class PointsFrontEnd {
 
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailAddressException, InvalidNumberOfPointsException, EmailIsNotRegisteredException {
+		if(userEmail == null)
+			throw new InvalidEmailAddressException(userEmail);
 
 		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
 		Lock write_lock = user_lock.get(userEmail).writeLock();
@@ -95,6 +97,8 @@ public class PointsFrontEnd {
 
 	public int spendPoints(String userEmail, int pointsToSpend) throws InvalidEmailAddressException,
 			InvalidNumberOfPointsException, EmailIsNotRegisteredException, NotEnoughPointsException {
+		if(userEmail == null)
+			throw new InvalidEmailAddressException(userEmail);
 
 		user_lock.putIfAbsent(userEmail, new ReentrantReadWriteLock());
 		Lock write_lock = user_lock.get(userEmail).writeLock();
